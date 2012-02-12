@@ -1,0 +1,137 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[11pt]{article}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{polski}
+\usepackage{listings}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{a4wide}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{caption}
+\usepackage{bm}
+\usepackage{color}
+%\usepackage{epstopdf}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newtheorem{definition}{Definicja}
+\newtheorem{theorem}{Twierdzenie}
+\newtheorem{example}{Przykład}
+\newtheorem{conclusion}{Wniosek}
+\newtheorem{fact}{Fakt}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{\LARGE \textbf{ The Revolution In Search Systems}\\
+                               Szkic koncepcyjny
+}
+\author{Przemysław Pastuszka\\ pastuszka.przemyslaw@gmail.com \and
+        Michał Rychlik\\ michal.rychlik21@op.pl \and
+        Piotr Olchawa\\ piotrekolchawa@gmail.com}
+\date{Wrocław, \today}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+    \lstset{language=C++}
+    \maketitle
+    \thispagestyle{empty}
+    \tableofcontents
+    \newpage
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \section{Motywacja}
+        Rozważmy następujący scenariusz internetowej giełdy reklam:
+        \begin{itemize}
+            \item użytkownik U odwiedza stronę internetową X. Strona X chciałaby wyświetlić U sprofilowane dla niego reklamy, mając wiedzę o jego preferencjach.
+            \item X wysyła w tym celu zapytanie do serwera pośredniczącego wymianą reklam S.
+            \item S przekazuje zapytanie do wszystkich znanych mu reklamodawców $R_{i}$.
+            \item Każdy z reklamodawców $R_{i}$ znajduje odpowiednie reklamy dla U i odsyła je do S wraz z ceną, jaką jest w stanie zapłacić za ich wyświetlenie
+            \item Mając odpowiedzi, S wybiera najlepszą ofertę i zwraca ją X
+            \item X wyświetla reklamy użytkownikowi U
+            \item $R_{i}$ wysyła należność pieniężną do S. S pobiera opłatę za pośrednictwo, resztę zapłaty wysyłając do X.
+        \end{itemize}
+        Wymagania stawiane bazie danych na serwerach reklamodawców $R_{i}$
+        \begin{itemize}
+            \item czas odpowiedzi 200ms (wymaganie stawiane przez S)
+            \item liczba obsługiwanych zapytań na 1 sekundę - 10 000
+        \end{itemize}
+        Biorąc pod uwagę dodatkowe założenie, że zbiór reklam w bazie nie zmienia się często, najważniejszą operacją wykonywaną na bazie danych jest SELECT.\\
+        Nie udało się nam znaleźć bazy o otwartym kodzie spełniającej powyższe wymagania, dlatego postanowiliśmy stworzyć TRISS.
+    \section{Obsługiwane operacje}
+        \subsection{Obsługiwane typy danych}
+            \begin{itemize}
+                \item typy numeryczne
+                \item typ tekstowy
+                \item lista homogeniczna
+            \end{itemize}
+        \subsection{Operacje na tabelach}
+            \begin{itemize}
+                \item CREATE ... FROM ... - stwórz tabelę o podanym schemacie i załaduj do niej dane z pliku
+                \item DROP - usuń tabelę
+                \item (opcjonalnie) MERGE tabR1 tabR2 tabDst - połącz dwie tabele o identycznym schemacie
+            \end{itemize}
+         \subsection{Zapytania SELECT}
+            Termy:
+             \begin{itemize}
+                \item Dla typów numerycznych i tekstowych:
+                    \begin{itemize}
+                        \item $a = b$
+                        \item $a \neq b$
+                    \end{itemize}
+                \item Dla typów numerycznych
+                    \begin{itemize}
+                        \item $a < b$
+                        \item $a > b$
+                    \end{itemize}
+                \item Dla typów listowych
+                    \begin{itemize}
+                        \item $a$ in list
+                        \item $a$ not in list
+                    \end{itemize}
+            \end{itemize}
+            Spójniki logiczne:
+            \begin{itemize}
+                \item AND
+                \item (opcjonalnie) OR
+            \end{itemize}
+    \section{Sposoby dostępu do bazy danych}
+        Na początek planujemy:
+        \begin{itemize}
+            \item
+                dostęp przez API = użycie naszej bazy jako zwykłej biblioteki.\\
+                Przykład proponowanego API dla operacji SELECT:
+        \begin{lstlisting}
+            Query q(tableName);
+            q.addConstraint(eq("colA",5));
+            q.addConstraint(includes("colB", "abcd")};
+            Result res = database.select(q);
+        \end{lstlisting}
+        \end{itemize}
+        W późniejszym terminie:
+        \begin{itemize}
+            \item Operacje definiowane za pomocą pewnego podzbioru SQL
+            \item Dostęp do bazy przez sieć w architekturze klient - serwer.
+        \end{itemize}
+    \section{Przewidywany harmonogram prac na najbliższe 2 tygodnie}
+        \subsection{Termin ukończenia - 16 luty}
+            \begin{itemize}
+                \item Przygotowanie szkicu
+                \item Uzgodnienie szczegółów technicznych:
+                    \begin{itemize}
+                        \item Standardy pisania kodu
+                        \item Używane biblioteki
+                    \end{itemize}
+                \item Rozpoczęcie prac nad pierwszym z prototypów
+            \end{itemize}
+        \subsection{Termin ukończenia - 23 luty}
+            \begin{itemize}
+                \item Zakończenie prac nad pierwszym prototypem
+                \item Rozpoczęcie prac nad drugim prototypem
+            \end{itemize}
+    \section{Prototypowanie}
+        Szybkość systemu jest kluczowa, dlatego chcielibyślmy wypróbować dwie różne struktury danych do realizacji powyższych zadań. Postanowiliśmy napisać dla nich prototypy i porównać ich wydajność w praktyce.\\Wspomniane pomysły omówimy na najbliższym spotkaniu.
+\end{document}
