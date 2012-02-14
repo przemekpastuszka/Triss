@@ -1,13 +1,11 @@
 #include <cstdio>
-#include "Column.h"
-#include "StringColumnField.h"
+#include "NumericalColumn.h"
 
 int main() {
-    Column c(10);
-    c.addField(new StringColumnField("baba", NULL));
-    c.addField(new StringColumnField("barbarian", NULL));
-    c.addField(new StringColumnField("ala has a half-dead cat", NULL));
+    NumericalColumn c;
+    c.init(10);
 
+    c.addField(5, 7);
     c.sort();
 
     return 0;

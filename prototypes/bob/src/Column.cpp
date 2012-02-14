@@ -8,14 +8,14 @@ Column::~Column() {
     delete [] fields;
 }
 
-void Column::addField(ColumnField *field) {
-    fields[currentSize++] = field;
-}
-
-bool columnFieldsComparision(ColumnField* a, ColumnField* b) {
+bool Column::compare(Column::Field* a, Column::Field* b) {
     return a -> compare(b) < 0;
 }
 
+void Column::addField(Field *field) {
+    fields[currentSize++] = field;
+}
+
 void Column::sort() {
-    std :: sort(fields, fields + currentSize, columnFieldsComparision);
+    std :: sort(fields, fields + currentSize, compare);
 }
