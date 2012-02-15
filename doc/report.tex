@@ -54,15 +54,33 @@
             \item X wyświetla reklamy użytkownikowi U
             \item $R_{i}$ wysyła należność pieniężną do S. S pobiera opłatę za pośrednictwo, resztę zapłaty wysyłając do X.
         \end{itemize}
-        Wymagania stawiane bazie danych na serwerach reklamodawców $R_{i}$
+        Okazuje się, że nie istnieją bazy danych o otwartym kodzie źródłówym, które byłyby przystosowane do pracy na serwerze reklamodawcy $R_{i}$ (a przynajmniej nie potrafiliśmy takich znaleźć). Stąd pomysł, aby stworzyć TRISS (The Revolution In Search Systems), wypełniającą tę lukę na rynku open source.
+    \section{Wymagania i charakterystyka bazy danych dla reklamodawcy}
+        \subsection{Wymagania wydajnościowe}
         \begin{itemize}
-            \item czas odpowiedzi 200ms (wymaganie stawiane przez S)
-            \item liczba obsługiwanych zapytań na 1 sekundę - 10 000
+            \item czas odpowiedzi na jedno zapytanie: 200ms
+                \begin{itemize}
+                    \item jeśli czas będzie dłuższy, S wykluczy $R_{i}$ z "walki" o wyświetlenie reklamy klientowi
+                \end{itemize}
+            \item liczba obsługiwanych zapytań: co najmniej 10k / sek.
         \end{itemize}
-        Biorąc pod uwagę dodatkowe założenie, że zbiór reklam w bazie nie zmienia się często, najważniejszą operacją wykonywaną na bazie danych jest SELECT.\\
-        Nie udało się nam znaleźć bazy o otwartym kodzie spełniającej powyższe wymagania, dlatego postanowiliśmy stworzyć TRISS.
-    \section{Obsługiwane operacje}
-        \subsection{Obsługiwane typy danych}
+        \subsection{Cechy charakterystyczne}
+        \begin{itemize}
+            \item liczba kolumn w tabeli jest zwykle duża (50 i więcej)
+            \item zadawane zapytania SELECT zwykle używają większości kolumn w tabeli do filtrowania wyników
+            \item rozmiar bazy jest rzędu kilku gigabajtów
+                \begin{itemize}
+                        \item wniosek: cała baza danych może rezydować w pamięci operacyjnej
+                \end{itemize}
+            \item dane w bazie zmieniają się bardzo rzadko
+                \begin{itemize}
+                        \item zamiast operacji insert, update, delete można użyć dropa na tabeli i załadować ją ponownie ze świeżymi danymi
+                        \item wniosek: problemy z transakcyjnością w takiej bazie zostają ograniczone do minimum
+                \end{itemize}
+            \item często interesuje nas tylko kilka pierwszych wyników zapytania (obsługa LIMIT jest pożądana)
+        \end{itemize}
+    \section{Operacje obsługiwane przez TRISS}
+        \subsection{Dostępne typy danych}
             \begin{itemize}
                 \item typy numeryczne
                 \item typ tekstowy
@@ -72,10 +90,10 @@
             \begin{itemize}
                 \item CREATE ... FROM ... - stwórz tabelę o podanym schemacie i załaduj do niej dane z pliku
                 \item DROP - usuń tabelę
-                \item (opcjonalnie) MERGE tabR1 tabR2 tabDst - połącz dwie tabele o identycznym schemacie
+                \item (opcjonalnie) MERGE tabSrc1 tabSrc2 tabDst - połącz dwie tabele o identycznym schemacie
             \end{itemize}
          \subsection{Zapytania SELECT}
-            Termy:
+            \subsubsection{Termy}
              \begin{itemize}
                 \item Dla typów numerycznych i tekstowych:
                     \begin{itemize}
@@ -93,21 +111,27 @@
                         \item $a$ not in list
                     \end{itemize}
             \end{itemize}
-            Spójniki logiczne:
+            \subsubsection{Spójniki logiczne}
             \begin{itemize}
                 \item AND
                 \item (opcjonalnie) OR
             \end{itemize}
-    \section{Sposoby dostępu do bazy danych}
+            \subsubsection{Pozostałe klauzule}
+            \begin{itemize}
+                \item LIMIT
+                \item (opcjonalnie) ORDER BY
+            \end{itemize}
+    \section{Sposoby dostępu do TRISS}
         Na początek planujemy:
         \begin{itemize}
             \item
-                dostęp przez API = użycie naszej bazy jako zwykłej biblioteki.\\
+                Dostęp przez API = użycie naszej bazy jako zwykłej biblioteki.\\
                 Przykład proponowanego API dla operacji SELECT:
         \begin{lstlisting}
             Query q(tableName);
             q.addConstraint(eq("colA",5));
             q.addConstraint(includes("colB", "abcd")};
+            q.limit(10);
             Result res = database.select(q);
         \end{lstlisting}
         \end{itemize}
@@ -119,7 +143,7 @@
     \section{Przewidywany harmonogram prac na najbliższe 2 tygodnie}
         \subsection{Termin ukończenia - 16 luty}
             \begin{itemize}
-                \item Przygotowanie szkicu
+                \item Przygotowanie szkicu dokumentacji (niniejszy dokument)
                 \item Uzgodnienie szczegółów technicznych:
                     \begin{itemize}
                         \item Standardy pisania kodu
