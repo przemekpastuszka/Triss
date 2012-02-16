@@ -2,15 +2,12 @@
 # Simple script generating test data - the csv-represented-
 # bid-requests batch file. Source content file should consist
 # of name, type of field and corresponding sample data in json format.
-import json
 import random
+from samples.content import sample_content
 
 class BidRequestGenerator:
-    def __init__(self, filename, seed):
+    def __init__(self, seed):
         random.seed(seed)
-        self.load_content(filename)
-    def load_content(self,filename):
-        self.bid_content = json.load(open(filename, 'r'))
     def gen_bid_req(self, params):
         bid = []
         for p in params:
@@ -18,7 +15,7 @@ class BidRequestGenerator:
             if random.randint(1,20) == 1:
                 random_param_content = ''
             else:
-                random_param_content = random.choice(self.bid_content[p])
+                random_param_content = random.choice(sample_content[p])
             bid.append(str(random_param_content))
         return ';'.join(bid) + '\n'
     def gen_bid_req_batch_file(self, filename, params, nrequests):
@@ -30,5 +27,12 @@ class BidRequestGenerator:
         finally:
             f.close()
 
-a = BidRequestGenerator("content.json", 10)
-a.gen_bid_req_batch_file('result1.csv', ['bar','foo','baz'], 100)
+if __name__ == '__main__':
+    import sys
+    if len(sys.argv) < 4:
+        print "Usage: ./generate.py <seed> <outfile> <ndocs> <par1> <par2> ."
+        sys.exit(1)
+    seed, outfile, ndocs = sys.argv[1:4]
+    params = sys.argv[4:]
+    a = BidRequestGenerator(seed)
+    a.gen_bid_req_batch_file(outfile, params, int(ndocs))
