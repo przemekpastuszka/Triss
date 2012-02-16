@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 #include <cstdarg>
-#include "NumericalListColumn.h"
+#include "../../src/columns/NumericalListColumn.h"
 
 double initialValues[] = {5, 12, 7, 8, 19, 1};
 

@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 #include <cstdarg>
-#include "NumericalColumn.h"
+#include "../../src/columns/NumericalColumn.h"
 
 class NumericalColumnTest : public ::testing::Test, public NumericalColumn {
 
