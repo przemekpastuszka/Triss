@@ -1,12 +1,8 @@
-#include <cstdio>
-#include "NumericalColumn.h"
+#include <gtest/gtest.h>
 
-int main() {
-    NumericalColumn c;
-    c.init(10);
 
-    c.addField(5, 7);
-    c.sort();
-
-    return 0;
+int main(int argc, char **argv) {
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }
+
