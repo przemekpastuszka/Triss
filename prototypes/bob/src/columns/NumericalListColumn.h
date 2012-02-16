@@ -11,11 +11,12 @@ class NumericalListColumn : public NumericalColumn {
         public:
         bool lastListElement;
 
-        virtual void updateNextFieldUsingMapping(int* mapping);
+        virtual void updateNextFieldUsingMapping(int* currentColumnMapping, int* nextColumnMapping);
     };
 
     public:
     void addField(std::list<double>& ls, int nextFieldId);
+    void add(void* value, int nextFieldId) { addField(*static_cast<std::list<double>*>(value), nextFieldId); }
 
     private:
     void addNumericalListField(double value, int nextField, bool isLastElement);

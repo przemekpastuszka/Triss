@@ -41,14 +41,14 @@ void Column::addField(Field *field) {
     fields[currentSize++] = field;
 }
 
-void Column::updateNextFieldIdsUsingMapping(int *mapping) {
+void Column::updateNextFieldIdsUsingMapping(int* currentColumnMapping, int *nextColumnMapping) {
     for(int i = 0; i < currentSize; ++i) {
-        fields[i] -> updateNextFieldUsingMapping(mapping);
+        fields[i] -> updateNextFieldUsingMapping(currentColumnMapping, nextColumnMapping);
     }
 }
 
-void Column::Field::updateNextFieldUsingMapping(int *mapping) {
-    nextFieldId = mapping[nextFieldId];
+void Column::Field::updateNextFieldUsingMapping(int* currentColumnMapping, int* nextColumnMapping) {
+    nextFieldId = nextColumnMapping[nextFieldId];
 }
 
 Column::~Column() {

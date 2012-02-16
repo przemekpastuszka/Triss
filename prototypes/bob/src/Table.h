@@ -5,22 +5,24 @@
 
 class Table {
     public:
-    enum DataType { NUMERICAL, STRING, NUMERICAL_LIST };
+    enum DataType {
+        NUMERICAL, STRING, NUMERICAL_LIST
+    };
 
     private:
     DataType* schema;
     Column** columns;
     int nrOfColumns;
+    void prepareCrossColumnPointers();
 
     public:
-    Table(int nrOfColumns, DataType* schema);
     ~Table();
-
-    void initCapacities(int* capacities);
-    void addRow(void** row);
+    void init(int nrOfColumns, DataType *schema, int *capacities);
+    void addRow(void **row);
     void prepareStructure();
-
-    int getNrOfColumns() { return nrOfColumns; }
+    int getNrOfColumns() {
+        return nrOfColumns;
+    }
 
 #ifdef TRISS_TEST
     Column** getColumns() { return columns; }

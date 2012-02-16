@@ -2,6 +2,7 @@
 
 #include <gtest/gtest.h>
 #include <cstdarg>
+#include <cstdlib>
 #include "../../src/columns/NumericalColumn.h"
 
 class NumericalColumnTest : public ::testing::Test, public NumericalColumn {
@@ -38,7 +39,7 @@ TEST_F(NumericalColumnTest, shouldCreateValidMapping) {
 
 TEST_F(NumericalColumnTest, shouldUpdateNextIdsUsingMapping) {
     int* mapping = getMappingFromCurrentToSortedPositions();
-    updateNextFieldIdsUsingMapping(mapping);
+    updateNextFieldIdsUsingMapping(NULL, mapping);
 
     int validNextFields[] = {0, 5, 3, 2, 4, 1};
     for(int i = 0; i < 6; ++i) {

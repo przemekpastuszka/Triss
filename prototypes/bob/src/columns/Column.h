@@ -8,7 +8,8 @@ class Column {
         int nextFieldId;
 
         virtual int compare(Field* other) = 0;
-        virtual void updateNextFieldUsingMapping(int* mapping);
+        virtual void updateNextFieldUsingMapping(int* currentColumnMapping, int* nextColumnMapping);
+        virtual void* getValue() = 0;
     };
     void addField(Field* field);
 
@@ -32,7 +33,9 @@ class Column {
 
     void sort();
     int* getMappingFromCurrentToSortedPositions();
-    void updateNextFieldIdsUsingMapping(int* mapping);
+    virtual void updateNextFieldIdsUsingMapping(int* currentColumnMapping, int *nextColumnMapping);
+
+    virtual void add(void* value, int nextFieldId) = 0;
 
 #ifdef TRISS_TEST
     Field** getFields() { return fields; }

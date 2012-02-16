@@ -8,6 +8,10 @@ int NumericalColumn::NumericalField::compare(Field *other) {
     return value > otherNumericalField -> value;
 }
 
+void* NumericalColumn::NumericalField::getValue() {
+    return &value;
+}
+
 void NumericalColumn::addField(double value, int nextFieldId) {
     NumericalField *field = new NumericalField();
     field -> value = value;

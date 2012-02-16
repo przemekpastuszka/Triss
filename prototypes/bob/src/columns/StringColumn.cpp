@@ -5,6 +5,10 @@ int StringColumn::StringField::compare(Field *other) {
     return value.compare(otherStringField-> value);
 }
 
+void* StringColumn::StringField::getValue() {
+    return &value;
+}
+
 void StringColumn::addField(const std :: string& value, int nextFieldId) {
     StringField *field = new StringField();
     field -> value = value;

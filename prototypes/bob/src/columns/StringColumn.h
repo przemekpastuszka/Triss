@@ -11,10 +11,12 @@ class StringColumn : public Column {
         std :: string value;
 
         virtual int compare(Field* other);
+        void* getValue();
     };
 
     public:
     void addField(const std :: string& value, int nextFieldId);
+    void add(void* value, int nextFieldId) { addField(*static_cast<std::string*>(value), nextFieldId); }
 };
 
 #endif  // PROTOTYPES_BOB_SRC_STRINGCOLUMN_H_

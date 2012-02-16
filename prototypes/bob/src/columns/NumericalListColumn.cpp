@@ -2,9 +2,12 @@
 
 using namespace std;
 
-void NumericalListColumn::NumericalListField::updateNextFieldUsingMapping(int *mapping) {
+void NumericalListColumn::NumericalListField::updateNextFieldUsingMapping(int* currentColumnMapping, int* nextColumnMapping) {
     if(lastListElement) {
-        nextFieldId = mapping[nextFieldId];
+        nextFieldId = nextColumnMapping[nextFieldId];
+    }
+    else {
+        nextFieldId = currentColumnMapping[nextFieldId];
     }
 }
 
