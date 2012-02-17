@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Simple script generating test data - the csv-represented-
-# bid-requests batch file. Source content file should consist
-# of name, type of field and corresponding sample data in json format.
+# bid-requests batch file. Sample content file consist of
+# dict in format: "param_name":[list_of_sample_values].
 import random
 from samples.values import sample_values
 
