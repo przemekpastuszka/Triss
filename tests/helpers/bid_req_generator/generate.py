@@ -3,7 +3,7 @@
 # bid-requests batch file. Source content file should consist
 # of name, type of field and corresponding sample data in json format.
 import random
-from samples.content import sample_content
+from samples.values import sample_values
 
 class BidRequestGenerator:
     def __init__(self, seed):
@@ -13,10 +13,18 @@ class BidRequestGenerator:
         for p in params:
             """ let 5% of fields be empty"""
             if random.randint(1,20) == 1:
-                random_param_content = ''
+                rand_param_content = ''
             else:
-                random_param_content = random.choice(sample_content[p])
-            bid.append(str(random_param_content))
+                # special case for content field value
+                # will refactor later
+                if type(sample_values[p]) == type({}):
+                    rand_param_content = sample_values[p][\
+                            random.choice(sample_values[p].keys())]
+                else:
+                    rand_param_content = random.choice(sample_values[p])
+            if type(rand_param_content) == type([]):
+                rand_param_content = ','.join(rand_param_content)
+            bid.append(str(rand_param_content))
         return ';'.join(bid) + '\n'
     def gen_bid_req_batch_file(self, filename, params, nrequests):
         try:
