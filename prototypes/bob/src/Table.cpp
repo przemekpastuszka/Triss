@@ -1,52 +1,48 @@
 #include <cstdlib>
+#include <string>
 #include "Table.h"
-#include "columns/NumericalColumn.h"
-#include "columns/NumericalListColumn.h"
-#include "columns/StringColumn.h"
 
-
-Column* generateColumn(Table::DataType type) {
+Column* generateColumn(Schema::DataType type) {
     switch(type) {
-        case Table::STRING:
-            return new StringColumn();
-        case Table::NUMERICAL:
-            return new NumericalColumn();
-        case Table::NUMERICAL_LIST:
-            return new NumericalListColumn();
+        case Schema::STRING:
+            return new ScalarColumn<std::string>();
+        case Schema::NUMERICAL:
+            return new ScalarColumn<double>();
+        case Schema::NUMERICAL_LIST:
+            return new ListColumn<double>();
+        case Schema::STRING_LIST:
+            return new ListColumn<std::string>();
     }
 }
 
 Table::~Table() {
-    for(int i = 0; i < nrOfColumns; ++i) {
+    for(unsigned int i = 0; i < this -> schema.size(); ++i) {
         delete columns[i];
     }
-    delete [] columns;
 }
 
-void Table::init(int nrOfColumns, DataType* schema, int *capacities) {
-    this -> schema = schema;
-    this -> nrOfColumns = nrOfColumns;
+Table::Table(const Schema& schema) {
+    this -> schema = schema.schema;
 
-    columns = new Column*[nrOfColumns];
-    for(int i = 0; i < nrOfColumns; ++i) {
-        columns[i] = generateColumn(schema[i]);
-        columns[i] -> init(capacities[i]);
+    columns.reserve(this -> schema.size());
+    for(unsigned int i = 0; i < this -> schema.size(); ++i) {
+        columns[i] = generateColumn(this -> schema[i]);
     }
 }
 
-void Table::addRow(void **row) {
+void Table::addRow(Row& row) {
     int firstColumnSize = columns[0] -> getSize();
-    for(int i = 0; i < nrOfColumns - 1; ++i) {
-        columns[i] -> add(row[i], columns[i + 1] -> getSize());
+    for(unsigned int i = 0; i < schema.size() - 1; ++i) {
+        columns[i] -> add(row.get(i), columns[i + 1] -> getSize());
     }
-    columns[nrOfColumns - 1] -> add(row[nrOfColumns - 1], firstColumnSize);
+    columns[schema.size() - 1] -> add(row.get(schema.size() - 1), firstColumnSize);
 }
 
 void Table::prepareCrossColumnPointers() {
     int* currentColumnMapping = NULL;
     int *nextColumnMapping = columns[0] -> getMappingFromCurrentToSortedPositions();
-    for(int i = 0; i < nrOfColumns; ++i){
-        int nextColumn = (i + 1) % nrOfColumns;
+    for(unsigned int i = 0; i < schema.size(); ++i){
+        int nextColumn = (i + 1) % schema.size();
         if(currentColumnMapping){
             delete [] currentColumnMapping;
         }
@@ -62,7 +58,9 @@ void Table::prepareCrossColumnPointers() {
 void Table::prepareStructure() {
     prepareCrossColumnPointers();
 
-    for(int i = 0; i < nrOfColumns; ++i) {
+    for(unsigned int i = 0; i < schema.size(); ++i) {
         columns[i] -> sort();
     }
 }
+
+

@@ -8,20 +8,22 @@
 #include "../src/Table.h"
 
 
+Schema::DataType schema[] = { Schema::NUMERICAL, Schema::NUMERICAL_LIST,
+        Schema::STRING };
+
+double numericColumn[] = { 7, 1, 8, 3 };
+std::string stringColumn[] = { "gazda", "mazda", "abba", "gaździna" };
+
+std::list<double>* listColumn;
+double listColumnDefinition[][3] = { { 1, 2 }, { 7 }, { 3 }, { 0, 10, 9 } };
+int listSizes[] = { 2, 1, 1, 3 };
+
 class TableTest : public testing::Test {
     public:
-
-    double *numericColumn;
-    Table::DataType* schema;
-    std::string* stringColumn;
-
-    std::list<double> listColumn[4];
-    Table table;
+    Table *table;
 
     void setUpListColumn() {
-        int listSizes[] = { 2, 1, 1, 3 };
-        double listColumnDefinition[][3] = { { 1, 2 }, { 7 }, { 3 }, { 0, 10, 9 } };
-
+        listColumn = new std::list<double>[4];
         for (int i = 0; i < 4; ++i) {
             insertToList(listColumn[i], listColumnDefinition[i], listSizes[i]);
         }
@@ -33,60 +35,25 @@ class TableTest : public testing::Test {
         }
     }
 
-    void** generateRow(int i) {
-        void** row = new void*[3];
-        row[0] = &numericColumn[i];
-        row[1] = &listColumn[i];
-        row[2] = &stringColumn[i];
-        return row;
-    }
-
-    void setUpNumericalColumn() {
-        numericColumn = new double[4];
-        numericColumn[0] = 7;
-        numericColumn[1] = 1;
-        numericColumn[2] = 8;
-        numericColumn[3] = 3;
-    }
-
-    void setUpStringColumn(){
-        stringColumn = new std::string[4];
-        stringColumn[0] = "gazda";
-        stringColumn[1] = "mazda";
-        stringColumn[2] = "abba";
-        stringColumn[3] = "gaździna";
-    }
-
-    void setUpSchema() {
-        schema = new Table::DataType[3];
-        schema[0] = Table::NUMERICAL;
-        schema[1] = Table::NUMERICAL_LIST;
-        schema[2] = Table::STRING;
-    }
-
     virtual void SetUp() {
-        setUpNumericalColumn();
-        setUpStringColumn();
-        setUpSchema();
-
-        int capacities[] = {10, 10, 10};
-
-        table.init(3, schema, capacities);
+        Schema s(schema, 3);
+        table = new Table(s);
 
         setUpListColumn();
         for(int i = 0; i < 4; ++i) {
-            void** row = generateRow(i);
-            table.addRow(row);
-            delete [] row;
+            Row row(s);
+            row.set<double>(0, numericColumn[i]);
+            row.set<std::list<double> >(1, listColumn[i]);
+            row.set<std::string >(2, stringColumn[i]);
+            table -> addRow(row);
         }
 
-        table.prepareStructure();
+        table -> prepareStructure();
     }
 
     virtual void TearDown() {
-        delete [] schema;
-        delete [] numericColumn;
-        delete [] stringColumn;
+        delete[] listColumn;
+        delete table;
     }
 };
 
@@ -96,19 +63,14 @@ TEST_F(TableTest, shouldSortElements) {
     std::string sortedStringColumn[] = {"abba", "gazda", "gaździna", "mazda"};
 
     for(int i = 0; i < 4; ++i) {
-        double value = *static_cast<double*>(table.getColumns()[0] -> getFields()[i] -> getValue());
-        ASSERT_EQ(sortedNumericalColumn[i], value);
+        ASSERT_EQ(sortedNumericalColumn[i], table -> getColumn<double>(0) -> getField(i) -> value);
     }
     for(int i = 0; i < 7; ++i) {
-        double value = *static_cast<double*>(table.getColumns()[1] -> getFields()[i] -> getValue());
-        ASSERT_EQ(sortedNumericalListColumn[i], value);
+        ASSERT_EQ(sortedNumericalListColumn[i], table -> getColumn<double>(1) -> getField(i) -> value);
     }
-
-// FIXME this is kind of problematic. Don't know why yet.
-//    for(int i = 0; i < 4; ++i) {
-//        std::string value = *static_cast<std::string*>(table.getColumns()[0] -> getFields()[i] -> getValue());
-//        ASSERT_EQ(sortedStringColumn[i], value);
-//    }
+    for(int i = 0; i < 4; ++i) {
+        ASSERT_EQ(sortedStringColumn[i], table -> getColumn<std::string>(2) -> getField(i) -> value);
+    }
 }
 
 TEST_F(TableTest, shouldSetUpValidPointers) {
@@ -117,15 +79,24 @@ TEST_F(TableTest, shouldSetUpValidPointers) {
     int stringColumnPointers[] = {3, 2, 1, 0};
 
     for(int i = 0; i < 4; ++i) {
-        int nextField = table.getColumns()[0] -> getFields()[i] -> nextFieldId;
+        int nextField = table -> getColumn<double>(0) -> getField(i) -> nextFieldId;
         ASSERT_EQ(numericalColumnPointers[i], nextField);
     }
     for(int i = 0; i < 7; ++i) {
-        int nextField = table.getColumns()[1] -> getFields()[i] -> nextFieldId;
+        int nextField = table -> getColumn<double>(1) -> getField(i) -> nextFieldId;
         ASSERT_EQ(numericalListColumnPointers[i], nextField);
     }
     for(int i = 0; i < 4; ++i) {
-        int nextField = table.getColumns()[2] -> getFields()[i] -> nextFieldId;
+        int nextField = table -> getColumn<double>(2) -> getField(i) -> nextFieldId;
         ASSERT_EQ(stringColumnPointers[i], nextField);
+    }
+}
+
+TEST_F(TableTest, shouldStoreInformationAboutListsEnds) {
+    bool numericalListEnds[] = {false, false, true, true, true, true, false};
+
+    for(int i = 0; i < 7; ++i) {
+        bool isLastElement = table -> getColumn<double>(1) -> getField(i) -> isLastListElement();
+        ASSERT_EQ(numericalListEnds[i], isLastElement);
     }
 }

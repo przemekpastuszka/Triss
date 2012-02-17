@@ -2,33 +2,34 @@
 
 #include <gtest/gtest.h>
 #include <cstdarg>
-#include "../../src/columns/NumericalListColumn.h"
+#include <list>
+#include "../../src/columns/Column.h"
 
 double initialValues[] = {5, 12, 7, 8, 19, 1};
 
-class NumericalListColumnTest : public ::testing::Test, public NumericalListColumn {
-    virtual void SetUp() {
-        init(6);
+class NumericalListColumnTest : public ::testing::Test {
 
+    public:
+    ListColumn<double> c;
+
+    virtual void SetUp() {
         std::list<double> ls;
         for(int i = 0; i < 6; ++i) {
             ls.push_back(initialValues[i]);
         }
 
-        addField(ls, 80);
+        c.add(&ls, 80);
     }
 };
 
 TEST_F(NumericalListColumnTest, shouldContainInitialElements) {
     for(int i = 0; i < 5; ++i) {
-        NumericalListField* field = static_cast<NumericalListField*>(getFields()[i]);
-        ASSERT_EQ(initialValues[i], field -> value);
-        ASSERT_EQ(i + 1, field -> nextFieldId);
-        ASSERT_FALSE(field -> lastListElement);
+        ASSERT_EQ(initialValues[i], c.getField(i) -> value);
+        ASSERT_EQ(i + 1, c.getField(i) -> nextFieldId);
+        ASSERT_FALSE(c.getField(i) -> isLastListElement());
     }
 
-    NumericalListField* field = static_cast<NumericalListField*>(getFields()[5]);
-    ASSERT_EQ(1, field -> value);
-    ASSERT_EQ(80, field -> nextFieldId);
-    ASSERT_TRUE(field -> lastListElement);
+    ASSERT_EQ(1, c.getField(5) -> value);
+    ASSERT_EQ(80, c.getField(5) -> nextFieldId);
+    ASSERT_TRUE(c.getField(5) -> isLastListElement());
 }

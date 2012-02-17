@@ -3,31 +3,31 @@
 #include <gtest/gtest.h>
 #include <cstdarg>
 #include <cstdlib>
-#include "../../src/columns/NumericalColumn.h"
+#include "../../src/columns/Column.h"
 
-class NumericalColumnTest : public ::testing::Test, public NumericalColumn {
+class NumericalColumnTest : public ::testing::Test {
+    public:
+    ScalarColumn<double> c;
 
     virtual void SetUp() {
-        init(6);
         double initialValues[] = {5, 12, 7, 8, 19, 1};
         for(int i = 0; i < 6; ++i) {
-            addField(initialValues[i], 5 - i);
+            c.add(&initialValues[i], 5 - i);
         }
     }
 };
 
 TEST_F(NumericalColumnTest, shouldBeSorted) {
-    sort();
+    c.sort();
 
     double sortedValues[] = {1, 5, 7, 8, 12, 19};
     for(int i = 0; i < 6; ++i) {
-        NumericalField* field = static_cast<NumericalField*>(getFields()[i]);
-        ASSERT_EQ(sortedValues[i], field -> value);
+        ASSERT_EQ(sortedValues[i], c.getField(i) -> value);
     }
 }
 
 TEST_F(NumericalColumnTest, shouldCreateValidMapping) {
-    int* mapping = getMappingFromCurrentToSortedPositions();
+    int* mapping = c.getMappingFromCurrentToSortedPositions();
 
     int validMapping[] = {1, 4, 2, 3, 5, 0};
     for(int i = 0; i < 6; ++i) {
@@ -38,12 +38,12 @@ TEST_F(NumericalColumnTest, shouldCreateValidMapping) {
 }
 
 TEST_F(NumericalColumnTest, shouldUpdateNextIdsUsingMapping) {
-    int* mapping = getMappingFromCurrentToSortedPositions();
-    updateNextFieldIdsUsingMapping(NULL, mapping);
+    int* mapping = c.getMappingFromCurrentToSortedPositions();
+    c.updateNextFieldIdsUsingMapping(NULL, mapping);
 
     int validNextFields[] = {0, 5, 3, 2, 4, 1};
     for(int i = 0; i < 6; ++i) {
-        ASSERT_EQ(validNextFields[i], getFields()[i] -> nextFieldId);
+        ASSERT_EQ(validNextFields[i], c.getField(i) -> nextFieldId);
     }
 
     delete [] mapping;
