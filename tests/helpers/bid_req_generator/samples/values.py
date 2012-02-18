@@ -4,6 +4,6 @@ from countries import countries
 from content import content
 sample_values = {
         "country": countries,
-        "age"    : range(100),
+        "age": range(14, 100),
         "content": content.values()
 }
