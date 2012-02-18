@@ -15,16 +15,16 @@ class BidRequestGenerator:
             if random.randint(1,20) == 1:
                 rand_param_content = ''
             else:
-                # special case for content field value
-                # will refactor later
-                if type(sample_values[p]) == type({}):
-                    rand_param_content = sample_values[p][\
-                            random.choice(sample_values[p].keys())]
+                # special case for list value
+                if type(sample_values[p][0]) == type([]):
+                    tmp   = random.choice(sample_values[p])
+                    nelem = random.randint(1,len(tmp))
+                    tmp   = random.sample(tmp,nelem)
+                    # convert it to comma delimited string
+                    rand_param_value = ','.join(tmp)
                 else:
-                    rand_param_content = random.choice(sample_values[p])
-            if type(rand_param_content) == type([]):
-                rand_param_content = ','.join(rand_param_content)
-            bid.append(str(rand_param_content))
+                    rand_param_value = random.choice(sample_values[p])
+            bid.append(str(rand_param_value))
         return ';'.join(bid) + '\n'
     def gen_bid_req_batch_file(self, filename, params, nrequests):
         try:

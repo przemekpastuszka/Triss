@@ -5,5 +5,5 @@ from content import content
 sample_values = {
         "country": countries,
         "age"    : range(100),
-        "content": content
+        "content": content.values()
 }
