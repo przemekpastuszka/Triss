@@ -4,3 +4,4 @@
 *.pdf
 *.csv
 *.pyc
+/nbproject/private/
