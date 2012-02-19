@@ -1,6 +1,11 @@
+/*
+* Copyright 2012 Przemysław Pastuszka
+*/
 #include <cstdlib>
 #include <string>
 #include "Table.h"
+#include "columns/ScalarColumn.h"
+#include "columns/ListColumn.h"
 
 Column* generateColumn(Schema::DataType type) {
     switch(type) {

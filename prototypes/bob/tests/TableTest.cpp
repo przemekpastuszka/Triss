@@ -1,3 +1,6 @@
+/*
+* Copyright 2012 Przemysław Pastuszka
+*/
 #define TRISS_TEST
 
 #include <gtest/gtest.h>

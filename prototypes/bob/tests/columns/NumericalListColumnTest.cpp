@@ -1,9 +1,12 @@
+/*
+* Copyright 2012 Przemysław Pastuszka
+*/
 #define TRISS_TEST
 
 #include <gtest/gtest.h>
 #include <cstdarg>
 #include <list>
-#include "../../src/columns/Column.h"
+#include "../../src/columns/ListColumn.h"
 
 double initialValues[] = {5, 12, 7, 8, 19, 1};
 

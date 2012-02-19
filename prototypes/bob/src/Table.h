@@ -1,3 +1,6 @@
+/*
+* Copyright 2012 Przemysław Pastuszka
+*/
 #ifndef PROTOTYPES_BOB_SRC_TABLE_H_
 #define PROTOTYPES_BOB_SRC_TABLE_H_
 
@@ -5,46 +8,8 @@
 #include <list>
 #include <algorithm>
 #include "columns/Column.h"
-
-
-class Schema {
-    public:
-    enum DataType {
-        NUMERICAL, STRING, NUMERICAL_LIST, STRING_LIST
-    };
-    std::vector<DataType> schema;
-
-    Schema(DataType* schema, int n) {
-        this -> schema.assign(schema, schema + n);
-    }
-};
-
-class Row {
-    private:
-    void** values;
-    int size;
-
-    public:
-    Row(const Schema& schema) {
-        size = schema.schema.size();
-        values = new void*[size];
-    }
-    ~Row() {
-        for(int i = 0; i < size; ++i) {
-            delete values[i];
-        }
-        delete [] values;
-    }
-
-    template <class T>
-    void set(int i, const T& value) {
-        values[i] = new T(value);
-    }
-
-    void* get(int i) {
-        return values[i];
-    }
-};
+#include "Schema.h"
+#include "Row.h"
 
 class Table {
     private:
