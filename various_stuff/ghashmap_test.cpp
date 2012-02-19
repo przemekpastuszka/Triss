@@ -9,10 +9,8 @@
 #include <iostream>
 
 
-struct eqstr
-{
-  bool operator()(const char* s1, const char* s2) const
-  {
+struct eqstr {
+  bool operator()(const char* s1, const char* s2) const {
     return (s1 == s2) || (s1 && s2 && strcmp(s1, s2) == 0);
   }
 };
@@ -52,11 +50,10 @@ protected:
         }
         va_end(argument_list);
 
-        assertHashMapSizeEqualTo(count);
         for (int i = 0; i < count; ++i) {
-            ASSERT_NE(hashMap.find(elements[i]), hashMap.end());
+           ASSERT_FALSE(hashMap.find(elements[i]) == hashMap.end());
         }
-        
+
         delete [] elements;
     }
 
@@ -64,7 +61,7 @@ protected:
         ASSERT_FALSE(hashMap.empty());
         ASSERT_EQ(count, hashMap.size());
     }
-    
+
     void assertThatHashMapHasCorrectValues(int count, ...) {
         va_list argument_list;
         va_start(argument_list, count);
@@ -74,12 +71,11 @@ protected:
         }
         va_end(argument_list);
 
-        assertHashMapSizeEqualTo(count);
         for (int i = 0; i < 2 * count; i += 2) {
-            ASSERT_NE(hashMap.find(elements[i]), hashMap.end());
+            ASSERT_FALSE(hashMap.find(elements[i]) == hashMap.end());
             ASSERT_EQ(hashMap[elements[i]], atoi(elements[i + 1]));
         }
-        
+
         delete [] elements;
     }
 };
@@ -108,14 +104,12 @@ TEST_F(DenseHashMapTest, shouldContainCorrectInitialValues) {
 
 
 TEST_F(DenseHashMapTest, shouldShortenHashMapAfterDeletes) {
-    hashMap.set_empty_key(NULL);
     hashMap.set_deleted_key("");
     hashMap.erase("february");
     assertHashMapSizeEqualTo(11);
 }
 
 TEST_F(DenseHashMapTest, shouldAddElement) {
-    hashMap.set_empty_key(NULL);
     hashMap["new_month"] = 30;
     assertHashMapSizeEqualTo(13);
     assertThatHashMapHasKeys(1, "new_month");
