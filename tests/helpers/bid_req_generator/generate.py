@@ -13,9 +13,9 @@ class BidRequestGenerator:
     def gen_bid_req(self, params):
         bid = []
         for p in params:
-            """ let 5% of fields be empty"""
+            # let 5% of fields be empty
             if random.randint(1, 20) == 1:
-                rand_param_content = ''
+                rand_param_value = ''
             else:
                 # special case for list value
                 if type(sample_values[p][0]) == type([]):
@@ -29,21 +29,32 @@ class BidRequestGenerator:
             bid.append(str(rand_param_value))
         return ';'.join(bid) + '\n'
 
-    def gen_bid_req_batch_file(self, filename, params, nrequests):
+    def gen_bid_req_batch_file(self, fd, params, nrequests):
         try:
-            f = open(filename, 'a')
             for i in xrange(nrequests):
                 bid_req = self.gen_bid_req(params)
-                f.write(bid_req)
+                fd.write(bid_req)
         finally:
-            f.close()
+            fd.close()
 
 if __name__ == '__main__':
     import sys
-    if len(sys.argv) < 4:
-        print "Usage: ./generate.py <seed> <outfile> <ndocs> <par1> <par2> ."
-        sys.exit(1)
-    seed, outfile, ndocs = sys.argv[1:4]
-    params = sys.argv[4:]
-    a = BidRequestGenerator(seed)
-    a.gen_bid_req_batch_file(outfile, params, int(ndocs))
+    import argparse
+    parser = argparse.ArgumentParser(
+        description='Generate bid request batch file')
+    parser.add_argument('-seed', metavar='S', type=int, nargs='?',
+                        default=1, help='a seed for generator')
+    parser.add_argument('-outfile', metavar='filename',
+                        type=argparse.FileType('w'), nargs='?',
+                        default=sys.stdout,
+                        help='name of file - where the result will be saved')
+    parser.add_argument('-ndocs', metavar='N', type=int, nargs='?',
+                        default=1,
+                        help='number of documents you want to generate')
+    parser.add_argument('-params', metavar='param', type=str, nargs='+',
+                        required=True,
+                        help='each document will be build from given\
+                                parameters (in given order)')
+    args = parser.parse_args()
+    a = BidRequestGenerator(args.seed)
+    a.gen_bid_req_batch_file(args.outfile, args.params, args.ndocs)
