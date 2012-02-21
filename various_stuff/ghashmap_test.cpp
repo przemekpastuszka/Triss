@@ -3,11 +3,13 @@
  */
 #include <gtest/gtest.h>
 #include <sparsehash/dense_hash_map>
-#include <cstdarg>
 #include <cstdlib>
 #include <ext/hash_map>
 #include <iostream>
+#include "Tools.h"
 
+#define ASSERT_THAT_HASH_MAP_HAS_KEYS(count, ...) INVOKE_WITH_VAR_ARGS(char*, assertThatHashMapHasKeys, count, __VA_ARGS__)
+#define ASSERT_THAT_HASH_MAP_HAS_CORRECT_VALUES(count, ...) INVOKE_WITH_VAR_ARGS(char*, assertThatHashMapHasCorrectValues, 2 * count, __VA_ARGS__)
 
 struct eqstr {
   bool operator()(const char* s1, const char* s2) const {
@@ -41,19 +43,10 @@ protected:
         ASSERT_EQ(0, hashMap.size());
     }
 
-    void assertThatHashMapHasKeys(int count, ...) {
-        va_list argument_list;
-        va_start(argument_list, count);
-        char** elements = new char*[count];
-        for(int i = 0; i < count; ++i) {
-            elements[i] = va_arg(argument_list, char*);
-        }
-        va_end(argument_list);
-
+    void assertThatHashMapHasKeys(int count, char** elements) {
         for (int i = 0; i < count; ++i) {
            ASSERT_FALSE(hashMap.find(elements[i]) == hashMap.end());
         }
-
         delete [] elements;
     }
 
@@ -62,33 +55,24 @@ protected:
         ASSERT_EQ(count, hashMap.size());
     }
 
-    void assertThatHashMapHasCorrectValues(int count, ...) {
-        va_list argument_list;
-        va_start(argument_list, count);
-        char** elements = new char*[2 * count];
-        for(int i = 0; i < 2 * count; ++i) {
-            elements[i] = va_arg(argument_list, char *);
-        }
-        va_end(argument_list);
-
-        for (int i = 0; i < 2 * count; i += 2) {
+    void assertThatHashMapHasCorrectValues(int count, char** elements) {
+        for (int i = 0; i < count; i += 2) {
             ASSERT_FALSE(hashMap.find(elements[i]) == hashMap.end());
             ASSERT_EQ(hashMap[elements[i]], atoi(elements[i + 1]));
         }
-
         delete [] elements;
     }
 };
 
 TEST_F(DenseHashMapTest, shouldContainInitialKeys) {
-    assertThatHashMapHasKeys(12, /**/ "january", "february", "march", "april",
+    ASSERT_THAT_HASH_MAP_HAS_KEYS(12, /**/ "january", "february", "march", "april",
                                       "may", "june", "july", "august",
                                       "september", "october", "november",
                                       "december");
 }
 
 TEST_F(DenseHashMapTest, shouldContainCorrectInitialValues) {
-    assertThatHashMapHasCorrectValues(12, /**/ "january", "31",
+    ASSERT_THAT_HASH_MAP_HAS_CORRECT_VALUES(12, /**/ "january", "31",
                                                "february", "29",
                                                "march", "31",
                                                "april", "30",
@@ -112,8 +96,8 @@ TEST_F(DenseHashMapTest, shouldShortenHashMapAfterDeletes) {
 TEST_F(DenseHashMapTest, shouldAddElement) {
     hashMap["new_month"] = 30;
     assertHashMapSizeEqualTo(13);
-    assertThatHashMapHasKeys(1, "new_month");
-    assertThatHashMapHasCorrectValues(1, "new_month", "30");
+    ASSERT_THAT_HASH_MAP_HAS_KEYS(1, "new_month");
+    ASSERT_THAT_HASH_MAP_HAS_CORRECT_VALUES(1, "new_month", "30");
 }
 
 TEST_F(DenseHashMapTest, shouldOverwriteElementWithSameKey) {
