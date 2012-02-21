@@ -5,3 +5,9 @@
 *.csv
 *.pyc
 /nbproject/private/
+*.out
+.project
+.cproject
+*.o
+*.d
+*.mk

@@ -8,9 +8,6 @@
 #include <iostream>
 #include "Tools.h"
 
-#define ASSERT_THAT_HASH_MAP_HAS_KEYS(count, ...) INVOKE_WITH_VAR_ARGS(char*, assertThatHashMapHasKeys, count, __VA_ARGS__)
-#define ASSERT_THAT_HASH_MAP_HAS_CORRECT_VALUES(count, ...) INVOKE_WITH_VAR_ARGS(char*, assertThatHashMapHasCorrectValues, 2 * count, __VA_ARGS__)
-
 struct eqstr {
   bool operator()(const char* s1, const char* s2) const {
     return (s1 == s2) || (s1 && s2 && strcmp(s1, s2) == 0);
@@ -43,11 +40,10 @@ protected:
         ASSERT_EQ(0, hashMap.size());
     }
 
-    void assertThatHashMapHasKeys(int count, char** elements) {
-        for (int i = 0; i < count; ++i) {
+    void assertThatHashMapHasKeys(std::vector<char*> elements) {
+        for (int i = 0; i < elements.size(); ++i) {
            ASSERT_FALSE(hashMap.find(elements[i]) == hashMap.end());
         }
-        delete [] elements;
     }
 
     void assertHashMapSizeEqualTo(int count) {
@@ -55,24 +51,23 @@ protected:
         ASSERT_EQ(count, hashMap.size());
     }
 
-    void assertThatHashMapHasCorrectValues(int count, char** elements) {
-        for (int i = 0; i < count; i += 2) {
+    void assertThatHashMapHasCorrectValues(std::vector<char*> elements) {
+        for (int i = 0; i < elements.size(); i += 2) {
             ASSERT_FALSE(hashMap.find(elements[i]) == hashMap.end());
             ASSERT_EQ(hashMap[elements[i]], atoi(elements[i + 1]));
         }
-        delete [] elements;
     }
 };
 
 TEST_F(DenseHashMapTest, shouldContainInitialKeys) {
-    ASSERT_THAT_HASH_MAP_HAS_KEYS(12, /**/ "january", "february", "march", "april",
+    assertThatHashMapHasKeys(Tools::vector<char*>(12, /**/ "january", "february", "march", "april",
                                       "may", "june", "july", "august",
                                       "september", "october", "november",
-                                      "december");
+                                      "december"));
 }
 
 TEST_F(DenseHashMapTest, shouldContainCorrectInitialValues) {
-    ASSERT_THAT_HASH_MAP_HAS_CORRECT_VALUES(12, /**/ "january", "31",
+    assertThatHashMapHasCorrectValues(Tools::vector<char*>(24, /**/ "january", "31",
                                                "february", "29",
                                                "march", "31",
                                                "april", "30",
@@ -83,7 +78,7 @@ TEST_F(DenseHashMapTest, shouldContainCorrectInitialValues) {
                                                "september", "30",
                                                "october", "31",
                                                "november", "30",
-                                               "december", "31");
+                                               "december", "31"));
 }
 
 
@@ -96,8 +91,8 @@ TEST_F(DenseHashMapTest, shouldShortenHashMapAfterDeletes) {
 TEST_F(DenseHashMapTest, shouldAddElement) {
     hashMap["new_month"] = 30;
     assertHashMapSizeEqualTo(13);
-    ASSERT_THAT_HASH_MAP_HAS_KEYS(1, "new_month");
-    ASSERT_THAT_HASH_MAP_HAS_CORRECT_VALUES(1, "new_month", "30");
+    assertThatHashMapHasKeys(Tools::vector<char*>(1, "new_month"));
+    assertThatHashMapHasCorrectValues(Tools::vector<char*>(2, "new_month", "30"));
 }
 
 TEST_F(DenseHashMapTest, shouldOverwriteElementWithSameKey) {

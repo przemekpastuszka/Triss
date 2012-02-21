@@ -2,8 +2,6 @@
 #include "list.h"
 #include "Tools.h"
 
-#define ASSERT_THAT_LIST_IS_EQUAL_TO(count, ...) INVOKE_WITH_VAR_ARGS(int, assertThatListIsEqualTo, count, __VA_ARGS__)
-
 class ListTest : public testing::Test {
 protected:
     List<int> list;
@@ -19,17 +17,11 @@ protected:
         ASSERT_EQ(0, list.getSize());
     }
 
-
-    void assertThatListIsEqualTo(int count, int* elements) {
-        assertThatListIsEqualTo(elements, count);
-        delete [] elements;
-    }
-
-    void assertThatListIsEqualTo(int* elements, int count) {
-        assertListSizeEqualTo(count);
-        assertElementsEqualityUsingGet(elements, count);
-        assertFrontAndBackEquality(elements, count);
-        assertIteratorElementsEquality(elements, count);
+    void assertThatListIsEqualTo(std::vector<int> elements) {
+        assertListSizeEqualTo(elements.size());
+        assertElementsEqualityUsingGet(elements);
+        assertFrontAndBackEquality(elements);
+        assertIteratorElementsEquality(elements);
     }
 
     void assertListSizeEqualTo(int count) {
@@ -37,21 +29,21 @@ protected:
         ASSERT_EQ(count, list.getSize());
     }
 
-    void assertElementsEqualityUsingGet(int* elements, int count) {
-        for(int i = 0; i < count; ++i) {
+    void assertElementsEqualityUsingGet(std::vector<int>& elements) {
+        for(int i = 0; i < elements.size(); ++i) {
             ASSERT_EQ(elements[i], list.getElementAt(i));
         }
     }
 
-    void assertFrontAndBackEquality(int* elements, int count) {
+    void assertFrontAndBackEquality(std::vector<int>& elements) {
         ASSERT_EQ(elements[0], list.getFront());
-        ASSERT_EQ(elements[count - 1], list.getBack());
+        ASSERT_EQ(elements[elements.size() - 1], list.getBack());
     }
 
-    void assertIteratorElementsEquality(int* elements, int count) {
+    void assertIteratorElementsEquality(std::vector<int>& elements) {
         List<int> :: Iterator it = list.getIterator();
 
-        for(int i = 0; i < count; ++i) {
+        for(int i = 0; i < elements.size(); ++i) {
             ASSERT_TRUE(it.hasNext());
             ASSERT_EQ(elements[i], it.next());
         }
@@ -60,18 +52,18 @@ protected:
 };
 
 TEST_F(ListTest, shouldContainInitialElements) {
-    ASSERT_THAT_LIST_IS_EQUAL_TO(4, /**/ 0, 1, 2, 3);
+    assertThatListIsEqualTo(Tools::vector<int>(4, /**/ 0, 1, 2, 3));
 }
 
 TEST_F(ListTest, shouldShortenTheListAfterPops) {
     ASSERT_EQ(0, list.popFront());
-    ASSERT_THAT_LIST_IS_EQUAL_TO(3, /**/ 1, 2, 3);
+    assertThatListIsEqualTo(Tools::vector<int>(3, /**/ 1, 2, 3));
 
     ASSERT_EQ(3, list.popBack());
-    ASSERT_THAT_LIST_IS_EQUAL_TO(2, /**/ 1, 2);
+    assertThatListIsEqualTo(Tools::vector<int>(2, /**/ 1, 2));
 
     ASSERT_EQ(2, list.popBack());
-    ASSERT_THAT_LIST_IS_EQUAL_TO(1, /**/ 1);
+    assertThatListIsEqualTo(Tools::vector<int>(1, /**/ 1));
 
     ASSERT_EQ(1, list.popFront());
     assertThatListIsEmpty();
@@ -79,23 +71,23 @@ TEST_F(ListTest, shouldShortenTheListAfterPops) {
 
 TEST_F(ListTest, shouldAddElementsWithPush) {
 	list.pushFront(7);
-	ASSERT_THAT_LIST_IS_EQUAL_TO(5, /**/ 7, 0, 1, 2, 3);
+	assertThatListIsEqualTo(Tools::vector<int>(5, /**/ 7, 0, 1, 2, 3));
 
 	list.pushBack(22);
-	ASSERT_THAT_LIST_IS_EQUAL_TO(6, /**/ 7, 0, 1, 2, 3, 22);
+	assertThatListIsEqualTo(Tools::vector<int>(6, /**/ 7, 0, 1, 2, 3, 22));
 
 	list.pushBack(13);
-	ASSERT_THAT_LIST_IS_EQUAL_TO(7, /**/ 7, 0, 1, 2, 3, 22, 13);
+	assertThatListIsEqualTo(Tools::vector<int>(7, /**/ 7, 0, 1, 2, 3, 22, 13));
 }
 
 TEST_F(ListTest, shouldAddElementsWithInsert) {
 	list.insert(24, 2);
-	ASSERT_THAT_LIST_IS_EQUAL_TO(5, /**/ 0, 1, 24, 2, 3);
+	assertThatListIsEqualTo(Tools::vector<int>(5, /**/ 0, 1, 24, 2, 3));
 }
 
 TEST_F(ListTest, shouldRemoveElementAtPosition) {
 	list.remove(2);
-	ASSERT_THAT_LIST_IS_EQUAL_TO(3, /**/ 0, 1, 3);
+	assertThatListIsEqualTo(Tools::vector<int>(3, /**/ 0, 1, 3));
 }
 
 TEST_F(ListTest, shouldMakeVariousOperationCorrectly) {
@@ -110,7 +102,7 @@ TEST_F(ListTest, shouldMakeVariousOperationCorrectly) {
 	list.insert(10, 1);
 	list.remove(2);
 
-	ASSERT_THAT_LIST_IS_EQUAL_TO(4, /**/ 0, 10, 20, 30);
+	assertThatListIsEqualTo(Tools::vector<int>(4, /**/ 0, 10, 20, 30));
 }
 
 int main(int argc, char **argv) {
