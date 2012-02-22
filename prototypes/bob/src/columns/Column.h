@@ -7,6 +7,10 @@
 #include <algorithm>
 #include "Fields.h"
 
+struct Range {
+    int left, right;
+};
+
 class Column {
     public:
     virtual int getSize() const = 0;
@@ -16,6 +20,7 @@ class Column {
     virtual void updateNextFieldIdsUsingMapping(int* currentColumnMapping, int *nextColumnMapping) = 0;
 
     virtual void add(void* value, int nextFieldId) = 0;
+    virtual Range findRange(void* left, void* right) = 0;
 };
 
 template <class T>
@@ -30,12 +35,16 @@ class TypedColumn : public Column {
         }
     };
 
+    int binarySearch(const T& element, bool isLowerBound);
+
     public:
     virtual Field<T>* getField(unsigned int i) = 0;
 
     public:
     int* getMappingFromCurrentToSortedPositions();
     void updateNextFieldIdsUsingMapping(int* currentColumnMapping, int *nextColumnMapping);
+
+    Range findRange(void* left, void* right);
 };
 
 template <class T>
@@ -63,5 +72,37 @@ void TypedColumn<T>::updateNextFieldIdsUsingMapping(int* currentColumnMapping, i
         getField(i) -> updateNextFieldUsingMapping(currentColumnMapping, nextColumnMapping);
     }
 }
+
+template<class T> int TypedColumn<T>::binarySearch(const T& element, bool isLowerBound) {
+    int p = 0, q = getSize() - 1;
+    while(p < q) {
+        int d = (p + q) / 2;
+        bool goLeft = isLowerBound ? element <= getField(d) -> value : element < getField(d) -> value;
+        if(goLeft) {
+            q = d - 1;
+        }
+        else {
+            p = d + 1;
+        }
+    }
+    if(isLowerBound) {
+        return element <= getField(p) -> value ? p : p + 1;
+    }
+    else {
+        return element >= getField(p) -> value ? p : p - 1;
+    }
+}
+
+template<class T> Range TypedColumn<T>::findRange(void* left, void* right) {
+    Range range;
+    range.left = binarySearch(*static_cast<T*>(left), true);
+    range.right = binarySearch(*static_cast<T*>(right), false);
+    if(range.left >= getSize() || range.right < 0) {
+        range.left = range.right = -1;
+    }
+    return range;
+}
+
+
 
 #endif  // PROTOTYPES_BOB_SRC_COLUMN_H_
