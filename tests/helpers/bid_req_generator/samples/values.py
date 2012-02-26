@@ -17,5 +17,10 @@ sample_values = {
         'country': parse('samples/countries'),
         'content': parse('samples/content'),
         'browser': parse('samples/browser_ids'),
-        'resolution': parse('samples/resolutions')
+        'resolution': parse('samples/resolutions'),
+        'language': parse('samples/languages'),
+        'sex': parse('samples/sex'),
+        'name': parse('samples/names'),
+        'music': parse('samples/music'),
+        'hobby': parse('samples/hobbies')
 }

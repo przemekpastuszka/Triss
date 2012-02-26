@@ -64,7 +64,7 @@ import argparse
 
 class ListParamNames(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        print "Param names:\n"
+        print "Param names (total %s):" % len(sample_values.keys())
         for pname in sorted(sample_values.keys()):
             print pname
         sys.exit()
