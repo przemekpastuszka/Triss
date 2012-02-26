@@ -87,7 +87,8 @@ if __name__ == '__main__':
                         help='each document will be build from given\
                                 parameters (in given order)')
     parser.add_argument('-l', '--list-param-names',
-                        action=ListParamNames, nargs=0)
+                        action=ListParamNames, nargs=0,
+                        help='lists available parameter names and exits')
     args = parser.parse_args()
     a = BidRequestGenerator(args.seed)
     a.gen_bid_req_batch_file(args.outfile, args.params, args.ndocs)

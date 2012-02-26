@@ -20,7 +20,10 @@ sample_values = {
         'resolution': parse('samples/resolutions'),
         'language': parse('samples/languages'),
         'sex': parse('samples/sex'),
+        'job': parse('samples/jobs'),
         'name': parse('samples/names'),
         'music': parse('samples/music'),
-        'hobby': parse('samples/hobbies')
+        'hobby': parse('samples/hobbies'),
+        'movie_genre': parse('samples/movie_genres'),
+        'religion': parse('samples/religions')
 }
