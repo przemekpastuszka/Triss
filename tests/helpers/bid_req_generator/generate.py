@@ -63,7 +63,7 @@ import argparse
 
 
 class ListParamNames(argparse.Action):
-    def __call__(self,parser,namespace,values,option_string=None):
+    def __call__(self, parser, namespace, values, option_string=None):
         print "Param names:\n"
         for pname in sorted(sample_values.keys()):
             print pname
@@ -72,21 +72,22 @@ class ListParamNames(argparse.Action):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Generate bid request batch file')
-    parser.add_argument('-seed', metavar='S', type=int, nargs='?',
+    parser.add_argument('-s', '--seed', metavar='S', type=int, nargs='?',
                         default=1, help='a seed for generator')
-    parser.add_argument('-outfile', metavar='filename',
+    parser.add_argument('-o', '--outfile', metavar='filename',
                         type=argparse.FileType('w'), nargs='?',
                         default=sys.stdout,
                         help='name of file - where the result will be saved')
-    parser.add_argument('-ndocs', metavar='N', type=int, nargs='?',
+    parser.add_argument('-n', '--ndocs', metavar='N', type=int, nargs='?',
                         default=1,
                         help='number of documents you want to generate')
-    parser.add_argument('-params', metavar='pname:ptype:max_len',
+    parser.add_argument('-p', '--params', metavar='pname:ptype:max_len',
                         type=three_colon_separated_vals, nargs='+',
                         required=True,
                         help='each document will be build from given\
                                 parameters (in given order)')
-    parser.add_argument('--list-param-names', action=ListParamNames,nargs=0)
+    parser.add_argument('-l', '--list-param-names',
+                        action=ListParamNames, nargs=0)
     args = parser.parse_args()
     a = BidRequestGenerator(args.seed)
     a.gen_bid_req_batch_file(args.outfile, args.params, args.ndocs)
