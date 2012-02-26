@@ -3,6 +3,7 @@
 # bid-requests batch file. Sample content file consist of
 # dict in format: "param_name":[list_of_sample_values].
 import random
+import sys
 from samples.values import sample_values
 
 
@@ -12,20 +13,21 @@ class BidRequestGenerator:
 
     def gen_bid_req(self, params):
         bid = []
-        for p in params:
+        for pname, ptype, max_len in params:
             # let 5% of fields be empty
             if random.randint(1, 20) == 1:
                 rand_param_value = ''
             else:
                 # special case for list value
-                if type(sample_values[p][0]) == type([]):
-                    tmp = random.choice(sample_values[p])
-                    nelem = random.randint(1, len(tmp))
-                    tmp = random.sample(tmp, nelem)
+                #if type(sample_values[p][0]) == type([]):
+                if ptype == 'list':
+                    vals = sample_values[pname]
+                    nelem = random.randint(1, max_len)
+                    vals = random.sample(vals, nelem)
                     # convert it to comma delimited string
-                    rand_param_value = ','.join(tmp)
+                    rand_param_value = ','.join(vals)
                 else:
-                    rand_param_value = random.choice(sample_values[p])
+                    rand_param_value = random.choice(sample_values[pname])
             bid.append(str(rand_param_value))
         return ';'.join(bid) + '\n'
 
@@ -37,9 +39,31 @@ class BidRequestGenerator:
         finally:
             fd.close()
 
+
+def three_colon_separated_vals(string):
+    """ param argument parser """
+    try:
+        pname, ptype, max_len = string.split(':')
+        if pname not in sample_values.keys():
+            msg = 'Invalid param name %s' % pname
+            raise argparse.ArgumentTypeError(msg)
+        if ptype == 'list':
+            max_len = int(max_len)
+            if max_len < 0 or max_len > len(sample_values[pname]):
+                max_len = len(sample_values[pname])
+        elif ptype != '':
+            msg = 'Invalid param type %s\n' % ptype
+            msg += 'Should be "list" or empty'
+            raise argparse.ArgumentTypeError(msg)
+        return [pname, ptype, max_len]
+    except ValueError, msg:
+        raise argparse.ArgumentTypeError(msg)
+
+import sys
+import argparse
+
+
 if __name__ == '__main__':
-    import sys
-    import argparse
     parser = argparse.ArgumentParser(
         description='Generate bid request batch file')
     parser.add_argument('-seed', metavar='S', type=int, nargs='?',
@@ -51,7 +75,8 @@ if __name__ == '__main__':
     parser.add_argument('-ndocs', metavar='N', type=int, nargs='?',
                         default=1,
                         help='number of documents you want to generate')
-    parser.add_argument('-params', metavar='param', type=str, nargs='+',
+    parser.add_argument('-params', metavar='pname:ptype:max_len',
+                        type=three_colon_separated_vals, nargs='+',
                         required=True,
                         help='each document will be build from given\
                                 parameters (in given order)')
