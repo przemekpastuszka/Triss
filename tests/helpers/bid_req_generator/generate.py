@@ -59,9 +59,15 @@ def three_colon_separated_vals(string):
     except ValueError, msg:
         raise argparse.ArgumentTypeError(msg)
 
-import sys
 import argparse
 
+
+class ListParamNames(argparse.Action):
+    def __call__(self,parser,namespace,values,option_string=None):
+        print "Param names:\n"
+        for pname in sorted(sample_values.keys()):
+            print pname
+        sys.exit()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -80,6 +86,7 @@ if __name__ == '__main__':
                         required=True,
                         help='each document will be build from given\
                                 parameters (in given order)')
+    parser.add_argument('--list-param-names', action=ListParamNames,nargs=0)
     args = parser.parse_args()
     a = BidRequestGenerator(args.seed)
     a.gen_bid_req_batch_file(args.outfile, args.params, args.ndocs)

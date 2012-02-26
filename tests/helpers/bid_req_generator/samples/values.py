@@ -13,7 +13,9 @@ def parse(filename):
 sample_values = {
         'empty': [''],
         'age': [str(a) for a in range(14, 100)],
+        'os': parse('samples/operating_systems'),
         'country': parse('samples/countries'),
         'content': parse('samples/content'),
-        'browser': parse('samples/browser_ids')
+        'browser': parse('samples/browser_ids'),
+        'resolution': parse('samples/resolutions')
 }
