@@ -1,8 +1,8 @@
 /*
 * Copyright 2012 Przemysław Pastuszka
 */
-#ifndef PROTOTYPES_BOB_SRC_TABLE_H_
-#define PROTOTYPES_BOB_SRC_TABLE_H_
+#ifndef PROTOTYPES_COMMON_SRC_TABLE_H_
+#define PROTOTYPES_COMMON_SRC_TABLE_H_
 
 #include <string>
 #include <list>
@@ -12,18 +12,16 @@
 #include "Row.h"
 
 class Table {
-    private:
+    protected:
     std::vector<Schema::DataType> schema;
     std::vector<Column*> columns;
-
-    void prepareCrossColumnPointers();
 
     public:
     Table(const Schema& schema);
     ~Table();
 
     void addRow(Row& row);
-    void prepareStructure();
+    virtual void prepareStructure() = 0;
     int getNrOfColumns() const {
         return schema.size();
     }
@@ -36,4 +34,4 @@ class Table {
 #endif
 };
 
-#endif  // PROTOTYPES_BOB_SRC_TABLE_H_
+#endif  // PROTOTYPES_COMMON_SRC_TABLE_H_

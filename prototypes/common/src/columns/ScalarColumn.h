@@ -1,8 +1,8 @@
 /*
 * Copyright 2012 Przemysław Pastuszka
 */
-#ifndef SCALARCOLUMN_H_
-#define SCALARCOLUMN_H_
+#ifndef PROTOTYPES_COMMON_SRC_COLUMNS_SCALARCOLUMN_H_
+#define PROTOTYPES_COMMON_SRC_COLUMNS_SCALARCOLUMN_H_
 
 #include <algorithm>
 #include <vector>
@@ -31,4 +31,4 @@ class ScalarColumn : public TypedColumn<T> {
     }
 };
 
-#endif /* SCALARCOLUMN_H_ */
+#endif /* PROTOTYPES_COMMON_SRC_COLUMNS_SCALARCOLUMN_H_ */

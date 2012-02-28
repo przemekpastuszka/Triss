@@ -8,7 +8,7 @@
 #include <cstdio>
 #include <list>
 #include <string>
-#include "../src/Table.h"
+#include "../src/BobTable.h"
 
 
 Schema::DataType schema[] = { Schema::NUMERICAL, Schema::NUMERICAL_LIST,
@@ -23,7 +23,7 @@ int listSizes[] = { 2, 1, 1, 3 };
 
 class TableTest : public testing::Test {
     public:
-    Table *table;
+    BobTable *table;
 
     void setUpListColumn() {
         listColumn = new std::list<double>[4];
@@ -40,7 +40,7 @@ class TableTest : public testing::Test {
 
     virtual void SetUp() {
         Schema s(schema, 3);
-        table = new Table(s);
+        table = new BobTable(s);
 
         setUpListColumn();
         for(int i = 0; i < 4; ++i) {

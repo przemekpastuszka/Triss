@@ -1,7 +1,7 @@
 /*
 * Copyright 2012 Przemysław Pastuszka
 */
-#ifndef ROW_H_
+#ifndef PROTOTYPES_COMMON_SRC_ROW_H_
 #define ROW_H_
 
 class Row {
@@ -32,4 +32,4 @@ class Row {
 };
 
 
-#endif /* ROW_H_ */
+#endif /* PROTOTYPES_COMMON_SRC_ROW_H_ */

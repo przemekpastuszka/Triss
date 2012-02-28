@@ -1,8 +1,8 @@
 /*
 * Copyright 2012 Przemysław Pastuszka
 */
-#ifndef FIELDS_H_
-#define FIELDS_H_
+#ifndef PROTOTYPES_COMMON_SRC_COLUMNS_FIELDS_H_
+#define PROTOTYPES_COMMON_SRC_COLUMNS_FIELDS_H_
 
 template <class T>
 class Field {
@@ -43,4 +43,4 @@ class ListField : public Field<T> {
 };
 
 
-#endif /* FIELDS_H_ */
+#endif /* PROTOTYPES_COMMON_SRC_COLUMNS_FIELDS_H_ */

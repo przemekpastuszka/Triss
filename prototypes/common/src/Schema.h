@@ -1,8 +1,8 @@
 /*
 * Copyright 2012 Przemysław Pastuszka
 */
-#ifndef SCHEMA_H_
-#define SCHEMA_H_
+#ifndef PROTOTYPES_COMMON_SRC_SCHEMA_H_
+#define PROTOTYPES_COMMON_SRC_SCHEMA_H_
 
 #include <vector>
 
@@ -19,4 +19,4 @@ class Schema {
 };
 
 
-#endif /* SCHEMA_H_ */
+#endif /* PROTOTYPES_COMMON_SRC_SCHEMA_H_ */

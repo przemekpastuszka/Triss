@@ -43,29 +43,3 @@ void Table::addRow(Row& row) {
     columns[schema.size() - 1] -> add(row.get(schema.size() - 1), firstColumnSize);
 }
 
-void Table::prepareCrossColumnPointers() {
-    int* currentColumnMapping = NULL;
-    int *nextColumnMapping = columns[0] -> getMappingFromCurrentToSortedPositions();
-    for(unsigned int i = 0; i < schema.size(); ++i){
-        int nextColumn = (i + 1) % schema.size();
-        if(currentColumnMapping){
-            delete [] currentColumnMapping;
-        }
-        currentColumnMapping = nextColumnMapping;
-        nextColumnMapping = columns[nextColumn] -> getMappingFromCurrentToSortedPositions();
-        columns[i] -> updateNextFieldIdsUsingMapping(currentColumnMapping, nextColumnMapping);
-    }
-
-    delete [] currentColumnMapping;
-    delete [] nextColumnMapping;
-}
-
-void Table::prepareStructure() {
-    prepareCrossColumnPointers();
-
-    for(unsigned int i = 0; i < schema.size(); ++i) {
-        columns[i] -> sort();
-    }
-}
-
-

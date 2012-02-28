@@ -4,6 +4,7 @@
 # dict in format: "param_name":[list_of_sample_values].
 import random
 import sys
+import argparse
 from samples.values import sample_values
 
 
@@ -58,8 +59,6 @@ def three_colon_separated_vals(string):
         return [pname, ptype, max_len]
     except ValueError, msg:
         raise argparse.ArgumentTypeError(msg)
-
-import argparse
 
 
 class ListParamNames(argparse.Action):

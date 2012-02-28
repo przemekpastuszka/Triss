@@ -1,8 +1,8 @@
 /*
 * Copyright 2012 Przemysław Pastuszka
 */
-#ifndef LISTCOLUMN_H_
-#define LISTCOLUMN_H_
+#ifndef PROTOTYPES_COMMON_SRC_COLUMNS_LISTCOLUMN_H_
+#define PROTOTYPES_COMMON_SRC_COLUMNS_LISTCOLUMN_H_
 
 #include <algorithm>
 #include <list>
@@ -48,4 +48,4 @@ class ListColumn : public TypedColumn<T> {
     }
 };
 
-#endif /* LISTCOLUMN_H_ */
+#endif /* PROTOTYPES_COMMON_SRC_COLUMNS_LISTCOLUMN_H_ */
