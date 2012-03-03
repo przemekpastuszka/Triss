@@ -21,9 +21,9 @@ std::list<double>* listColumn;
 double listColumnDefinition[][3] = { { 1, 2 }, { 7 }, { 3 }, { 0, 10, 9 } };
 int listSizes[] = { 2, 1, 1, 3 };
 
-class TableTest : public testing::Test {
+class BobTableTest : public testing::Test {
     public:
-    BobTable *table;
+    BobTable *bobTable;
 
     void setUpListColumn() {
         listColumn = new std::list<double>[4];
@@ -40,7 +40,9 @@ class TableTest : public testing::Test {
 
     virtual void SetUp() {
         Schema s(schema, 3);
-        table = new BobTable(s);
+        bobTable = new BobTable(s);
+
+        Table* table = bobTable;
 
         setUpListColumn();
         for(int i = 0; i < 4; ++i) {
@@ -56,50 +58,50 @@ class TableTest : public testing::Test {
 
     virtual void TearDown() {
         delete[] listColumn;
-        delete table;
+        delete bobTable;
     }
 };
 
-TEST_F(TableTest, shouldSortElements) {
+TEST_F(BobTableTest, shouldSortElements) {
     double sortedNumericalColumn[] = {1, 3, 7, 8};
     double sortedNumericalListColumn[] = {0, 1, 2, 3, 7, 9, 10};
     std::string sortedStringColumn[] = {"abba", "gazda", "gaździna", "mazda"};
 
     for(int i = 0; i < 4; ++i) {
-        ASSERT_EQ(sortedNumericalColumn[i], table -> getColumn<double>(0) -> getField(i) -> value);
+        ASSERT_EQ(sortedNumericalColumn[i], bobTable -> getColumn<double>(0) -> getField(i) -> value);
     }
     for(int i = 0; i < 7; ++i) {
-        ASSERT_EQ(sortedNumericalListColumn[i], table -> getColumn<double>(1) -> getField(i) -> value);
+        ASSERT_EQ(sortedNumericalListColumn[i], bobTable -> getColumn<double>(1) -> getField(i) -> value);
     }
     for(int i = 0; i < 4; ++i) {
-        ASSERT_EQ(sortedStringColumn[i], table -> getColumn<std::string>(2) -> getField(i) -> value);
+        ASSERT_EQ(sortedStringColumn[i], bobTable -> getColumn<std::string>(2) -> getField(i) -> value);
     }
 }
 
-TEST_F(TableTest, shouldSetUpValidPointers) {
+TEST_F(BobTableTest, shouldSetUpValidPointers) {
     int numericalColumnPointers[] = {4, 0, 1, 3};
     int numericalListColumnPointers[] = {6, 2, 1, 0, 3, 2, 5};
     int stringColumnPointers[] = {3, 2, 1, 0};
 
     for(int i = 0; i < 4; ++i) {
-        int nextField = table -> getColumn<double>(0) -> getField(i) -> nextFieldId;
+        int nextField = bobTable -> getColumn<double>(0) -> getField(i) -> nextFieldId;
         ASSERT_EQ(numericalColumnPointers[i], nextField);
     }
     for(int i = 0; i < 7; ++i) {
-        int nextField = table -> getColumn<double>(1) -> getField(i) -> nextFieldId;
+        int nextField = bobTable -> getColumn<double>(1) -> getField(i) -> nextFieldId;
         ASSERT_EQ(numericalListColumnPointers[i], nextField);
     }
     for(int i = 0; i < 4; ++i) {
-        int nextField = table -> getColumn<double>(2) -> getField(i) -> nextFieldId;
+        int nextField = bobTable -> getColumn<double>(2) -> getField(i) -> nextFieldId;
         ASSERT_EQ(stringColumnPointers[i], nextField);
     }
 }
 
-TEST_F(TableTest, shouldStoreInformationAboutListsEnds) {
+TEST_F(BobTableTest, shouldStoreInformationAboutListsEnds) {
     bool numericalListEnds[] = {false, false, true, true, true, true, false};
 
     for(int i = 0; i < 7; ++i) {
-        bool isLastElement = table -> getColumn<double>(1) -> getField(i) -> isLastListElement();
+        bool isLastElement = bobTable -> getColumn<double>(1) -> getField(i) -> isLastListElement();
         ASSERT_EQ(numericalListEnds[i], isLastElement);
     }
 }

@@ -1,8 +1,8 @@
 /*
 * Copyright 2012 Przemysław Pastuszka
 */
-#ifndef PROTOTYPES_COMMON_SRC_COLUMNS_COLUMN_H_
-#define PROTOTYPES_COMMON_SRC_COLUMNS_COLUMN_H_
+#ifndef PROTOTYPES_BOB_SRC_COLUMNS_COLUMN_H_
+#define PROTOTYPES_BOB_SRC_COLUMNS_COLUMN_H_
 
 #include <algorithm>
 #include "Fields.h"
@@ -13,7 +13,7 @@ struct Range {
 
 class Column {
     public:
-    virtual int getSize() const = 0;
+    virtual unsigned int getSize() const = 0;
 
     virtual void sort() = 0;
     virtual int* getMappingFromCurrentToSortedPositions() = 0;
@@ -105,4 +105,4 @@ template<class T> Range TypedColumn<T>::findRange(void* left, void* right) {
 
 
 
-#endif  // PROTOTYPES_COMMON_SRC_COLUMNS_COLUMN_H_
+#endif  // PROTOTYPES_BOB_SRC_COLUMNS_COLUMN_H_

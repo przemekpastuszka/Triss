@@ -1,8 +1,8 @@
 /*
 * Copyright 2012 Przemysław Pastuszka
 */
-#ifndef PROTOTYPES_COMMON_SRC_COLUMNS_SCALARCOLUMN_H_
-#define PROTOTYPES_COMMON_SRC_COLUMNS_SCALARCOLUMN_H_
+#ifndef PROTOTYPES_BOB_SRC_COLUMNS_SCALARCOLUMN_H_
+#define PROTOTYPES_BOB_SRC_COLUMNS_SCALARCOLUMN_H_
 
 #include <algorithm>
 #include <vector>
@@ -19,7 +19,7 @@ class ScalarColumn : public TypedColumn<T> {
     }
 
     public:
-    int getSize() const { return fields.size(); }
+    unsigned int getSize() const { return fields.size(); }
     void sort() {
         std::sort(fields.begin(), fields.end());
     }
@@ -31,4 +31,4 @@ class ScalarColumn : public TypedColumn<T> {
     }
 };
 
-#endif /* PROTOTYPES_COMMON_SRC_COLUMNS_SCALARCOLUMN_H_ */
+#endif /* PROTOTYPES_BOB_SRC_COLUMNS_SCALARCOLUMN_H_ */

@@ -16,6 +16,5 @@ def build_project_with_tests(output, sources):
     inputs = get_objects_at(sources) + [main_test_object]
     Program(output, inputs, LIBS=['gtest', 'pthread'])
 
-build_project_with_tests('tests/commons_test', ['common/src', 'common/tests'])
 build_project_with_tests('tests/bob_test', ['common/src', 'bob/src', 'bob/tests'])
 build_project_with_tests('tests/alice_test', ['common/src', 'alice/src', 'alice/tests'])
