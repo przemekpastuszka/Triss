@@ -1,8 +1,8 @@
 /*
 * Copyright 2012 Przemysław Pastuszka
 */
-#ifndef PROTOTYPES_COMMON_SRC_BOBTABLE_H_
-#define PROTOTYPES_COMMON_SRC_BOBTABLE_H_
+#ifndef PROTOTYPES_BOB_SRC_BOBTABLE_H_
+#define PROTOTYPES_BOB_SRC_BOBTABLE_H_
 
 #include "../../common/src/Table.h"
 
@@ -15,5 +15,5 @@ class BobTable : public Table {
     void prepareStructure();
 };
 
-#endif  // PROTOTYPES_COMMON_SRC_BOBTABLE_H_
+#endif  // PROTOTYPES_BOB_SRC_BOBTABLE_H_
 
