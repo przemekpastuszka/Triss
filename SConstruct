@@ -16,8 +16,9 @@ def get_objects_at(paths):
 def build_project_with_tests(output, sources):
     main_test_object = Object('tests/test.cpp')
     inputs = get_objects_at(sources) + [main_test_object]
-    env.Program(output, inputs, LIBS=['gtest', 'pthread'])
+    prog = env.Program('build/' + output, inputs, LIBS=['gtest', 'pthread'])
+    env.Alias(output, prog)
 
-build_project_with_tests('build/bob_test', ['prototypes/common/src', 'prototypes/bob/src', 'prototypes/bob/tests'])
-build_project_with_tests('build/alice_test', ['prototypes/common/src', 'prototypes/alice/src', 'prototypes/alice/tests'])
-build_project_with_tests('build/common_test', ['prototypes/common/src', 'prototypes/common/tests'])
+build_project_with_tests('bob_test', ['prototypes/common/src', 'prototypes/bob/src', 'prototypes/bob/tests'])
+build_project_with_tests('alice_test', ['prototypes/common/src', 'prototypes/alice/src', 'prototypes/alice/tests'])
+build_project_with_tests('common_test', ['prototypes/common/src', 'prototypes/common/tests'])

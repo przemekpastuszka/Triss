@@ -104,8 +104,3 @@ TEST_F(ListTest, shouldMakeVariousOperationCorrectly) {
 
 	assertThatListIsEqualTo(Tools::vector<int>(4, /**/ 0, 10, 20, 30));
 }
-
-int main(int argc, char **argv) {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}
