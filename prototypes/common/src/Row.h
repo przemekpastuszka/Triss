@@ -6,6 +6,8 @@
 
 #include "Schema.h"
 
+#include "Schema.h"
+
 class Row {
     private:
     void** values;
