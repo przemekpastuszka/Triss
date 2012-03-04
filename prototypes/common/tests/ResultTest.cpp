@@ -6,7 +6,6 @@
 #include <gtest/gtest.h>
 #include <list>
 #include <string>
-#include <iostream>
 
 #include "../src/Result.h"
 
@@ -56,10 +55,17 @@ TEST_F(ResultTest, shouldSetHasNextToFalseAfterFetch) {
 }
 
 TEST_F(ResultTest, shouldIterateOverRows) {
-    std::list<Row*> result_rows = result->fetchAll();
+    std::list<Row*> result_rows;
     while(result->hasNext()) {
         Row* row = result->next();
         result_rows.push_back(row);
     }
     ASSERT_EQ(2, result_rows.size());
+}
+
+TEST_F(ResultTest, shouldNotHasNextForEmpty) {
+    std::list<Row*> result_rows;
+    Result* result2 = new Result(result_rows);
+    ASSERT_FALSE(result2->hasNext());
+    delete result2;
 }
