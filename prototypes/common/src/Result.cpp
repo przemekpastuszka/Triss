@@ -2,7 +2,7 @@
 
 Result::Result(std::list<Row*>& rows) {
     this->rows = rows;
-    current = rows.begin();
+    current = this->rows.begin();
 }
 
 Result::~Result() {
