@@ -18,3 +18,4 @@ def build_project_with_tests(output, sources):
 
 build_project_with_tests('tests/bob_test', ['common/src', 'bob/src', 'bob/tests'])
 build_project_with_tests('tests/alice_test', ['common/src', 'alice/src', 'alice/tests'])
+build_project_with_tests('tests/common_test', ['common/src', 'common/tests'])

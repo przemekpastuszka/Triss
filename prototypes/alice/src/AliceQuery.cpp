@@ -4,6 +4,6 @@
 
 #include "AliceQuery.h"
 
-void AliceQuery::selectColumns(std::list<int> columns) {
+void AliceQuery::selectColumns(std::list<int>& columns) {
     selectedColumns = columns;
 }
