@@ -17,7 +17,7 @@ class QueryTest : public testing::Test {
         columns.push_back(1);
         columns.push_back(2);
         query.selectColumns(columns);
-        query.addConstraint(TypedConstraint<double>::less(0, 27));
+        query.addConstraint(TypedConstraint<double>::lessOrEqual(0, 27));
         query.addConstraint(TypedConstraint<std::string>::equals(2, "zzz"));
         query.limit(10);
     }

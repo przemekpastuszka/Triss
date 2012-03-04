@@ -19,7 +19,7 @@ class ColumnTest : public ::testing::Test {
         }
     }
 
-    void assertThatRangeEquals(Range range, int left, int right) {
+    void assertThatRangeEquals(Column::IndexRange range, int left, int right) {
         ASSERT_EQ(left, range.left);
         ASSERT_EQ(right, range.right);
     }

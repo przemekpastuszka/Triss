@@ -7,12 +7,12 @@
 #include <algorithm>
 #include "Fields.h"
 
-struct Range {
-    int left, right;
-};
-
 class Column {
     public:
+    struct IndexRange {
+        int left, right;
+    };
+
     virtual unsigned int getSize() const = 0;
 
     virtual void sort() = 0;
@@ -20,7 +20,7 @@ class Column {
     virtual void updateNextFieldIdsUsingMapping(int* currentColumnMapping, int *nextColumnMapping) = 0;
 
     virtual void add(void* value, int nextFieldId) = 0;
-    virtual Range findRange(void* left, void* right) = 0;
+    virtual IndexRange findRange(void* left, void* right) = 0;
 };
 
 template <class T>
@@ -44,7 +44,7 @@ class TypedColumn : public Column {
     int* getMappingFromCurrentToSortedPositions();
     void updateNextFieldIdsUsingMapping(int* currentColumnMapping, int *nextColumnMapping);
 
-    Range findRange(void* left, void* right);
+    IndexRange findRange(void* left, void* right);
 };
 
 template <class T>
@@ -93,8 +93,8 @@ template<class T> int TypedColumn<T>::binarySearch(const T& element, bool isLowe
     }
 }
 
-template<class T> Range TypedColumn<T>::findRange(void* left, void* right) {
-    Range range;
+template<class T> Column::IndexRange TypedColumn<T>::findRange(void* left, void* right) {
+    IndexRange range;
     range.left = binarySearch(*static_cast<T*>(left), true);
     range.right = binarySearch(*static_cast<T*>(right), false);
     if(range.left >= getSize() || range.right < 0) {
