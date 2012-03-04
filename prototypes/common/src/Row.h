@@ -2,7 +2,9 @@
 * Copyright 2012 Przemysław Pastuszka
 */
 #ifndef PROTOTYPES_COMMON_SRC_ROW_H_
-#define ROW_H_
+#define PROTOTYPES_COMMON_SRC_ROW_H_
+
+#include "Schema.h"
 
 class Row {
     private:
