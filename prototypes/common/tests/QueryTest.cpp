@@ -5,8 +5,8 @@
 
 #include <gtest/gtest.h>
 #include <list>
-#include "../src/Query.h"
-#include "../src/Constraint.h"
+#include <prototypes/common/src/Query.h>
+#include <prototypes/common/src/Constraint.h>
 
 class QueryTest : public testing::Test {
     public:

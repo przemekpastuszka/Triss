@@ -4,7 +4,7 @@
 #ifndef PROTOTYPES_BOB_SRC_BOBTABLE_H_
 #define PROTOTYPES_BOB_SRC_BOBTABLE_H_
 
-#include "../../common/src/Table.h"
+#include <prototypes/common/src/Table.h>
 #include "columns/Column.h"
 
 class BobTable : public Table {

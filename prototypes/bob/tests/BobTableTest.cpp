@@ -8,8 +8,8 @@
 #include <cstdio>
 #include <list>
 #include <string>
-#include "../src/BobTable.h"
-#include "../../common/src/Constraint.h"
+#include <prototypes/bob/src/BobTable.h>
+#include <prototypes/common/src/Constraint.h>
 
 Schema::DataType schema[] = { Schema::NUMERICAL, Schema::NUMERICAL_LIST,
         Schema::STRING };

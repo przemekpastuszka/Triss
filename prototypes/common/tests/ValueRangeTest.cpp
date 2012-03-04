@@ -5,7 +5,7 @@
 
 #include <gtest/gtest.h>
 #include <list>
-#include "../src/ValueRange.h"
+#include <prototypes/common/src/ValueRange.h>
 
 #define INFINITY  1000
 

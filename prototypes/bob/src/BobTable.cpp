@@ -6,7 +6,7 @@
 #include "BobTable.h"
 #include "columns/ScalarColumn.h"
 #include "columns/ListColumn.h"
-#include "../../common/src/ValueRange.h"
+#include <prototypes/common/src/ValueRange.h>
 
 void BobTable::prepareCrossColumnPointers() {
     int* currentColumnMapping = NULL;

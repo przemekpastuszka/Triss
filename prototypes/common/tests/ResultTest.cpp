@@ -7,7 +7,7 @@
 #include <list>
 #include <string>
 
-#include "../src/Result.h"
+#include <prototypes/common/src/Result.h>
 
 class ResultTest : public testing::Test {
     public:

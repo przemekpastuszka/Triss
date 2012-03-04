@@ -6,8 +6,8 @@
 
 #include <algorithm>
 #include "Fields.h"
-#include "../../../common/src/Constraint.h"
-#include "../../../common/src/ValueRange.h"
+#include <prototypes/common/src/Constraint.h>
+#include <prototypes/common/src/ValueRange.h>
 
 class Column {
     public:

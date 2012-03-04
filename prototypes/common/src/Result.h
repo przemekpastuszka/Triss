@@ -6,7 +6,7 @@
 
 #include <list>
 
-#include "../src/Row.h"
+#include "Row.h"
 
 class Result {
     private:
