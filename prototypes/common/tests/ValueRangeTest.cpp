@@ -104,6 +104,14 @@ TEST_F(ValueRangeTest, shouldGetFiniteRangeFromTwoInfiniteOnes) {
     assertRangeEquality(rangeA, 10, 17);
 }
 
+TEST_F(ValueRangeTest, shouldGetFiniteRangeFromTwoInfiniteOnes2) {
+    setUpRangeB(TypedConstraint<double>::greaterOrEqual(0, 10));
+    setUpRangeA(TypedConstraint<double>::lessOrEqual(0, 17));
+    rangeA -> intersectWith(rangeB);
+
+    assertRangeEquality(rangeA, 10, 17);
+}
+
 TEST_F(ValueRangeTest, shouldGetFiniteRangeFromDifferentRanges) {
     setUpRangeA(TypedConstraint<double>::lessOrEqual(0, 17));
     setUpRangeB(TypedConstraint<double>::equals(0, 10));

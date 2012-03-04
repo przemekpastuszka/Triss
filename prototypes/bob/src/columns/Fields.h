@@ -13,6 +13,9 @@ class Field {
     bool operator<(const Field<T>& other) const {
         return value < other.value;
     }
+    bool operator<(const T& other) const {
+        return value < other;
+    }
 
     virtual void updateNextFieldUsingMapping(int* currentColumnMapping, int* nextColumnMapping) {
         nextFieldId = nextColumnMapping[nextFieldId];
@@ -22,6 +25,11 @@ class Field {
         return true;
     }
 };
+
+template <class T>
+bool operator<(const T& left, const Field<T>& other) {
+    return left < other.value;
+}
 
 template <class T>
 class ListField : public Field<T> {

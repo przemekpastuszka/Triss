@@ -9,6 +9,8 @@
 #include <algorithm>
 #include "Schema.h"
 #include "Row.h"
+#include "Result.h"
+#include "Query.h"
 
 class Table {
     protected:
@@ -24,6 +26,7 @@ class Table {
     }
     virtual void prepareStructure() = 0;
     virtual void addRow(Row& row) = 0;
+    virtual Result* select(const Query& q) const = 0;
 };
 
 #endif  // PROTOTYPES_COMMON_SRC_TABLE_H_

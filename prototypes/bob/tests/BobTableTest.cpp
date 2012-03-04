@@ -9,7 +9,7 @@
 #include <list>
 #include <string>
 #include "../src/BobTable.h"
-
+#include "../../common/src/Constraint.h"
 
 Schema::DataType schema[] = { Schema::NUMERICAL, Schema::NUMERICAL_LIST,
         Schema::STRING };
@@ -24,6 +24,7 @@ int listSizes[] = { 2, 1, 1, 3 };
 class BobTableTest : public testing::Test {
     public:
     BobTable *bobTable;
+    Query q;
 
     void setUpListColumn() {
         listColumn = new std::list<double>[4];
@@ -54,13 +55,39 @@ class BobTableTest : public testing::Test {
         }
 
         table -> prepareStructure();
+
+//        std::list<int> ls = Tools::listFrom(Tools::vector<int>(3, 0, 1, 2));
+//        q.selectColumns(ls);
     }
 
     virtual void TearDown() {
         delete[] listColumn;
         delete bobTable;
     }
+
+    void assertEmptyResult() {
+        Result* result = bobTable -> select(q);
+
+        ASSERT_FALSE(result -> hasNext());
+        std::list<Row*> results = result -> fetchAll();
+        ASSERT_EQ(0, results.size());
+
+        delete result;
+    }
 };
+
+//TEST_F(BobTableTest, shouldReturnEmptyResultForDisjointConstraints) {
+//    q.addConstraint(TypedConstraint<double>::lessOrEqual(0, 10));
+//    q.addConstraint(TypedConstraint<double>::greaterOrEqual(0, 11));
+//
+//    assertEmptyResult();
+//}
+//
+//TEST_F(BobTableTest, shouldReturnEmptyResult) {
+//    q.addConstraint(TypedConstraint<double>::equals(0, 11));
+//
+//    assertEmptyResult();
+//}
 
 TEST_F(BobTableTest, shouldSortElements) {
     double sortedNumericalColumn[] = {1, 3, 7, 8};

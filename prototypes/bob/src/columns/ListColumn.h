@@ -46,6 +46,16 @@ class ListColumn : public TypedColumn<T> {
         std::list<T> *ls = static_cast<std::list<T>*>(value);
         addList(ls, nextFieldId);
     }
+    int lowerBound(const T& value) {
+        typename std::vector<ListField<T> >::iterator it =
+                std::lower_bound(fields.begin(), fields.end(), value);
+        return int(it - fields.begin());
+    }
+    int upperBound(const T& value) {
+        typename std::vector<ListField<T> >::iterator it =
+                std::upper_bound(fields.begin(), fields.end(), value);
+        return int(it - fields.begin()) - 1;
+    }
 };
 
 #endif /* PROTOTYPES_BOB_SRC_COLUMNS_LISTCOLUMN_H_ */

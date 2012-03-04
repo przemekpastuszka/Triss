@@ -21,21 +21,21 @@ class Query {
     ~Query();
     void limit(int limit);
     
+    const std::list<Constraint*>& getConstraints() const { return constraints; };
+    int getLimit() const { return _limit; }
+    const std::list<int>& getSelectedColumns() const { return selectedColumns; }
+
 #ifdef TRISS_TEST
     bool isColumnSelected(int i) {
         return std::find(selectedColumns.begin(), selectedColumns.end(), i) !=
                selectedColumns.end();
     }
-    
+
     int numberOfConstraints() {
         return constraints.size();
     }
-    
-    int getLimit() {
-        return _limit;
-    }
 #endif
-    
+
 };
 
 #endif  // PROTOTYPES_COMMON_SRC_ALICE_QUERY_H_

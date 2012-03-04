@@ -6,6 +6,7 @@
 #include "BobTable.h"
 #include "columns/ScalarColumn.h"
 #include "columns/ListColumn.h"
+#include "../../common/src/ValueRange.h"
 
 void BobTable::prepareCrossColumnPointers() {
     int* currentColumnMapping = NULL;
@@ -72,4 +73,7 @@ void BobTable::addRow(Row& row) {
     columns[schema.size() - 1] -> add(row.get(schema.size() - 1), firstColumnSize);
 }
 
-
+Result *BobTable::select(const Query & q) const {
+    std::list<Row*> ls;
+    return new Result(ls);
+}

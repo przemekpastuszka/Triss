@@ -6,11 +6,20 @@
 
 #include <algorithm>
 #include "Fields.h"
+#include "../../../common/src/Constraint.h"
+#include "../../../common/src/ValueRange.h"
 
 class Column {
     public:
     struct IndexRange {
         int left, right;
+        IndexRange() : left(-1), right(-1) {}
+
+        void validate(int size) {
+            if(left >= size || right < 0 || left > right) {
+                left = right = -1;
+            }
+        }
     };
 
     virtual unsigned int getSize() const = 0;
@@ -20,7 +29,9 @@ class Column {
     virtual void updateNextFieldIdsUsingMapping(int* currentColumnMapping, int *nextColumnMapping) = 0;
 
     virtual void add(void* value, int nextFieldId) = 0;
-    virtual IndexRange findRange(void* left, void* right) = 0;
+
+    virtual void addConstraint(Constraint* constraint) = 0;
+    virtual IndexRange getRangeFromConstraints() = 0;
 };
 
 template <class T>
@@ -35,16 +46,21 @@ class TypedColumn : public Column {
         }
     };
 
-    int binarySearch(const T& element, bool isLowerBound);
+    ValueRange<T>* valueRange;
 
     public:
     virtual Field<T>* getField(unsigned int i) = 0;
+    virtual int lowerBound(const T& value) = 0;
+    virtual int upperBound(const T& value) = 0;
 
     public:
+    TypedColumn() : valueRange(NULL) {}
+
     int* getMappingFromCurrentToSortedPositions();
     void updateNextFieldIdsUsingMapping(int* currentColumnMapping, int *nextColumnMapping);
 
-    IndexRange findRange(void* left, void* right);
+    virtual void addConstraint(Constraint* constraint);
+    virtual IndexRange getRangeFromConstraints();
 };
 
 template <class T>
@@ -73,36 +89,39 @@ void TypedColumn<T>::updateNextFieldIdsUsingMapping(int* currentColumnMapping, i
     }
 }
 
-template<class T> int TypedColumn<T>::binarySearch(const T& element, bool isLowerBound) {
-    int p = 0, q = getSize() - 1;
-    while(p < q) {
-        int d = (p + q) / 2;
-        bool goLeft = isLowerBound ? element <= getField(d) -> value : element < getField(d) -> value;
-        if(goLeft) {
-            q = d - 1;
-        }
-        else {
-            p = d + 1;
-        }
-    }
-    if(isLowerBound) {
-        return element <= getField(p) -> value ? p : p + 1;
+template<class T> void TypedColumn<T>::addConstraint(Constraint *constraint) {
+    ValueRange<T>* r = ValueRange<T>::createFromConstraint(*((TypedConstraint<T>*) constraint));
+    if(valueRange == NULL) {
+        valueRange = r;
     }
     else {
-        return element >= getField(p) -> value ? p : p - 1;
+        valueRange -> intersectWith(r);
     }
 }
 
-template<class T> Column::IndexRange TypedColumn<T>::findRange(void* left, void* right) {
+template<class T> Column::IndexRange TypedColumn<T>::getRangeFromConstraints() {
     IndexRange range;
-    range.left = binarySearch(*static_cast<T*>(left), true);
-    range.right = binarySearch(*static_cast<T*>(right), false);
-    if(range.left >= getSize() || range.right < 0) {
-        range.left = range.right = -1;
+    if(valueRange -> isEmpty() == false) {
+        if(valueRange -> isInfiniteOnTheLeft()) {
+            range.left = 0;
+        }
+        else {
+            range.left = lowerBound(valueRange -> getLeft());
+        }
+        if(valueRange -> isInfiniteOnTheRight()) {
+            range.right = getSize() - 1;
+        }
+        else {
+            range.right = upperBound(valueRange -> getRight());
+        }
     }
+
+    delete valueRange;
+    valueRange = NULL;
+
+    range.validate(getSize());
     return range;
 }
-
 
 
 #endif  // PROTOTYPES_BOB_SRC_COLUMNS_COLUMN_H_

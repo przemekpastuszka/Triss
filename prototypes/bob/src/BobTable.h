@@ -21,6 +21,7 @@ class BobTable : public Table {
 
     void prepareStructure();
     void addRow(Row& row);
+    Result* select(const Query& q) const;
 
 #ifdef TRISS_TEST
     template <class T>

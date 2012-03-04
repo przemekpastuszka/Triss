@@ -85,7 +85,7 @@ void ValueRange<T>::intersectWith(ValueRange<T> *other) {
     }
     if(rightInfinity) {
         if(other -> isInfiniteOnTheRight() == false) {
-            left = other -> getRight();
+            right = other -> getRight();
             rightInfinity = false;
         }
     }
