@@ -5,7 +5,7 @@ TARGETS = test
 all: $(TARGETS)
 
 test: BobTable.o BobTableTest.o ColumnTest.o NumericalColumnTest.o NumericalListColumnTest.o
-	$(CC) tests/test.cpp Table.o BobTable.o BobTableTest.o ColumnTest.o NumericalColumnTest.o NumericalListColumnTest.o -o test $(CFLAGS)
+	$(CC) ../tests/test.cpp Table.o BobTable.o BobTableTest.o ColumnTest.o NumericalColumnTest.o NumericalListColumnTest.o -o test $(CFLAGS)
     
 BobTable.o: src/BobTable.cpp Table.o
 	$(CC) -c src/BobTable.cpp Table.o -o BobTable.o $(CFLAGS)
