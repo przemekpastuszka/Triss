@@ -6,7 +6,7 @@
 #include <gtest/gtest.h>
 #include <cstdarg>
 #include <cstdlib>
-#include "../../src/columns/ScalarColumn.h"
+#include <prototypes/bob/src/columns/ScalarColumn.h>
 
 class NumericalColumnTest : public ::testing::Test {
     public:

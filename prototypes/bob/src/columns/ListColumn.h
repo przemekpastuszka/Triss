@@ -1,8 +1,8 @@
 /*
 * Copyright 2012 Przemysław Pastuszka
 */
-#ifndef PROTOTYPES_COMMON_SRC_COLUMNS_LISTCOLUMN_H_
-#define PROTOTYPES_COMMON_SRC_COLUMNS_LISTCOLUMN_H_
+#ifndef PROTOTYPES_BOB_SRC_COLUMNS_LISTCOLUMN_H_
+#define PROTOTYPES_BOB_SRC_COLUMNS_LISTCOLUMN_H_
 
 #include <algorithm>
 #include <list>
@@ -37,7 +37,7 @@ class ListColumn : public TypedColumn<T> {
     }
 
     public:
-    int getSize() const { return fields.size(); }
+    unsigned int getSize() const { return fields.size(); }
     void sort() {
         std::sort(fields.begin(), fields.end());
     }
@@ -46,6 +46,16 @@ class ListColumn : public TypedColumn<T> {
         std::list<T> *ls = static_cast<std::list<T>*>(value);
         addList(ls, nextFieldId);
     }
+    int lowerBound(const T& value) {
+        typename std::vector<ListField<T> >::iterator it =
+                std::lower_bound(fields.begin(), fields.end(), value);
+        return int(it - fields.begin());
+    }
+    int upperBound(const T& value) {
+        typename std::vector<ListField<T> >::iterator it =
+                std::upper_bound(fields.begin(), fields.end(), value);
+        return int(it - fields.begin()) - 1;
+    }
 };
 
-#endif /* PROTOTYPES_COMMON_SRC_COLUMNS_LISTCOLUMN_H_ */
+#endif /* PROTOTYPES_BOB_SRC_COLUMNS_LISTCOLUMN_H_ */

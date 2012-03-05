@@ -106,9 +106,3 @@ TEST_F(DenseHashMapTest, shouldRemoveAllElements) {
     hashMap.clear();
     assertThatHashMapIsEmpty();
 }
-
-int main(int argc, char **argv) {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}
-

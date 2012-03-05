@@ -1,8 +1,8 @@
 /*
 * Copyright 2012 Przemysław Pastuszka
 */
-#ifndef PROTOTYPES_COMMON_SRC_COLUMNS_FIELDS_H_
-#define PROTOTYPES_COMMON_SRC_COLUMNS_FIELDS_H_
+#ifndef PROTOTYPES_BOB_SRC_COLUMNS_FIELDS_H_
+#define PROTOTYPES_BOB_SRC_COLUMNS_FIELDS_H_
 
 template <class T>
 class Field {
@@ -13,6 +13,9 @@ class Field {
     bool operator<(const Field<T>& other) const {
         return value < other.value;
     }
+    bool operator<(const T& other) const {
+        return value < other;
+    }
 
     virtual void updateNextFieldUsingMapping(int* currentColumnMapping, int* nextColumnMapping) {
         nextFieldId = nextColumnMapping[nextFieldId];
@@ -22,6 +25,11 @@ class Field {
         return true;
     }
 };
+
+template <class T>
+bool operator<(const T& left, const Field<T>& other) {
+    return left < other.value;
+}
 
 template <class T>
 class ListField : public Field<T> {
@@ -43,4 +51,4 @@ class ListField : public Field<T> {
 };
 
 
-#endif /* PROTOTYPES_COMMON_SRC_COLUMNS_FIELDS_H_ */
+#endif /* PROTOTYPES_BOB_SRC_COLUMNS_FIELDS_H_ */

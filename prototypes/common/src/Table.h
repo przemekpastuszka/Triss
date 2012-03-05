@@ -7,31 +7,26 @@
 #include <string>
 #include <list>
 #include <algorithm>
-#include "columns/Column.h"
 #include "Schema.h"
 #include "Row.h"
+#include "Result.h"
+#include "Query.h"
 
 class Table {
     protected:
     std::vector<Schema::DataType> schema;
-    std::vector<Column*> columns;
 
     public:
-    Table(const Schema& schema);
-    ~Table();
+    Table(const Schema& schema) {
+        this -> schema = schema.schema;
+    }
 
-    void addRow(Row& row);
-    virtual void prepareStructure() = 0;
-    int getNrOfColumns() const {
+    virtual unsigned int getNrOfColumns() const {
         return schema.size();
     }
-
-#ifdef TRISS_TEST
-    template <class T>
-    TypedColumn<T>* getColumn(int i) {
-        return static_cast<TypedColumn<T>*>(columns[i]);
-    }
-#endif
+    virtual void prepareStructure() = 0;
+    virtual void addRow(Row& row) = 0;
+    virtual Result* select(const Query& q) const = 0;
 };
 
 #endif  // PROTOTYPES_COMMON_SRC_TABLE_H_

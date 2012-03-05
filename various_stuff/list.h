@@ -58,7 +58,7 @@ class List {
 	T getElementAt(int position);
 	T remove(int position);
 
-	Iterator& getIterator();
+	Iterator getIterator();
 };
 
 template <class T>
@@ -117,7 +117,7 @@ T List<T> :: remove(int position) {
 }
 
 template <class T>
-typename List<T> :: Iterator& List<T> :: getIterator() {
+typename List<T> :: Iterator List<T> :: getIterator() {
     Iterator it(head, tail);
     return it;
 }
