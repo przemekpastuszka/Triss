@@ -25,58 +25,46 @@ std::list<double> to_num_list(const std::string &s) {
     return res;
 }
 
-int main(void) {
+int main(int argc, char** argv) {
+    if (argc < 2) {
+        std::cout << "Usage: "<<argv[0]<<" <data_file>\n";
+        return 1;
+    }
+    //age:: content:list:4 country:: hobby:list:2 language:list:2
     Schema::DataType s[] = { Schema::NUMERICAL,  //age
+                             Schema::STRING_LIST,//content
                              Schema::STRING,     //country
+                             Schema::STRING_LIST,//hobby
                              Schema::STRING_LIST,//language
-                             Schema::STRING,     //os
-                             Schema::STRING,     //name
-                             Schema::STRING_LIST //content
                            };
-    Schema schema(s, 6);
+    Schema schema(s, 5);
     BobTable table(schema);
     // fill the table with documents from data file
-    std::ifstream ifs("data");
+    std::ifstream ifs(argv[1]);
     std::string line;
-    int c = 0;
+    Row row(schema);
     while(std::getline(ifs, line)) {
-        Row row(schema);
         std::vector<std::string> vals = split(line, ';');
-        for (int i=0; i< vals.size(); i++) {
-            std::cout << i<< " " <<vals[i] << std::endl;
-        }
-        std::cout << "--------------------------" << std::endl;
         for (int i=0; i < vals.size(); i++) {
             switch(s[i]) {
                 case Schema::NUMERICAL:
-                    std::cout <<"numerical " << i << ": "<<  std::atoi(vals[i].c_str()) << std::endl;
                     row.set<double>(i, std::atoi(vals[i].c_str()));
                     break;
                 case Schema::STRING:
-                    std::cout << "string " <<i<<": "<< vals[i] << std::endl;
                     row.set<std::string>(i, vals[i]);
                     break;
                 case Schema::NUMERICAL_LIST:
                     row.set< std::list<double> >(i, to_num_list(vals[i]));
                     break;
                 case Schema::STRING_LIST:
-                    std::cout << "stringlist "<<i<<": " << vals[i] << std::endl;
                     std::vector<std::string> tmp = split(vals[i], ',');
-                    for (int j=0;j<tmp.size();j++) {
-                        std::cout << tmp[j] << std::endl;
-                    }
-                    std::cout << "+++++++++++++++++++++++++" << std::endl;
                     std::list<std::string> str_list(tmp.begin(), tmp.end());
                     row.set< std::list<std::string> >(i, str_list);
                     break;
             }
         }
-        std::cout << c++ << std::endl;
-        std::cout << "pre here\n";
         Row &row_p = row;
         table.addRow(row_p);
-        std::cout << "post here\n";
-
     }
     table.prepareStructure();
 
