@@ -30,7 +30,6 @@ int main(int argc, char** argv) {
         std::cout << "Usage: "<<argv[0]<<" <data_file>\n";
         return 1;
     }
-    //age:: content:list:4 country:: hobby:list:2 language:list:2
     Schema::DataType s[] = { Schema::NUMERICAL,  //age
                              Schema::STRING_LIST,//content
                              Schema::STRING,     //country
