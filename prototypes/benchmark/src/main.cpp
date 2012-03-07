@@ -25,22 +25,26 @@ std::list<double> to_num_list(const std::string &s) {
     return res;
 }
 
-int main(void) {
+int main(int argc, char** argv) {
+    if (argc < 2) {
+        std::cout << "Usage: "<<argv[0]<<" <data_file>\n";
+        return 1;
+    }
+
     Schema::DataType s[] = { Schema::NUMERICAL,  //age
+                             Schema::STRING_LIST,//content
                              Schema::STRING,     //country
+                             Schema::STRING_LIST,//hobby
                              Schema::STRING_LIST,//language
-                             Schema::STRING,     //os
-                             Schema::STRING,     //name
-                             Schema::STRING_LIST //content
                            };
     Schema schema(s, 6);
     BobTable table(schema);
     // fill the table with documents from data file
-    std::ifstream ifs("data");
+    std::ifstream ifs(argv[1]);
     std::string line;
-    int c = 0;
+    std::cout << "faskjdjflaksjdf" << std::endl;
+    Row row(schema);
     while(std::getline(ifs, line)) {
-        Row row(schema);
         std::vector<std::string> vals = split(line, ';');
         for (int i=0; i< vals.size(); i++) {
             std::cout << i<< " " <<vals[i] << std::endl;
@@ -71,7 +75,6 @@ int main(void) {
                     break;
             }
         }
-        std::cout << c++ << std::endl;
         std::cout << "pre here\n";
         Row &row_p = row;
         table.addRow(row_p);
