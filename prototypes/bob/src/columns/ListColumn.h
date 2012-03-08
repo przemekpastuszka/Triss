@@ -56,6 +56,17 @@ class ListColumn : public TypedColumn<T> {
                 std::upper_bound(fields.begin(), fields.end(), value);
         return int(it - fields.begin()) - 1;
     }
+    int fillRowWithValueAndGetNextFieldId(int valueIndex, int columnIndex, Row* row) const {
+        std::list<T> result;
+        while(fields[valueIndex].isLastElement == false) {
+            result.push_back(fields[valueIndex].value);
+            valueIndex = fields[valueIndex].nextFieldId;
+        }
+        result.push_back(fields[valueIndex].value);
+
+        row -> set<std::list<T> >(columnIndex, result);
+        return fields[valueIndex].nextFieldId;
+    }
 };
 
 #endif /* PROTOTYPES_BOB_SRC_COLUMNS_LISTCOLUMN_H_ */

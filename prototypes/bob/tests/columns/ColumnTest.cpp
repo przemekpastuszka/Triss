@@ -74,6 +74,10 @@ TEST_F(ColumnTest, shouldReturnEmptyRange) {
     checkForConstraints(-1, -1);
 }
 
+TEST_F(ColumnTest, shouldReturnWholeRange) {
+    checkForConstraints(0, 7);
+}
+
 TEST_F(ColumnTest, shouldReturnValidRangeUsingLeftInfinityConstraint) {
     constraints.push_back(TypedConstraint<double>::lessOrEqual(0, 10));
 

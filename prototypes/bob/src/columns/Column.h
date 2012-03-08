@@ -8,6 +8,7 @@
 #include "Fields.h"
 #include <prototypes/common/src/Constraint.h>
 #include <prototypes/common/src/ValueRange.h>
+#include <prototypes/common/src/Row.h>
 
 class Column {
     public:
@@ -32,6 +33,8 @@ class Column {
 
     virtual void addConstraint(Constraint* constraint) = 0;
     virtual IndexRange getRangeFromConstraints() = 0;
+
+    virtual int fillRowWithValueAndGetNextFieldId(int valueIndex, int columnIndex, Row* row) const = 0;
 };
 
 template <class T>
@@ -101,6 +104,11 @@ template<class T> void TypedColumn<T>::addConstraint(Constraint *constraint) {
 
 template<class T> Column::IndexRange TypedColumn<T>::getRangeFromConstraints() {
     IndexRange range;
+    if(valueRange == NULL) {
+        range.left = 0;
+        range.right = getSize() - 1;
+        return range;
+    }
     if(valueRange -> isEmpty() == false) {
         if(valueRange -> isInfiniteOnTheLeft()) {
             range.left = 0;

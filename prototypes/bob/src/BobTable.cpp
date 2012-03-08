@@ -68,12 +68,17 @@ void BobTable::addRow(Row& row) {
 
     int firstColumnSize = columns[0] -> getSize();
     for(unsigned int i = 0; i < schema.size() - 1; ++i) {
-        columns[i] -> add(row.get(i), columns[i + 1] -> getSize());
+        columns[i] -> add(row.getPointer(i), columns[i + 1] -> getSize());
     }
-    columns[schema.size() - 1] -> add(row.get(schema.size() - 1), firstColumnSize);
+    columns[schema.size() - 1] -> add(row.getPointer(schema.size() - 1), firstColumnSize);
 }
 
 Result *BobTable::select(const Query & q) const {
     std::list<Row*> ls;
+    std::list<Constraint*> constraints = q.getConstraints();
+    for(std::list<Constraint*>::iterator it = constraints.begin(); it != constraints.end(); it++) {
+        Constraint* c = *it;
+        columns[c -> getAffectedColumn()] -> addConstraint(c);
+    }
     return new Result(ls);
 }

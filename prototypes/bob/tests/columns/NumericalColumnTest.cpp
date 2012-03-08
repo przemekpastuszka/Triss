@@ -7,6 +7,7 @@
 #include <cstdarg>
 #include <cstdlib>
 #include <prototypes/bob/src/columns/ScalarColumn.h>
+#include <prototypes/common/src/Schema.h>
 
 class NumericalColumnTest : public ::testing::Test {
     public:
@@ -27,6 +28,20 @@ TEST_F(NumericalColumnTest, shouldBeSorted) {
     for(int i = 0; i < 6; ++i) {
         ASSERT_EQ(sortedValues[i], c.getField(i) -> value);
     }
+}
+
+TEST_F(NumericalColumnTest, shouldFillRowWithGoodValue) {
+    int* mapping = c.getMappingFromCurrentToSortedPositions();
+    c.updateNextFieldIdsUsingMapping(NULL, mapping);
+
+    Schema::DataType s[] = { Schema::NUMERICAL, Schema::NUMERICAL};
+    Schema schema(s, 2);
+    Row row(schema);
+
+    ASSERT_EQ(5, c.fillRowWithValueAndGetNextFieldId(1, 1, &row));
+    ASSERT_EQ(12, row.get<double>(1));
+
+    delete [] mapping;
 }
 
 TEST_F(NumericalColumnTest, shouldCreateValidMapping) {

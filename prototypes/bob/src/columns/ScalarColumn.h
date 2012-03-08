@@ -40,6 +40,10 @@ class ScalarColumn : public TypedColumn<T> {
                 std::upper_bound(fields.begin(), fields.end(), value);
         return int(it - fields.begin()) - 1;
     }
+    int fillRowWithValueAndGetNextFieldId(int valueIndex, int columnIndex, Row* row) const {
+        row -> set<T>(columnIndex, fields[valueIndex].value);
+        return fields[valueIndex].nextFieldId;
+    }
 };
 
 #endif /* PROTOTYPES_BOB_SRC_COLUMNS_SCALARCOLUMN_H_ */
