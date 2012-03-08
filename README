@@ -47,9 +47,7 @@ Executables will be placed under build/ directory
 
 How do I use it?
 -----------------
-TRISS is in pre-alpha phase at the moment and is not yet usable. Nevertheless, you may want to see and learn
-our prototype API ( https://github.com/rtshadow/Triss/wiki/Prototype-API ), so you'll be ready to immediately harness
-whole power of TRISS, when it's done. (this API is also going to change a little bit over time, but not that much).
+TRISS is in pre-alpha phase at the moment and is not yet usable. Nevertheless, you may want to see and learn our prototype API ( https://github.com/rtshadow/Triss/wiki/Prototype-API ), so you'll be ready to immediately harness whole power of TRISS, when it's done. (this API is also going to change a little bit over time, but not that much).
 
 
 Current state of work (8.03.2012)
