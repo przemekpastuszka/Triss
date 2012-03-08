@@ -1,2 +1,63 @@
-Description of concept [in polish] can be found here:
-https://workflowy.com/shared/6e16aeaa-23d4-bcfb-2d53-366f3d521e7c/
+TRISS (The Revolution In Search Systems)
+In-memory search system for persistent data with SQL-like queries
+
+(Triss is also the first name of brown-haired sorceress from Sapkowski's novels)
+
+
+MILESTONES (please note, that given milestones order is not final and is likely to change in near future)
+----------
+* write and benchmark two prototypes (in progress)
+    - Alice is the solution, where hash map is used to intersect set of ids. Dev: Michał Rychlik
+    - Bob is the solution, where internal db structure contains cross-column pointers. Dev: Przemek Pastuszka (rtshadow)
+    - script for generating test data and benchmark framework. Dev: Piotr Olchawa (2easy)
+* adapt chosen prototype to alpha version
+    See "Adapt chosen prototype to alpha version" in Issues tab for more details
+* add SQL interface
+* add capability to query TRISS through network
+* create documentation; create installer with .deb and .rpm packages
+
+(deadline: June 2012)
+
+* add OR operator
+* bindings to languages other than C++ (python has highest priority)
+* ORDER BY clause; MERGE operation
+
+Other things (to be completed in unforeseeable future):
+* website
+* replication / sharding
+* INSERT / DELETE / UPDATE
+
+
+External libraries
+------------------
+google sparsehash >= 2.0 (as hash map for Alice)
+google test >= 1.6 (for unit tests)
+scons >= 2.1 (build tool)
+
+
+How do I build it?
+-------------------
+In main repository directory use:
+    scons [target]
+where [target] is one of: bob_test, alice_test, common_test, benchmark
+Without [target] specified, you'll build all above targets
+
+Executables will be placed under build/ directory
+
+
+How do I use it?
+-----------------
+TRISS is in pre-alpha phase at the moment and is not yet usable. Nevertheless, you may want to see and learn
+our prototype API ( https://github.com/rtshadow/Triss/wiki/Prototype-API ), so you'll be ready to immediately harness
+whole power of TRISS, when it's done. (this API is also going to change a little bit over time, but not that much).
+
+
+Current state of work (8.03.2012)
+----------------------------------
+- script for generating sample data is done (source: tests/helpers/bid_req_generator)
+- Bob prototype is done in 70% (source: prototypes/bob)
+    we're planning to finish it within a week
+- Alice is also going to be here soon (and the source dir will be: prototypes/alice)
+- work on benchmark framework is in progress (source: prototypes/benchmark)
+
+Please note, that all file paths given above may change (see "Clean the repository" issue for more details)
