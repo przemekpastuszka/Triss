@@ -38,8 +38,13 @@ TEST_F(NumericalColumnTest, shouldFillRowWithGoodValue) {
     Schema schema(s, 2);
     Row row(schema);
 
-    ASSERT_EQ(5, c.fillRowWithValueAndGetNextFieldId(1, 1, &row));
+    c.markFieldsAsUnvisitedInRange(0, 5);
+
+    ASSERT_EQ(5, c.fillRowWithValueAndGetNextFieldId(1, 1, &row, true));
     ASSERT_EQ(12, row.get<double>(1));
+
+    ASSERT_FALSE(c.isFieldVisitedAt(1));
+    ASSERT_FALSE(c.isFieldVisitedAt(2));
 
     delete [] mapping;
 }

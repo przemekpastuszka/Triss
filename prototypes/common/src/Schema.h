@@ -16,6 +16,9 @@ class Schema {
     Schema(DataType* schema, int n) {
         this -> schema.assign(schema, schema + n);
     }
+    Schema(const std::vector<DataType> schema) {
+        this -> schema = schema;
+    }
 };
 
 

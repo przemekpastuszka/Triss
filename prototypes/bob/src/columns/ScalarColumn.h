@@ -40,9 +40,14 @@ class ScalarColumn : public TypedColumn<T> {
                 std::upper_bound(fields.begin(), fields.end(), value);
         return int(it - fields.begin()) - 1;
     }
-    int fillRowWithValueAndGetNextFieldId(int valueIndex, int columnIndex, Row* row) const {
+    int fillRowWithValueAndGetNextFieldId(int valueIndex, int columnIndex, Row* row, bool markVisitedFields) {
         row -> set<T>(columnIndex, fields[valueIndex].value);
         return fields[valueIndex].nextFieldId;
+    }
+    bool isFieldVisitedAt(int index) {
+        return false;
+    }
+    void markFieldsAsUnvisitedInRange(int left, int right) {
     }
 };
 

@@ -27,6 +27,12 @@ class Tools {
     }
 
     template <class T>
+    static std::list<T> listFrom(std::vector<T> elements) {
+        std::list<T> ls(elements.begin(), elements.end());
+        return ls;
+    }
+
+    template <class T>
     static void assertThatListIsEqualTo(std::list<T>& ls, std::vector<T> elements) {
         ASSERT_EQ(ls.size(), elements.size());
 

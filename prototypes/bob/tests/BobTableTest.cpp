@@ -10,6 +10,7 @@
 #include <string>
 #include <prototypes/bob/src/BobTable.h>
 #include <prototypes/common/src/Constraint.h>
+#include <various_stuff/Tools.h>
 
 Schema::DataType schema[] = { Schema::NUMERICAL, Schema::NUMERICAL_LIST,
         Schema::STRING };
@@ -24,6 +25,7 @@ int listSizes[] = { 2, 1, 1, 3 };
 class BobTableTest : public testing::Test {
     public:
     BobTable *bobTable;
+    Result* result;
     Query q;
 
     void setUpListColumn() {
@@ -56,38 +58,101 @@ class BobTableTest : public testing::Test {
 
         table -> prepareStructure();
 
-//        std::list<int> ls = Tools::listFrom(Tools::vector<int>(3, 0, 1, 2));
-//        q.selectColumns(ls);
+        std::list<int> ls = Tools::listFrom(Tools::vector<int>(3, 0, 1, 2));
+        q.selectColumns(ls);
+
+        result = NULL;
     }
 
     virtual void TearDown() {
         delete[] listColumn;
         delete bobTable;
+
+        if(result != NULL) {
+            delete result;
+        }
     }
 
     void assertEmptyResult() {
-        Result* result = bobTable -> select(q);
+        result = bobTable -> select(q);
 
         ASSERT_FALSE(result -> hasNext());
         std::list<Row*> results = result -> fetchAll();
         ASSERT_EQ(0, results.size());
-
-        delete result;
     }
 };
 
-//TEST_F(BobTableTest, shouldReturnEmptyResultForDisjointConstraints) {
-//    q.addConstraint(TypedConstraint<double>::lessOrEqual(0, 10));
-//    q.addConstraint(TypedConstraint<double>::greaterOrEqual(0, 11));
-//
-//    assertEmptyResult();
-//}
-//
-//TEST_F(BobTableTest, shouldReturnEmptyResult) {
-//    q.addConstraint(TypedConstraint<double>::equals(0, 11));
-//
-//    assertEmptyResult();
-//}
+TEST_F(BobTableTest, shouldReturnEmptyResultForDisjointConstraints) {
+    q.addConstraint(TypedConstraint<double>::lessOrEqual(0, 10));
+    q.addConstraint(TypedConstraint<double>::greaterOrEqual(0, 11));
+
+    assertEmptyResult();
+}
+
+TEST_F(BobTableTest, shouldReturnEmptyResultWhenComputedRangesOnEachColumnsDoNotIntersect) {
+    q.addConstraint(TypedConstraint<double>::lessOrEqual(0, 7));
+    q.addConstraint(TypedConstraint<std::string>::equals(2, "abba"));
+
+    assertEmptyResult();
+}
+
+TEST_F(BobTableTest, shouldReturnEmptyResult) {
+    q.addConstraint(TypedConstraint<double>::equals(0, 11));
+
+    assertEmptyResult();
+}
+
+TEST_F(BobTableTest, shouldReturnLastRowForContainsConstraint) {
+    q.addConstraint(TypedConstraint<double>::contains(1, 10));
+    result = bobTable -> select(q);
+
+    ASSERT_TRUE(result -> hasNext());
+    Row* row = result -> next();
+    ASSERT_FALSE(result -> hasNext());
+
+    ASSERT_EQ(3, row -> get<double>(0));
+    Tools::assertThatListIsEqualTo<double>(row -> get<std::list<double> >(1), Tools::vector<double>(3, /**/ 0.0, 10.0, 9.0));
+    ASSERT_EQ("gaździna", row -> get<std::string>(2));
+}
+
+TEST_F(BobTableTest, shouldReturnOneRowWithLimit) {
+    q.addConstraint(TypedConstraint<double>::greaterOrEqual(0, 7));
+    q.limit(1);
+    result = bobTable -> select(q);
+
+    ASSERT_TRUE(result -> hasNext());
+    Row* row = result -> next();
+    ASSERT_FALSE(result -> hasNext());
+
+    ASSERT_GE(row -> get<double>(0), 7);
+}
+
+TEST_F(BobTableTest, shouldReturnOneRowWithTwoConstraintsOnOneColumn) {
+    q.addConstraint(TypedConstraint<double>::greaterOrEqual(0, 7));
+    q.addConstraint(TypedConstraint<double>::lessOrEqual(0, 7));
+    result = bobTable -> select(q);
+
+    ASSERT_TRUE(result -> hasNext());
+    Row* row = result -> next();
+    ASSERT_FALSE(result -> hasNext());
+
+    ASSERT_EQ(7, row -> get<double>(0));
+    Tools::assertThatListIsEqualTo<double>(row -> get<std::list<double> >(1), Tools::vector<double>(2, /**/ 1.0, 2.0));
+    ASSERT_EQ("gazda", row -> get<std::string>(2));
+}
+
+TEST_F(BobTableTest, shouldReturnTwoRows) {
+    q.addConstraint(TypedConstraint<double>::greaterOrEqual(0, 7));
+    result = bobTable -> select(q);
+
+    ASSERT_TRUE(result -> hasNext());
+    ASSERT_GE(7, result -> next() -> get<double>(0));
+
+    ASSERT_TRUE(result -> hasNext());
+    ASSERT_GE(result -> next() -> get<double>(0), 7);
+
+    ASSERT_FALSE(result -> hasNext());
+}
 
 TEST_F(BobTableTest, shouldSortElements) {
     double sortedNumericalColumn[] = {1, 3, 7, 8};
