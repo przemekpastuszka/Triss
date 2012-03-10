@@ -4,6 +4,8 @@
 #ifndef PROTOTYPES_BOB_SRC_COLUMNS_FIELDS_H_
 #define PROTOTYPES_BOB_SRC_COLUMNS_FIELDS_H_
 
+#include <vector>
+
 template <class T>
 class Field {
     public:
@@ -17,8 +19,8 @@ class Field {
         return value < other;
     }
 
-    virtual void updateNextFieldUsingMapping(int* currentColumnMapping, int* nextColumnMapping) {
-        nextFieldId = nextColumnMapping[nextFieldId];
+    virtual void updateNextFieldUsingMapping(std::vector<int>& current, std::vector<int>& next) {
+        nextFieldId = next[nextFieldId];
     }
 
     virtual bool isLastListElement() {
@@ -36,12 +38,12 @@ class ListField : public Field<T> {
     public:
     bool isLastElement;
 
-    virtual void updateNextFieldUsingMapping(int* currentColumnMapping, int* nextColumnMapping) {
+    virtual void updateNextFieldUsingMapping(std::vector<int>& current, std::vector<int>& next) {
         if(isLastElement) {
-            this -> nextFieldId = nextColumnMapping[this -> nextFieldId];
+            this -> nextFieldId = next[this -> nextFieldId];
         }
         else {
-            this -> nextFieldId = currentColumnMapping[this -> nextFieldId];
+            this -> nextFieldId = current[this -> nextFieldId];
         }
     }
 

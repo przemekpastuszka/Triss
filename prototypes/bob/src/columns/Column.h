@@ -28,8 +28,8 @@ class Column {
     virtual unsigned int getSize() const = 0;
 
     virtual void sort() = 0;
-    virtual int* getMappingFromCurrentToSortedPositions() = 0;
-    virtual void updateNextFieldIdsUsingMapping(int* currentColumnMapping, int *nextColumnMapping) = 0;
+    virtual void createMappingFromCurrentToSortedPositions(std::vector<int>& mapping) = 0;
+    virtual void updateNextFieldIdsUsingMapping(std::vector<int>& current, std::vector<int>& next) = 0;
 
     virtual void add(void* value, int nextFieldId) = 0;
 
@@ -70,8 +70,8 @@ class TypedColumn : public Column {
     public:
     TypedColumn() : valueRange(NULL) {}
 
-    int* getMappingFromCurrentToSortedPositions();
-    void updateNextFieldIdsUsingMapping(int* currentColumnMapping, int *nextColumnMapping);
+    void createMappingFromCurrentToSortedPositions(std::vector<int>& mapping);
+    void updateNextFieldIdsUsingMapping(std::vector<int>& current, std::vector<int>& next);
 
     virtual void addConstraint(Constraint* constraint);
     virtual IndexRange reduceConstraintsToRange();
@@ -90,7 +90,7 @@ void TypedColumn<T>::prepareColumnForQuery() {
 }
 
 template <class T>
-int* TypedColumn<T>::getMappingFromCurrentToSortedPositions() {
+void TypedColumn<T>::createMappingFromCurrentToSortedPositions(std::vector<int>& mapping) {
     Position* positions = new Position[getSize()];
     for(unsigned int i = 0; i < getSize(); ++i) {
         positions[i].element = this -> getField(i) -> value;
@@ -98,20 +98,18 @@ int* TypedColumn<T>::getMappingFromCurrentToSortedPositions() {
     }
     std::sort(positions, positions + getSize());
 
-    int* mapping = new int[getSize()];
+    mapping.resize(getSize());
     for(unsigned int i = 0; i < getSize(); ++i) {
         mapping[positions[i].position] = i;
     }
 
     delete [] positions;
-
-    return mapping;
 }
 
 template <class T>
-void TypedColumn<T>::updateNextFieldIdsUsingMapping(int* currentColumnMapping, int *nextColumnMapping) {
+void TypedColumn<T>::updateNextFieldIdsUsingMapping(std::vector<int>& current, std::vector<int>& next) {
     for(unsigned int i = 0; i < getSize(); ++i) {
-        getField(i) -> updateNextFieldUsingMapping(currentColumnMapping, nextColumnMapping);
+        getField(i) -> updateNextFieldUsingMapping(current, next);
     }
 }
 

@@ -5,6 +5,7 @@
 #define PROTOTYPES_BOB_SRC_BOBTABLE_H_
 
 #include <prototypes/common/src/Table.h>
+#include <prototypes/common/src/Schema.h>
 #include "columns/Column.h"
 
 class BobTable : public Table {
@@ -14,8 +15,13 @@ class BobTable : public Table {
     int mainColumnId;
     Column::IndexRange mainColumnRange;
 
-    void prepareCrossColumnPointers();
+    /*** preparing structure ***/
     void prepareColumns();
+    Column* generateColumn(Schema::DataType type);
+    void prepareCrossColumnPointers();
+    void sortColumns();
+
+    /*** 'select' auxiliary methods ***/
     void prepareColumnsForQuery();
     void applyConstraintsToColumns(const Query& q);
     void chooseMainColumn();
@@ -32,12 +38,7 @@ class BobTable : public Table {
     void addRow(Row& row);
     Result* select(const Query& q);
 
-#ifdef TRISS_TEST
-    template <class T>
-    TypedColumn<T>* getColumn(int i) {
-        return static_cast<TypedColumn<T>*>(columns[i]);
-    }
-#endif
+    friend class AbstractBobTableTest;
 };
 
 #endif  // PROTOTYPES_BOB_SRC_BOBTABLE_H_

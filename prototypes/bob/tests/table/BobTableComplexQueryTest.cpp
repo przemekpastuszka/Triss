@@ -1,10 +1,7 @@
 /*
 * Copyright 2012 Przemysław Pastuszka
 */
-#define TRISS_TEST
-
 #include "AbstractBobTableTest.cpp"
-
 
 class BobTableComplexQueryTest : public AbstractBobTableTest {
     void setUpSchemaAndColumns() {

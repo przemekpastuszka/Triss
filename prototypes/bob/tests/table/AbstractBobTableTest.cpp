@@ -1,8 +1,6 @@
 /*
 * Copyright 2012 Przemysław Pastuszka
 */
-#define TRISS_TEST
-
 #include <gtest/gtest.h>
 #include <cstdarg>
 #include <cstdio>
@@ -73,5 +71,10 @@ class AbstractBobTableTest : public testing::Test {
         ASSERT_FALSE(result -> hasNext());
         std::list<Row*> results = result -> fetchAll();
         ASSERT_EQ(0, results.size());
+    }
+
+    template <class T>
+    TypedColumn<T>* getColumn(int i) {
+        return static_cast<TypedColumn<T>*>(bobTable -> columns[i]);
     }
 };

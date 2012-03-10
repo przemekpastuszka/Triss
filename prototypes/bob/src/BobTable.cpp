@@ -8,34 +8,16 @@
 #include "columns/ListColumn.h"
 #include <prototypes/common/src/ValueRange.h>
 #include <prototypes/common/src/Row.h>
-#include <prototypes/common/src/Schema.h>
 
-void BobTable::prepareCrossColumnPointers() {
-    int* currentColumnMapping = NULL;
-    int *nextColumnMapping = columns[0] -> getMappingFromCurrentToSortedPositions();
-    for(unsigned int i = 0; i < schema.size(); ++i){
-        int nextColumn = (i + 1) % schema.size();
-        if(currentColumnMapping){
-            delete [] currentColumnMapping;
-        }
-        currentColumnMapping = nextColumnMapping;
-        nextColumnMapping = columns[nextColumn] -> getMappingFromCurrentToSortedPositions();
-        columns[i] -> updateNextFieldIdsUsingMapping(currentColumnMapping, nextColumnMapping);
-    }
-
-    delete [] currentColumnMapping;
-    delete [] nextColumnMapping;
-}
-
-void BobTable::prepareStructure() {
-    prepareCrossColumnPointers();
-
-    for(unsigned int i = 0; i < schema.size(); ++i) {
-        columns[i] -> sort();
+void BobTable::prepareColumns() {
+    columns.reserve(schema.size());
+    for(unsigned int i = 0; i < schema.size();++i){
+        columns[i] = generateColumn(schema[i]);
+        columns[i] -> setColumnId(i);
     }
 }
 
-Column* generateColumn(Schema::DataType type) {
+Column* BobTable :: generateColumn(Schema::DataType type) {
     switch(type) {
         case Schema::STRING:
             return new ScalarColumn<std::string>();
@@ -49,26 +31,33 @@ Column* generateColumn(Schema::DataType type) {
     return NULL;
 }
 
-BobTable::~BobTable() {
-    for(unsigned int i = 0; i < this -> schema.size(); ++i) {
-        delete columns[i];
-    }
-}
-
-void BobTable::prepareColumns() {
-    columns.reserve(schema.size());
-    for(unsigned int i = 0; i < schema.size();++i){
-        columns[i] = generateColumn(schema[i]);
-        columns[i] -> setColumnId(i);
-    }
-}
-
 void BobTable::addRow(Row& row) {
     int initialFirstColumnSize = columns[0] -> getSize();
     for(unsigned int i = 0; i < schema.size() - 1; ++i) {
         columns[i] -> add(row.getPointer(i), columns[i + 1] -> getSize());
     }
     columns[schema.size() - 1] -> add(row.getPointer(schema.size() - 1), initialFirstColumnSize);
+}
+
+void BobTable::prepareStructure() {
+    prepareCrossColumnPointers();
+    sortColumns();
+}
+
+void BobTable::prepareCrossColumnPointers() {
+    std::vector<int> mappings[2];
+    columns[0] -> createMappingFromCurrentToSortedPositions(mappings[1]);
+    for(unsigned int i = 0; i < schema.size(); ++i) {
+        int nextColumn = (i + 1) % schema.size();
+        columns[nextColumn] -> createMappingFromCurrentToSortedPositions(mappings[i % 2]);
+        columns[i] -> updateNextFieldIdsUsingMapping(mappings[(i + 1) % 2], mappings[i % 2]);
+    }
+}
+
+void BobTable::sortColumns() {
+    for(unsigned int i = 0; i < schema.size(); ++i) {
+        columns[i] -> sort();
+    }
 }
 
 Result *BobTable::select(const Query & q) {
@@ -97,7 +86,6 @@ Result* BobTable::gatherResults(const Query& q){
     return new Result(results);
 }
 
-
 bool BobTable::retrieveRowBeginningWith(int nextFieldId, Row* row) {
     unsigned int i;
     for(i = 0; i <= schema.size() && nextFieldId >= 0; ++i) {
@@ -110,6 +98,14 @@ bool BobTable::retrieveRowBeginningWith(int nextFieldId, Row* row) {
 void BobTable::prepareColumnsForQuery() {
     for(unsigned int i = 0; i < schema.size(); ++i) {
         columns[i] -> prepareColumnForQuery();
+    }
+}
+
+void BobTable::applyConstraintsToColumns(const Query& q) {
+    std::list<Constraint*> constraints = q.getConstraints();
+    for(std::list<Constraint*>::iterator it = constraints.begin(); it != constraints.end(); it++) {
+        Constraint* c = *it;
+        columns[c -> getAffectedColumn()] -> addConstraint(c);
     }
 }
 
@@ -126,10 +122,8 @@ void BobTable::chooseMainColumn() {
     columns[mainColumnId] -> markAsMainQueryColumn();
 }
 
-void BobTable::applyConstraintsToColumns(const Query& q) {
-    std::list<Constraint*> constraints = q.getConstraints();
-    for(std::list<Constraint*>::iterator it = constraints.begin(); it != constraints.end(); it++) {
-        Constraint* c = *it;
-        columns[c -> getAffectedColumn()] -> addConstraint(c);
+BobTable::~BobTable() {
+    for(unsigned int i = 0; i < this -> schema.size(); ++i) {
+        delete columns[i];
     }
 }

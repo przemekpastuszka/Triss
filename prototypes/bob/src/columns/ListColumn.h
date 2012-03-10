@@ -40,7 +40,7 @@ class ListColumn : public TypedColumn<T> {
     }
 
     bool shouldBeVisited(int valueIndex) {
-        return isMainColumn && this -> range.left <= valueIndex && valueIndex <= this -> range.right;
+        return isMainColumn && this -> range.isInRange(valueIndex);
     }
 
     bool isVisited(int valueIndex) {

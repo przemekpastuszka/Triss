@@ -1,10 +1,7 @@
 /*
 * Copyright 2012 Przemysław Pastuszka
 */
-#define TRISS_TEST
-
 #include "BobTableSimpleDataTester.cpp"
-
 
 class BobTableSimpleQueriesTest : public BobTableSimpleDataTester {
 };
