@@ -6,39 +6,32 @@
 
 #include <cstdlib>
 #include <vector>
+#include <string>
+#include <list>
 #include "Schema.h"
 
 class Row {
     private:
     void** values;
-    int size;
+    std::vector<Schema::DataType> schema;
 
-    void init(const std::vector<Schema::DataType>& schema) {
-        size = schema.size();
-        values = new void*[size];
-        for(int i = 0; i < size; ++i) {
-            values[i] = NULL;
-        }
-    }
+    void init(const std::vector<Schema::DataType>& schema);
+    void deleteFieldAt(int index);
 
     public:
     Row(const Schema& schema) { init(schema.schema); }
     Row(const std::vector<Schema::DataType>& schema) { init(schema); }
 
     ~Row() {
-        for(int i = 0; i < size; ++i) {
-            if(values[i] != NULL) {
-                delete values[i];
-            }
+        for(int i = 0; i < schema.size(); ++i) {
+            deleteFieldAt(i);
         }
         delete [] values;
     }
 
     template <class T>
     void set(int i, const T& value) {
-        if(values[i] != NULL) {
-            delete values[i];
-        }
+        deleteFieldAt(i);
         values[i] = new T(value);
     }
 
