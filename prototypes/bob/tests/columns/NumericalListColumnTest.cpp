@@ -7,6 +7,7 @@
 #include <cstdarg>
 #include <list>
 #include <prototypes/bob/src/columns/ListColumn.h>
+#include <various_stuff/Tools.h>
 
 double initialValues[] = {5, 12, 7, 8, 19, 1};
 
@@ -35,4 +36,20 @@ TEST_F(NumericalListColumnTest, shouldContainInitialElements) {
     ASSERT_EQ(1, c.getField(5) -> value);
     ASSERT_EQ(80, c.getField(5) -> nextFieldId);
     ASSERT_TRUE(c.getField(5) -> isLastListElement());
+}
+
+TEST_F(NumericalListColumnTest, shouldFillRowWithGoodValues) {
+    Schema::DataType s[] = { Schema::NUMERICAL, Schema::NUMERICAL_LIST};
+    Schema schema(s, 2);
+    Row row(schema);
+
+    c.markFieldsAsUnvisitedInRange(1, 5);
+
+    ASSERT_EQ(80, c.fillRowWithValueAndGetNextFieldId(3, 1, &row, true));
+    Tools::assertThatListIsEqualTo(row.get<std::list<double> >(1), Tools::vector<double>(3, /**/ 8.0, 19.0, 1.0));
+
+    ASSERT_FALSE(c.isFieldVisitedAt(2));
+    for(int i = 3; i < 6; ++i) {
+        ASSERT_TRUE(c.isFieldVisitedAt(i));
+    }
 }

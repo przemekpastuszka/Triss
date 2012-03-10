@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <list>
+#include <climits>
 
 #include "Constraint.h"
 
@@ -18,6 +19,7 @@ class Query {
     public:
     void selectColumns(std::list<int>& columns);
     void addConstraint(Constraint* constraint);
+    Query() : _limit(INT_MAX) {}
     ~Query();
     void limit(int limit);
     

@@ -14,6 +14,9 @@ class ListColumn : public TypedColumn<T> {
     private:
     std::vector<ListField<T> > fields;
 
+    int leftVisitedBound;
+    std::vector<bool> visited;
+
     public:
     Field<T>* getField(unsigned int i) {
         return &fields[i];
@@ -36,6 +39,13 @@ class ListColumn : public TypedColumn<T> {
         addField(*left, nextFieldId, true);
     }
 
+    void addValueToResult(int valueIndex, std::list<T>& result, bool markVisitedFields) {
+        if(markVisitedFields && valueIndex >= leftVisitedBound) {
+            visited[valueIndex - leftVisitedBound] = true;
+        }
+        result.push_back(fields[valueIndex].value);
+    }
+
     public:
     unsigned int getSize() const { return fields.size(); }
     void sort() {
@@ -55,6 +65,25 @@ class ListColumn : public TypedColumn<T> {
         typename std::vector<ListField<T> >::iterator it =
                 std::upper_bound(fields.begin(), fields.end(), value);
         return int(it - fields.begin()) - 1;
+    }
+    int fillRowWithValueAndGetNextFieldId(int valueIndex, int columnIndex, Row* row, bool markVisitedFields) {
+        std::list<T> result;
+        while(fields[valueIndex].isLastElement == false) {
+            addValueToResult(valueIndex, result, markVisitedFields);
+            valueIndex = fields[valueIndex].nextFieldId;
+        }
+        addValueToResult(valueIndex, result, markVisitedFields);
+
+        row -> set<std::list<T> >(columnIndex, result);
+        return fields[valueIndex].nextFieldId;
+    }
+    bool isFieldVisitedAt(int index) {
+        return visited[index - leftVisitedBound];
+    }
+    void markFieldsAsUnvisitedInRange(int left, int right) {
+        leftVisitedBound = left;
+        visited.clear();
+        visited.resize(right - left + 1, false);
     }
 };
 

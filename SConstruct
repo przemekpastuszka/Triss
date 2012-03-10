@@ -24,7 +24,7 @@ def build_project(output, sources):
     prog = env.Program('build/' + output, inputs, LIBS=['pthread'])
     env.Alias(output, prog)
 
-build_project_with_tests('bob_test', ['prototypes/common/src', 'prototypes/bob/src', 'prototypes/bob/tests'])
+build_project_with_tests('bob_test', ['various_stuff', 'prototypes/common/src', 'prototypes/bob/src', 'prototypes/bob/tests'])
 build_project_with_tests('alice_test', ['prototypes/common/src', 'prototypes/alice/src', 'prototypes/alice/tests'])
 build_project_with_tests('common_test', ['prototypes/common/src', 'prototypes/common/tests'])
 
