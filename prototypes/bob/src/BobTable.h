@@ -15,6 +15,8 @@ class BobTable : public Table {
     void prepareCrossColumnPointers();
     void prepareColumns();
 
+
+
     public:
     BobTable(const Schema& schema) : Table(schema), columnsPrepared(false) {};
     virtual ~BobTable();

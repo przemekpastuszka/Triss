@@ -38,10 +38,11 @@ TEST_F(NumericalColumnTest, shouldFillRowWithGoodValue) {
     Schema schema(s, 2);
     Row row(schema);
 
-    c.markFieldsAsUnvisitedInRange(0, 5);
-    c.getRangeFromConstraints();
+    c.prepareColumnForQuery();
+    c.reduceConstraintsToRange();
+    c.markAsMainQueryColumn();
 
-    ASSERT_EQ(5, c.fillRowWithValueAndGetNextFieldId(1, 1, &row, true));
+    ASSERT_EQ(5, c.fillRowWithValueAndGetNextFieldId(1, 1, &row));
     ASSERT_EQ(12, row.get<double>(1));
 
     ASSERT_FALSE(c.isFieldVisitedAt(1));

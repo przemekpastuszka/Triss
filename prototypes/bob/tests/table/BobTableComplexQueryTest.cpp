@@ -67,3 +67,9 @@ TEST_F(BobTableComplexQueryTest, shouldReturnAnswerForConstraintsOnAllColumns) {
     assertThatRowIsEqualTo(row, 3);
 }
 
+TEST_F(BobTableComplexQueryTest, shouldReturnAllRowsWhenNoConstraintsGiven) {
+    result = bobTable -> select(q);
+
+    ASSERT_EQ(7, result -> fetchAll().size());
+}
+

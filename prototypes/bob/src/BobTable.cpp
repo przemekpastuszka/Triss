@@ -76,6 +76,9 @@ void BobTable::addRow(Row& row) {
 }
 
 Result *BobTable::select(const Query & q) const {
+    for(unsigned int i = 0; i < schema.size(); ++i) {
+        columns[i] -> prepareColumnForQuery();
+    }
 
     std::list<Constraint*> constraints = q.getConstraints();
     for(std::list<Constraint*>::iterator it = constraints.begin(); it != constraints.end(); it++) {
@@ -83,49 +86,43 @@ Result *BobTable::select(const Query & q) const {
         columns[c -> getAffectedColumn()] -> addConstraint(c);
     }
 
-    std::vector<Column::IndexRange> computedRanges(schema.size());
-    for(unsigned int i = 0; i < schema.size(); ++i) {
-        computedRanges[i] = columns[i] -> getRangeFromConstraints();
-    }
-
-    int minRangeLength = computedRanges[0].length();
+    Column::IndexRange minRange = columns[0] -> reduceConstraintsToRange();
     int minRangeIndex = 0;
-
     for(unsigned int i = 1; i < schema.size(); ++i) {
-        if(computedRanges[i].length() < minRangeLength) {
-            minRangeLength = computedRanges[i].length();
+        Column::IndexRange rangeCandidate = columns[i] -> reduceConstraintsToRange();
+        if(rangeCandidate.length() < minRange.length()) {
+            minRange = rangeCandidate;
             minRangeIndex = i;
         }
     }
 
-    int left = computedRanges[minRangeIndex].left, right = computedRanges[minRangeIndex].right;
-    int limit = q.getLimit();
-
     std::list<Row*> result;
-    if(left < 0) {
+    if(minRange.left < 0) {
         return new Result(result);
     }
 
     Schema s(schema);
     Row* row = new Row(s);
+    int limit = q.getLimit();
 
-    columns[minRangeIndex] -> markFieldsAsUnvisitedInRange(left, right);
-    for(;left <= right && result.size() < limit; ++left) {
-        if(columns[minRangeIndex] -> isFieldVisitedAt(left)) {
+    columns[minRangeIndex] -> markAsMainQueryColumn();
+    for(; minRange.left <= minRange.right && result.size() < limit; ++minRange.left) {
+        if(columns[minRangeIndex] -> isFieldVisitedAt(minRange.left)) {
             continue;
         }
         bool isRowOk = true;
-        int nextFieldId = columns[minRangeIndex] -> fillRowWithValueAndGetNextFieldId(left, minRangeIndex, row, true);
+
+        int nextFieldId = columns[minRangeIndex] -> fillRowWithValueAndGetNextFieldId(minRange.left, minRangeIndex, row);
         for(unsigned int i = 1; i < schema.size(); ++i) {
             int nextColumnId = (minRangeIndex + i) % schema.size();
-            nextFieldId = columns[nextColumnId] -> fillRowWithValueAndGetNextFieldId(nextFieldId, nextColumnId, row, false);
+            nextFieldId = columns[nextColumnId] -> fillRowWithValueAndGetNextFieldId(nextFieldId, nextColumnId, row);
             if(nextFieldId < 0) {
                 isRowOk = false;
                 break;
             }
         }
         if(isRowOk) {
-            columns[minRangeIndex] -> fillRowWithValueAndGetNextFieldId(nextFieldId, minRangeIndex, row, true);
+            columns[minRangeIndex] -> fillRowWithValueAndGetNextFieldId(nextFieldId, minRangeIndex, row);
             result.push_back(row);
             row = new Row(s);
         }

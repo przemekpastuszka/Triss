@@ -14,8 +14,8 @@ class ListColumn : public TypedColumn<T> {
     private:
     std::vector<ListField<T> > fields;
 
-    int leftVisitedBound;
     std::vector<bool> visited;
+    bool isMainColumn;
 
     public:
     Field<T>* getField(unsigned int i) {
@@ -39,11 +39,11 @@ class ListColumn : public TypedColumn<T> {
         addField(*left, nextFieldId, true);
     }
 
-    void addValueToResult(int valueIndex, std::list<T>& result, bool markVisitedFields) {
-        if(markVisitedFields &&
-                0 <= valueIndex - leftVisitedBound &&
-                valueIndex - leftVisitedBound < visited.size()) {
-            visited[valueIndex - leftVisitedBound] = true;
+    void addValueToResult(int valueIndex, std::list<T>& result) {
+        if(isMainColumn &&
+                this -> range.left <= valueIndex &&
+                valueIndex <= this -> range.right) {
+            visited[valueIndex - this -> range.left] = true;
         }
         result.push_back(fields[valueIndex].value);
     }
@@ -68,18 +68,18 @@ class ListColumn : public TypedColumn<T> {
                 std::upper_bound(fields.begin(), fields.end(), value);
         return int(it - fields.begin()) - 1;
     }
-    int fillRowWithValueAndGetNextFieldId(int valueIndex, int columnIndex, Row* row, bool markVisitedFields) {
+    int fillRowWithValueAndGetNextFieldId(int valueIndex, int columnIndex, Row* row) {
         std::list<T> result;
 
         bool hasAnyFieldInRange = false;
 
         while(fields[valueIndex].isLastElement == false) {
             hasAnyFieldInRange |= this -> range.isInRange(valueIndex);
-            addValueToResult(valueIndex, result, markVisitedFields);
+            addValueToResult(valueIndex, result);
             valueIndex = fields[valueIndex].nextFieldId;
         }
         hasAnyFieldInRange |= this -> range.isInRange(valueIndex);
-        addValueToResult(valueIndex, result, markVisitedFields);
+        addValueToResult(valueIndex, result);
 
         if(hasAnyFieldInRange == false) {
             return -1;
@@ -89,12 +89,16 @@ class ListColumn : public TypedColumn<T> {
         return fields[valueIndex].nextFieldId;
     }
     bool isFieldVisitedAt(int index) {
-        return visited[index - leftVisitedBound];
+        return visited[index - this -> range.left];
     }
-    void markFieldsAsUnvisitedInRange(int left, int right) {
-        leftVisitedBound = left;
+    void markAsMainQueryColumn() {
+        isMainColumn = true;
+        visited.resize(this -> range.right - this -> range.left + 1, false);
+    }
+    void prepareColumnForQuery() {
+        TypedColumn<T>::prepareColumnForQuery();
+        isMainColumn = false;
         visited.clear();
-        visited.resize(right - left + 1, false);
     }
 };
 

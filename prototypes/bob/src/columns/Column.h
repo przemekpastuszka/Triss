@@ -34,12 +34,14 @@ class Column {
     virtual void add(void* value, int nextFieldId) = 0;
 
     virtual void addConstraint(Constraint* constraint) = 0;
-    virtual IndexRange getRangeFromConstraints() = 0;
+    virtual IndexRange reduceConstraintsToRange() = 0;
 
-    virtual int fillRowWithValueAndGetNextFieldId(int valueIndex, int columnIndex, Row* row, bool markVisitedFields) = 0;
+    virtual int fillRowWithValueAndGetNextFieldId(int valueIndex, int columnIndex, Row* row) = 0;
+
+    virtual void prepareColumnForQuery() = 0;
 
     virtual bool isFieldVisitedAt(int index) = 0;
-    virtual void markFieldsAsUnvisitedInRange(int left, int right) = 0;
+    virtual void markAsMainQueryColumn() = 0;
 };
 
 template <class T>
@@ -71,8 +73,18 @@ class TypedColumn : public Column {
     void updateNextFieldIdsUsingMapping(int* currentColumnMapping, int *nextColumnMapping);
 
     virtual void addConstraint(Constraint* constraint);
-    virtual IndexRange getRangeFromConstraints();
+    virtual IndexRange reduceConstraintsToRange();
+
+    virtual void prepareColumnForQuery();
 };
+
+template <class T>
+void TypedColumn<T>::prepareColumnForQuery() {
+    if(valueRange != NULL) {
+        delete valueRange;
+    }
+    valueRange = NULL;
+}
 
 template <class T>
 int* TypedColumn<T>::getMappingFromCurrentToSortedPositions() {
@@ -110,7 +122,8 @@ template<class T> void TypedColumn<T>::addConstraint(Constraint *constraint) {
     }
 }
 
-template<class T> Column::IndexRange TypedColumn<T>::getRangeFromConstraints() {
+template<class T> Column::IndexRange TypedColumn<T>::reduceConstraintsToRange() {
+    range = IndexRange();
     if(valueRange == NULL) {
         range.left = 0;
         range.right = getSize() - 1;
@@ -130,9 +143,6 @@ template<class T> Column::IndexRange TypedColumn<T>::getRangeFromConstraints() {
             range.right = upperBound(valueRange -> getRight());
         }
     }
-
-    delete valueRange;
-    valueRange = NULL;
 
     range.validate(getSize());
     return range;

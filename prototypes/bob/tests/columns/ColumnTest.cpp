@@ -33,13 +33,15 @@ class ColumnTest : public ::testing::Test {
     }
 
     void checkForConstraints(int left, int right) {
+        c.prepareColumnForQuery();
+
         for(std::list<Constraint*>::iterator it = constraints.begin();
                 it != constraints.end();
                 it++) {
             c.addConstraint(*it);
         }
 
-        Column::IndexRange range = c.getRangeFromConstraints();
+        Column::IndexRange range = c.reduceConstraintsToRange();
 
         ASSERT_EQ(left, range.left);
         ASSERT_EQ(right, range.right);
@@ -49,10 +51,11 @@ class ColumnTest : public ::testing::Test {
         Constraint* l = TypedConstraint<double>::greaterOrEqual(0, leftValue);
         Constraint* r = TypedConstraint<double>::lessOrEqual(0, rightValue);
 
+        c.prepareColumnForQuery();
         c.addConstraint(l);
         c.addConstraint(r);
 
-        Column::IndexRange range = c.getRangeFromConstraints();
+        Column::IndexRange range = c.reduceConstraintsToRange();
 
         delete l; delete r;
 

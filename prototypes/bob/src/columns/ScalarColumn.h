@@ -40,7 +40,7 @@ class ScalarColumn : public TypedColumn<T> {
                 std::upper_bound(fields.begin(), fields.end(), value);
         return int(it - fields.begin()) - 1;
     }
-    int fillRowWithValueAndGetNextFieldId(int valueIndex, int columnIndex, Row* row, bool markVisitedFields) {
+    int fillRowWithValueAndGetNextFieldId(int valueIndex, int columnIndex, Row* row) {
         if(this -> range.isInRange(valueIndex) == false) {
             return -1;
         }
@@ -51,7 +51,7 @@ class ScalarColumn : public TypedColumn<T> {
     bool isFieldVisitedAt(int index) {
         return false;
     }
-    void markFieldsAsUnvisitedInRange(int left, int right) {
+    void markAsMainQueryColumn() {
     }
 };
 
