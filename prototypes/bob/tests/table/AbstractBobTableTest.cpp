@@ -10,7 +10,7 @@
 #include <string>
 #include <prototypes/bob/src/BobTable.h>
 #include <prototypes/common/src/Constraint.h>
-#include <various_stuff/Tools.h>
+#include <utils/src/Tools.h>
 
 
 class AbstractBobTableTest : public testing::Test {

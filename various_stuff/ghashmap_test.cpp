@@ -6,7 +6,7 @@
 #include <cstdlib>
 #include <ext/hash_map>
 #include <iostream>
-#include "Tools.h"
+#include <utils/src/Tools.h>
 
 struct eqstr {
   bool operator()(const char* s1, const char* s2) const {
