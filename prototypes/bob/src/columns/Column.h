@@ -4,150 +4,30 @@
 #ifndef PROTOTYPES_BOB_SRC_COLUMNS_COLUMN_H_
 #define PROTOTYPES_BOB_SRC_COLUMNS_COLUMN_H_
 
-#include <algorithm>
-#include "Fields.h"
+#include <cstdlib>
 #include <prototypes/common/src/Constraint.h>
 #include <prototypes/common/src/ValueRange.h>
 #include <prototypes/common/src/Row.h>
 
 class Column {
     public:
-    struct IndexRange {
-        int left, right;
-        IndexRange() : left(-1), right(-1) {}
-
-        void validate(int size) {
-            if(left >= size || right < 0 || left > right) {
-                left = right = -1;
-            }
-        }
-        int length() const { return right - left + 1; }
-        bool isInRange(int x) const { return left <= x && x <= right; }
-    };
+    struct IndexRange;
 
     virtual unsigned int getSize() const = 0;
 
-    virtual void sort() = 0;
+    /*** preparing structure ***/
+    virtual void setColumnId(int id) = 0;
+    virtual void add(const Row& row, int nextFieldId) = 0;
     virtual void createMappingFromCurrentToSortedPositions(std::vector<int>& mapping) = 0;
     virtual void updateNextFieldIdsUsingMapping(std::vector<int>& current, std::vector<int>& next) = 0;
+    virtual void sort() = 0;
 
-    virtual void add(void* value, int nextFieldId) = 0;
-
+    /*** 'select' auxiliary methods ***/
+    virtual void prepareColumnForQuery() = 0;
     virtual void addConstraint(Constraint* constraint) = 0;
     virtual IndexRange reduceConstraintsToRange() = 0;
-
-    virtual int fillRowWithValueAndGetNextFieldId(int valueIndex, Row* row) = 0;
-
-    virtual void prepareColumnForQuery() = 0;
     virtual void markAsMainQueryColumn() {}
-
-    virtual void setColumnId(int id) = 0;
+    virtual int fillRowWithValueAndGetNextFieldId(int valueIndex, Row* row) = 0;
 };
-
-template <class T>
-class TypedColumn : public Column {
-    private:
-    struct Position {
-        int position;
-        T element;
-
-        bool operator<(const Position& t) const {
-            return element < t.element;
-        }
-    };
-
-    ValueRange<T>* valueRange;
-
-    protected:
-    IndexRange range;
-    int columnId;
-
-    public:
-    virtual Field<T>* getField(unsigned int i) = 0;
-    virtual int lowerBound(const T& value) = 0;
-    virtual int upperBound(const T& value) = 0;
-
-    public:
-    TypedColumn() : valueRange(NULL) {}
-
-    void createMappingFromCurrentToSortedPositions(std::vector<int>& mapping);
-    void updateNextFieldIdsUsingMapping(std::vector<int>& current, std::vector<int>& next);
-
-    virtual void addConstraint(Constraint* constraint);
-    virtual IndexRange reduceConstraintsToRange();
-
-    virtual void prepareColumnForQuery();
-
-    void setColumnId(int id) { columnId = id; }
-};
-
-template <class T>
-void TypedColumn<T>::prepareColumnForQuery() {
-    if(valueRange != NULL) {
-        delete valueRange;
-    }
-    valueRange = NULL;
-}
-
-template <class T>
-void TypedColumn<T>::createMappingFromCurrentToSortedPositions(std::vector<int>& mapping) {
-    Position* positions = new Position[getSize()];
-    for(unsigned int i = 0; i < getSize(); ++i) {
-        positions[i].element = this -> getField(i) -> value;
-        positions[i].position = i;
-    }
-    std::sort(positions, positions + getSize());
-
-    mapping.resize(getSize());
-    for(unsigned int i = 0; i < getSize(); ++i) {
-        mapping[positions[i].position] = i;
-    }
-
-    delete [] positions;
-}
-
-template <class T>
-void TypedColumn<T>::updateNextFieldIdsUsingMapping(std::vector<int>& current, std::vector<int>& next) {
-    for(unsigned int i = 0; i < getSize(); ++i) {
-        getField(i) -> updateNextFieldUsingMapping(current, next);
-    }
-}
-
-template<class T> void TypedColumn<T>::addConstraint(Constraint *constraint) {
-    ValueRange<T>* r = ValueRange<T>::createFromConstraint(*((TypedConstraint<T>*) constraint));
-    if(valueRange == NULL) {
-        valueRange = r;
-    }
-    else {
-        valueRange -> intersectWith(r);
-    }
-}
-
-template<class T> Column::IndexRange TypedColumn<T>::reduceConstraintsToRange() {
-    range = IndexRange();
-    if(valueRange == NULL) {
-        range.left = 0;
-        range.right = getSize() - 1;
-        return range;
-    }
-    if(valueRange -> isEmpty() == false) {
-        if(valueRange -> isInfiniteOnTheLeft()) {
-            range.left = 0;
-        }
-        else {
-            range.left = lowerBound(valueRange -> getLeft());
-        }
-        if(valueRange -> isInfiniteOnTheRight()) {
-            range.right = getSize() - 1;
-        }
-        else {
-            range.right = upperBound(valueRange -> getRight());
-        }
-    }
-
-    range.validate(getSize());
-    return range;
-}
-
 
 #endif  // PROTOTYPES_BOB_SRC_COLUMNS_COLUMN_H_

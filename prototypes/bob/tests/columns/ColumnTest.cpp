@@ -16,9 +16,15 @@ class ColumnTest : public ::testing::Test {
     std::list<Constraint*> constraints;
 
     virtual void SetUp() {
+        c.setColumnId(0);
+
+        Schema::DataType schema[] = { Schema::NUMERICAL };
+        Row row(std::vector<Schema::DataType>(schema, schema + 1));
+
         double initialValues[] = {5, 12, 7, 8, 19, 1, 12, 5};
         for(int i = 0; i < 8; ++i) {
-            c.add(&initialValues[i], 0);
+            row.set<double>(0, initialValues[i]);
+            c.add(row, 0);
         }
         c.sort(); // 1 5 5 7 8 12 12 19
     }

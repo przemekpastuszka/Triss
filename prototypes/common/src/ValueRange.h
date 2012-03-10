@@ -28,6 +28,8 @@ class ValueRange {
     bool isEmpty() { return empty; }
     bool isInfiniteOnTheLeft() { return leftInfinity; }
     bool isInfiniteOnTheRight() { return rightInfinity; }
+    bool isFiniteOnTheLeft() { return !leftInfinity; }
+    bool isFiniteOnTheRight() { return !rightInfinity; }
 
     T& getLeft() { return left; }
     T& getRight() { return right; }

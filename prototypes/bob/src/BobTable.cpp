@@ -34,9 +34,9 @@ Column* BobTable :: generateColumn(Schema::DataType type) {
 void BobTable::addRow(Row& row) {
     int initialFirstColumnSize = columns[0] -> getSize();
     for(unsigned int i = 0; i < schema.size() - 1; ++i) {
-        columns[i] -> add(row.getPointer(i), columns[i + 1] -> getSize());
+        columns[i] -> add(row, columns[i + 1] -> getSize());
     }
-    columns[schema.size() - 1] -> add(row.getPointer(schema.size() - 1), initialFirstColumnSize);
+    columns[schema.size() - 1] -> add(row, initialFirstColumnSize);
 }
 
 void BobTable::prepareStructure() {

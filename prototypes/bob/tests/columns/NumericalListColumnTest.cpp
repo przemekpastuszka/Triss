@@ -17,12 +17,18 @@ class NumericalListColumnTest : public ::testing::Test {
     ListColumn<double> c;
 
     virtual void SetUp() {
+        c.setColumnId(1);
+
+        Schema::DataType schema[] = { Schema::NUMERICAL, Schema::NUMERICAL_LIST};
+        Row row(std::vector<Schema::DataType>(schema, schema + 2));
+
         std::list<double> ls;
         for(int i = 0; i < 6; ++i) {
             ls.push_back(initialValues[i]);
         }
 
-        c.add(&ls, 80);
+        row.set<std::list<double> >(1, ls);
+        c.add(row, 80);
     }
 };
 
@@ -46,7 +52,6 @@ TEST_F(NumericalListColumnTest, shouldFillRowWithGoodValues) {
     c.prepareColumnForQuery();
     c.reduceConstraintsToRange();
     c.markAsMainQueryColumn();
-    c.setColumnId(1);
 
     ASSERT_EQ(80, c.fillRowWithValueAndGetNextFieldId(3, &row));
     Tools::assertThatListIsEqualTo(row.get<std::list<double> >(1), Tools::vector<double>(3, /**/ 8.0, 19.0, 1.0));

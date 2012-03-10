@@ -9,7 +9,7 @@
 #include <prototypes/bob/src/BobTable.h>
 #include <prototypes/common/src/Constraint.h>
 #include <utils/src/Tools.h>
-
+#include <prototypes/bob/src/columns/TypedColumn.h>
 
 class AbstractBobTableTest : public testing::Test {
     protected:

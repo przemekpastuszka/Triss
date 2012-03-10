@@ -15,9 +15,15 @@ class NumericalColumnTest : public ::testing::Test {
     std::vector<int> mappings[2];
 
     virtual void SetUp() {
+        c.setColumnId(1);
+
+        Schema::DataType schema[] = { Schema::NUMERICAL, Schema::NUMERICAL};
+        Row row(std::vector<Schema::DataType>(schema, schema + 2));
+
         double initialValues[] = {5, 12, 7, 8, 19, 1};
         for(int i = 0; i < 6; ++i) {
-            c.add(&initialValues[i], 5 - i);
+            row.set<double>(1, initialValues[i]);
+            c.add(row, 5 - i);
         }
     }
 };
@@ -42,7 +48,6 @@ TEST_F(NumericalColumnTest, shouldFillRowWithGoodValue) {
     c.prepareColumnForQuery();
     c.reduceConstraintsToRange();
     c.markAsMainQueryColumn();
-    c.setColumnId(1);
 
     ASSERT_EQ(5, c.fillRowWithValueAndGetNextFieldId(1, &row));
     ASSERT_EQ(12, row.get<double>(1));

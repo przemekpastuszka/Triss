@@ -43,15 +43,11 @@ class Row {
     }
 
     template <class T>
-    T& get(int i) {
+    T& get(int i) const {
         return *static_cast<T*>(values[i]);
     }
 
-    void* getPointer(int i) {
-        return values[i];
-    }
-
-    bool isNull(int i) {
+    bool isNull(int i) const {
         return values[i] == NULL;
     }
 };

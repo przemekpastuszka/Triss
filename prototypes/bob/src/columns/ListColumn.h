@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <list>
 #include <vector>
-#include "Column.h"
+#include "TypedColumn.h"
 
 template <class T>
 class ListColumn : public TypedColumn<T> {
@@ -29,14 +29,6 @@ class ListColumn : public TypedColumn<T> {
         field.nextFieldId = nextFieldId;
         field.isLastElement = isLastElement;
         fields.push_back(field);
-    }
-    void addList(std::list<T> *ls, int nextFieldId) {
-        typename std::list<T>::iterator left = ls-> begin(), right = ls -> begin();
-        right++;
-        for(;right != ls -> end(); left++, right++){
-            addField(*left, fields.size() + 1, false);
-        }
-        addField(*left, nextFieldId, true);
     }
 
     bool shouldBeVisited(int valueIndex) {
@@ -60,9 +52,14 @@ class ListColumn : public TypedColumn<T> {
         std::sort(fields.begin(), fields.end());
     }
 
-    void add(void *value, int nextFieldId) {
-        std::list<T> *ls = static_cast<std::list<T>*>(value);
-        addList(ls, nextFieldId);
+    void add(const Row& row, int nextFieldId) {
+        std::list<T>& ls = row.get<std::list<T> >(this -> columnId);
+        typename std::list<T>::iterator left = ls.begin(), right = ls.begin();
+        right++;
+        for(;right != ls.end(); left++, right++){
+            addField(*left, fields.size() + 1, false);
+        }
+        addField(*left, nextFieldId, true);
     }
     int lowerBound(const T& value) {
         typename std::vector<ListField<T> >::iterator it =

@@ -6,7 +6,7 @@
 
 #include <algorithm>
 #include <vector>
-#include "Column.h"
+#include "TypedColumn.h"
 
 template <class T>
 class ScalarColumn : public TypedColumn<T> {
@@ -23,9 +23,9 @@ class ScalarColumn : public TypedColumn<T> {
     void sort() {
         std::sort(fields.begin(), fields.end());
     }
-    void add(void* value, int nextFieldId) {
+    void add(const Row& row, int nextFieldId) {
         Field<T> field;
-        field.value = *static_cast<T*>(value);
+        field.value = row.get<T>(this -> columnId);
         field.nextFieldId = nextFieldId;
         fields.push_back(field);
     }

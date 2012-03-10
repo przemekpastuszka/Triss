@@ -7,6 +7,7 @@
 #include <prototypes/common/src/Table.h>
 #include <prototypes/common/src/Schema.h>
 #include "columns/Column.h"
+#include "columns/Column.cpp"
 
 class BobTable : public Table {
     private:
