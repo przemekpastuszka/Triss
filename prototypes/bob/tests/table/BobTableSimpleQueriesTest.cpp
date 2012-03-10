@@ -19,7 +19,7 @@ TEST_F(BobTableSimpleQueriesTest, shouldReturnEmptyResultForDisjointConstraints)
 
 TEST_F(BobTableSimpleQueriesTest, shouldReturnEmptyResultWhenComputedRangesOnEachColumnsDoNotIntersect) {
     q.addConstraint(TypedConstraint<double>::lessOrEqual(0, 7));
-    q.addConstraint(TypedConstraint<std::string>::equals(2, "abba"));
+    q.addConstraint(TypedConstraint<std::string>::equals(2, "astaroth"));
 
     assertEmptyResult();
 }

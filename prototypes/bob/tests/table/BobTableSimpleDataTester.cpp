@@ -20,7 +20,7 @@ class BobTableSimpleDataTester : public AbstractBobTableTest {
 
         numericColumn = Tools::vector<double>(4, /**/ 7.0, 1.0, 8.0, 3.0);
 
-        std::string strings[] = { "gazda", "mazda", "abba", "gaździna" };
+        std::string strings[] = { "belial", "merihem", "astaroth", "belphegor" };
         stringColumn.assign(strings, strings + 4);
     }
 };

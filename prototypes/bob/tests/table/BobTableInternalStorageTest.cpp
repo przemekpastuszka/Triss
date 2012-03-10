@@ -12,7 +12,7 @@ class BobTableInternalStorageTest : public BobTableSimpleDataTester {
 TEST_F(BobTableInternalStorageTest, shouldSortElements) {
     double sortedNumericalColumn[] = {1, 3, 7, 8};
     double sortedNumericalListColumn[] = {0, 1, 2, 3, 7, 9, 10};
-    std::string sortedStringColumn[] = {"abba", "gazda", "gaździna", "mazda"};
+    std::string sortedStringColumn[] = {"astaroth", "belial", "belphegor", "merihem"};
 
     for(int i = 0; i < 4; ++i) {
         ASSERT_EQ(sortedNumericalColumn[i], bobTable -> getColumn<double>(0) -> getField(i) -> value);
