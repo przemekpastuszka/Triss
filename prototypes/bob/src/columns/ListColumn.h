@@ -40,7 +40,9 @@ class ListColumn : public TypedColumn<T> {
     }
 
     void addValueToResult(int valueIndex, std::list<T>& result, bool markVisitedFields) {
-        if(markVisitedFields && valueIndex >= leftVisitedBound) {
+        if(markVisitedFields &&
+                0 <= valueIndex - leftVisitedBound &&
+                valueIndex - leftVisitedBound < visited.size()) {
             visited[valueIndex - leftVisitedBound] = true;
         }
         result.push_back(fields[valueIndex].value);
@@ -68,11 +70,20 @@ class ListColumn : public TypedColumn<T> {
     }
     int fillRowWithValueAndGetNextFieldId(int valueIndex, int columnIndex, Row* row, bool markVisitedFields) {
         std::list<T> result;
+
+        bool hasAnyFieldInRange = false;
+
         while(fields[valueIndex].isLastElement == false) {
+            hasAnyFieldInRange |= this -> range.isInRange(valueIndex);
             addValueToResult(valueIndex, result, markVisitedFields);
             valueIndex = fields[valueIndex].nextFieldId;
         }
+        hasAnyFieldInRange |= this -> range.isInRange(valueIndex);
         addValueToResult(valueIndex, result, markVisitedFields);
+
+        if(hasAnyFieldInRange == false) {
+            return -1;
+        }
 
         row -> set<std::list<T> >(columnIndex, result);
         return fields[valueIndex].nextFieldId;

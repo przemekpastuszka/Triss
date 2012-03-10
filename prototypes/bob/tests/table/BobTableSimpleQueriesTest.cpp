@@ -38,9 +38,7 @@ TEST_F(BobTableSimpleQueriesTest, shouldReturnLastRowForContainsConstraint) {
     Row* row = result -> next();
     ASSERT_FALSE(result -> hasNext());
 
-    ASSERT_EQ(3, row -> get<double>(0));
-    Tools::assertThatListIsEqualTo<double>(row -> get<std::list<double> >(1), Tools::vector<double>(3, /**/ 0.0, 10.0, 9.0));
-    ASSERT_EQ("gaździna", row -> get<std::string>(2));
+    assertThatRowIsEqualTo(row, 3);
 }
 
 TEST_F(BobTableSimpleQueriesTest, shouldReturnOneRowWithLimit) {
@@ -64,9 +62,7 @@ TEST_F(BobTableSimpleQueriesTest, shouldReturnOneRowWithTwoConstraintsOnOneColum
     Row* row = result -> next();
     ASSERT_FALSE(result -> hasNext());
 
-    ASSERT_EQ(7, row -> get<double>(0));
-    Tools::assertThatListIsEqualTo<double>(row -> get<std::list<double> >(1), Tools::vector<double>(2, /**/ 1.0, 2.0));
-    ASSERT_EQ("gazda", row -> get<std::string>(2));
+    assertThatRowIsEqualTo(row, 0);
 }
 
 TEST_F(BobTableSimpleQueriesTest, shouldReturnTwoRows) {

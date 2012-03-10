@@ -61,6 +61,12 @@ class AbstractBobTableTest : public testing::Test {
         }
     }
 
+    void assertThatRowIsEqualTo(Row* row, int index) {
+        ASSERT_EQ(numericColumn[index], row -> get<double>(0));
+        Tools::assertThatListIsEqualTo(listColumn[index], row -> get<std::list<double> >(1));
+        ASSERT_EQ(stringColumn[index], row -> get<std::string>(2));
+    }
+
     void assertEmptyResult() {
         result = bobTable -> select(q);
 

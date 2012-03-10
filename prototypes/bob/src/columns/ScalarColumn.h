@@ -41,6 +41,10 @@ class ScalarColumn : public TypedColumn<T> {
         return int(it - fields.begin()) - 1;
     }
     int fillRowWithValueAndGetNextFieldId(int valueIndex, int columnIndex, Row* row, bool markVisitedFields) {
+        if(this -> range.isInRange(valueIndex) == false) {
+            return -1;
+        }
+
         row -> set<T>(columnIndex, fields[valueIndex].value);
         return fields[valueIndex].nextFieldId;
     }

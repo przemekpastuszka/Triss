@@ -56,6 +56,9 @@ class TypedColumn : public Column {
 
     ValueRange<T>* valueRange;
 
+    protected:
+    IndexRange range;
+
     public:
     virtual Field<T>* getField(unsigned int i) = 0;
     virtual int lowerBound(const T& value) = 0;
@@ -108,7 +111,6 @@ template<class T> void TypedColumn<T>::addConstraint(Constraint *constraint) {
 }
 
 template<class T> Column::IndexRange TypedColumn<T>::getRangeFromConstraints() {
-    IndexRange range;
     if(valueRange == NULL) {
         range.left = 0;
         range.right = getSize() - 1;

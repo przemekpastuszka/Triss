@@ -39,6 +39,7 @@ TEST_F(NumericalColumnTest, shouldFillRowWithGoodValue) {
     Row row(schema);
 
     c.markFieldsAsUnvisitedInRange(0, 5);
+    c.getRangeFromConstraints();
 
     ASSERT_EQ(5, c.fillRowWithValueAndGetNextFieldId(1, 1, &row, true));
     ASSERT_EQ(12, row.get<double>(1));

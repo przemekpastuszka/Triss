@@ -44,6 +44,7 @@ TEST_F(NumericalListColumnTest, shouldFillRowWithGoodValues) {
     Row row(schema);
 
     c.markFieldsAsUnvisitedInRange(1, 5);
+    c.getRangeFromConstraints();
 
     ASSERT_EQ(80, c.fillRowWithValueAndGetNextFieldId(3, 1, &row, true));
     Tools::assertThatListIsEqualTo(row.get<std::list<double> >(1), Tools::vector<double>(3, /**/ 8.0, 19.0, 1.0));

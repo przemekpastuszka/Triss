@@ -118,10 +118,8 @@ Result *BobTable::select(const Query & q) const {
         int nextFieldId = columns[minRangeIndex] -> fillRowWithValueAndGetNextFieldId(left, minRangeIndex, row, true);
         for(unsigned int i = 1; i < schema.size(); ++i) {
             int nextColumnId = (minRangeIndex + i) % schema.size();
-            if(computedRanges[nextColumnId].isInRange(nextFieldId)) {
-                nextFieldId = columns[nextColumnId] -> fillRowWithValueAndGetNextFieldId(nextFieldId, nextColumnId, row, false);
-            }
-            else {
+            nextFieldId = columns[nextColumnId] -> fillRowWithValueAndGetNextFieldId(nextFieldId, nextColumnId, row, false);
+            if(nextFieldId < 0) {
                 isRowOk = false;
                 break;
             }

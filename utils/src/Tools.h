@@ -41,6 +41,22 @@ class Tools {
             ASSERT_EQ(*it, elements[i]);
         }
     }
+
+    template <class T>
+    static void assertThatListIsEqualTo(std::list<T>& a, std::list<T>& b) {
+        ASSERT_EQ(a.size(), b.size());
+
+        for(typename std::list<T>::iterator left = a.begin(), right = b.begin();
+                left != a.end();
+                left++, right++) {
+            ASSERT_EQ(*left, *right);
+        }
+    }
+
+    template <class T>
+    static void assertThatListContains(std::list<T>& ls, const T& value) {
+        ASSERT_TRUE(std::find(ls.begin(), ls.end(), value) != ls.end());
+    }
 };
 
 #endif /* TOOLS_H_ */
