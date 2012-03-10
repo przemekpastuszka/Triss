@@ -26,7 +26,7 @@ class Table {
     }
     virtual void prepareStructure() = 0;
     virtual void addRow(Row& row) = 0;
-    virtual Result* select(const Query& q) const = 0;
+    virtual Result* select(const Query& q) = 0;
     virtual Row* createTableRow() const { return new Row(schema); }
 };
 

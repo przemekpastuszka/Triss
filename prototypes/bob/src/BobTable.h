@@ -10,20 +10,27 @@
 class BobTable : public Table {
     private:
     std::vector<Column*> columns;
-    bool columnsPrepared;
+
+    int mainColumnId;
+    Column::IndexRange mainColumnRange;
 
     void prepareCrossColumnPointers();
     void prepareColumns();
-
-
+    void prepareColumnsForQuery();
+    void applyConstraintsToColumns(const Query& q);
+    void chooseMainColumn();
+    bool retrieveRowBeginningWith(int indexOnMainColumn, Row*);
+    Result* gatherResults(const Query& q);
 
     public:
-    BobTable(const Schema& schema) : Table(schema), columnsPrepared(false) {};
+    BobTable(const Schema& schema) : Table(schema) {
+        prepareColumns();
+    };
     virtual ~BobTable();
 
     void prepareStructure();
     void addRow(Row& row);
-    Result* select(const Query& q) const;
+    Result* select(const Query& q);
 
 #ifdef TRISS_TEST
     template <class T>

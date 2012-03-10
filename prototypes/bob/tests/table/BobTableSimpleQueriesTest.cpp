@@ -41,6 +41,17 @@ TEST_F(BobTableSimpleQueriesTest, shouldReturnLastRowForContainsConstraint) {
     assertThatRowIsEqualTo(row, 3);
 }
 
+TEST_F(BobTableSimpleQueriesTest, shouldReturnSecondRowForContainsConstraint) {
+    q.addConstraint(TypedConstraint<double>::contains(1, 7));
+    result = bobTable -> select(q);
+
+    ASSERT_TRUE(result -> hasNext());
+    Row* row = result -> next();
+    ASSERT_FALSE(result -> hasNext());
+
+    assertThatRowIsEqualTo(row, 1);
+}
+
 TEST_F(BobTableSimpleQueriesTest, shouldReturnOneRowWithLimit) {
     q.addConstraint(TypedConstraint<double>::greaterOrEqual(0, 7));
     q.limit(1);

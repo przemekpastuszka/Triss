@@ -39,7 +39,7 @@ class Column {
     virtual int fillRowWithValueAndGetNextFieldId(int valueIndex, Row* row) = 0;
 
     virtual void prepareColumnForQuery() = 0;
-    virtual void markAsMainQueryColumn() = 0;
+    virtual void markAsMainQueryColumn() {}
 
     virtual void setColumnId(int id) = 0;
 };

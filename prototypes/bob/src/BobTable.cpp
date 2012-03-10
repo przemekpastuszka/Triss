@@ -64,66 +64,72 @@ void BobTable::prepareColumns() {
 }
 
 void BobTable::addRow(Row& row) {
-    if(columnsPrepared == false) {
-        prepareColumns();
-        columnsPrepared = true;
-    }
-
-    int firstColumnSize = columns[0] -> getSize();
+    int initialFirstColumnSize = columns[0] -> getSize();
     for(unsigned int i = 0; i < schema.size() - 1; ++i) {
         columns[i] -> add(row.getPointer(i), columns[i + 1] -> getSize());
     }
-    columns[schema.size() - 1] -> add(row.getPointer(schema.size() - 1), firstColumnSize);
+    columns[schema.size() - 1] -> add(row.getPointer(schema.size() - 1), initialFirstColumnSize);
 }
 
-Result *BobTable::select(const Query & q) const {
+Result *BobTable::select(const Query & q) {
+    prepareColumnsForQuery();
+    applyConstraintsToColumns(q);
+    chooseMainColumn();
+
+    return gatherResults(q);
+}
+
+Result* BobTable::gatherResults(const Query& q){
+    std::list<Row*> results;
+    int limit = q.getLimit();
+
+    if(mainColumnRange.left >= 0) {
+        Row* row = createTableRow();
+
+        for(int i = 0; i < mainColumnRange.length() && results.size() < limit; ++i) {
+            if(retrieveRowBeginningWith(mainColumnRange.left + i, row)) {
+                results.push_back(row);
+                row = createTableRow();
+            }
+        }
+        delete row;
+    }
+    return new Result(results);
+}
+
+
+bool BobTable::retrieveRowBeginningWith(int nextFieldId, Row* row) {
+    unsigned int i;
+    for(i = 0; i <= schema.size() && nextFieldId >= 0; ++i) {
+        int nextColumnId = (mainColumnId + i) % schema.size();
+        nextFieldId = columns[nextColumnId] -> fillRowWithValueAndGetNextFieldId(nextFieldId, row);
+    }
+    return i > schema.size();
+}
+
+void BobTable::prepareColumnsForQuery() {
     for(unsigned int i = 0; i < schema.size(); ++i) {
         columns[i] -> prepareColumnForQuery();
     }
+}
 
+void BobTable::chooseMainColumn() {
+    mainColumnRange = columns[0] -> reduceConstraintsToRange();
+    mainColumnId = 0;
+    for(unsigned int i = 1; i < schema.size(); ++i) {
+        Column::IndexRange candidateColumnRange = columns[i] -> reduceConstraintsToRange();
+        if(candidateColumnRange.length() < mainColumnRange.length()) {
+            mainColumnRange = candidateColumnRange;
+            mainColumnId = i;
+        }
+    }
+    columns[mainColumnId] -> markAsMainQueryColumn();
+}
+
+void BobTable::applyConstraintsToColumns(const Query& q) {
     std::list<Constraint*> constraints = q.getConstraints();
     for(std::list<Constraint*>::iterator it = constraints.begin(); it != constraints.end(); it++) {
         Constraint* c = *it;
         columns[c -> getAffectedColumn()] -> addConstraint(c);
     }
-
-    Column::IndexRange minRange = columns[0] -> reduceConstraintsToRange();
-    int minRangeIndex = 0;
-    for(unsigned int i = 1; i < schema.size(); ++i) {
-        Column::IndexRange rangeCandidate = columns[i] -> reduceConstraintsToRange();
-        if(rangeCandidate.length() < minRange.length()) {
-            minRange = rangeCandidate;
-            minRangeIndex = i;
-        }
-    }
-
-    std::list<Row*> result;
-    if(minRange.left < 0) {
-        return new Result(result);
-    }
-
-    Row* row = createTableRow();
-    int limit = q.getLimit();
-
-    columns[minRangeIndex] -> markAsMainQueryColumn();
-    for(; minRange.left <= minRange.right && result.size() < limit; ++minRange.left) {
-        bool isRowOk = true;
-        int nextFieldId = minRange.left;
-        for(unsigned int i = 0; i < schema.size(); ++i) {
-            int nextColumnId = (minRangeIndex + i) % schema.size();
-            nextFieldId = columns[nextColumnId] -> fillRowWithValueAndGetNextFieldId(nextFieldId, row);
-            if(nextFieldId < 0) {
-                isRowOk = false;
-                break;
-            }
-        }
-        if(isRowOk) {
-            columns[minRangeIndex] -> fillRowWithValueAndGetNextFieldId(nextFieldId, row);
-            result.push_back(row);
-            row = createTableRow();
-        }
-    }
-    delete row;
-
-    return new Result(result);
 }

@@ -48,8 +48,6 @@ class ScalarColumn : public TypedColumn<T> {
         row -> set<T>(this -> columnId, fields[valueIndex].value);
         return fields[valueIndex].nextFieldId;
     }
-    void markAsMainQueryColumn() {
-    }
 };
 
 #endif /* PROTOTYPES_BOB_SRC_COLUMNS_SCALARCOLUMN_H_ */
