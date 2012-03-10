@@ -41,12 +41,10 @@ TEST_F(NumericalColumnTest, shouldFillRowWithGoodValue) {
     c.prepareColumnForQuery();
     c.reduceConstraintsToRange();
     c.markAsMainQueryColumn();
+    c.setColumnId(1);
 
-    ASSERT_EQ(5, c.fillRowWithValueAndGetNextFieldId(1, 1, &row));
+    ASSERT_EQ(5, c.fillRowWithValueAndGetNextFieldId(1, &row));
     ASSERT_EQ(12, row.get<double>(1));
-
-    ASSERT_FALSE(c.isFieldVisitedAt(1));
-    ASSERT_FALSE(c.isFieldVisitedAt(2));
 
     delete [] mapping;
 }

@@ -5,6 +5,7 @@
 #define PROTOTYPES_COMMON_SRC_ROW_H_
 
 #include <cstdlib>
+#include <vector>
 #include "Schema.h"
 
 class Row {
@@ -12,14 +13,18 @@ class Row {
     void** values;
     int size;
 
-    public:
-    Row(const Schema& schema) {
-        size = schema.schema.size();
+    void init(const std::vector<Schema::DataType>& schema) {
+        size = schema.size();
         values = new void*[size];
         for(int i = 0; i < size; ++i) {
             values[i] = NULL;
         }
     }
+
+    public:
+    Row(const Schema& schema) { init(schema.schema); }
+    Row(const std::vector<Schema::DataType>& schema) { init(schema); }
+
     ~Row() {
         for(int i = 0; i < size; ++i) {
             if(values[i] != NULL) {
@@ -44,6 +49,10 @@ class Row {
 
     void* getPointer(int i) {
         return values[i];
+    }
+
+    bool isNull(int i) {
+        return values[i] == NULL;
     }
 };
 

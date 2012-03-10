@@ -39,10 +39,16 @@ class ListColumn : public TypedColumn<T> {
         addField(*left, nextFieldId, true);
     }
 
+    bool shouldBeVisited(int valueIndex) {
+        return isMainColumn && this -> range.left <= valueIndex && valueIndex <= this -> range.right;
+    }
+
+    bool isVisited(int valueIndex) {
+        return shouldBeVisited(valueIndex) && visited[valueIndex - this -> range.left];
+    }
+
     void addValueToResult(int valueIndex, std::list<T>& result) {
-        if(isMainColumn &&
-                this -> range.left <= valueIndex &&
-                valueIndex <= this -> range.right) {
+        if(shouldBeVisited(valueIndex)) {
             visited[valueIndex - this -> range.left] = true;
         }
         result.push_back(fields[valueIndex].value);
@@ -68,11 +74,13 @@ class ListColumn : public TypedColumn<T> {
                 std::upper_bound(fields.begin(), fields.end(), value);
         return int(it - fields.begin()) - 1;
     }
-    int fillRowWithValueAndGetNextFieldId(int valueIndex, int columnIndex, Row* row) {
+    int fillRowWithValueAndGetNextFieldId(int valueIndex, Row* row) {
+        if(isVisited(valueIndex)) {
+            return -1;
+        }
+
         std::list<T> result;
-
         bool hasAnyFieldInRange = false;
-
         while(fields[valueIndex].isLastElement == false) {
             hasAnyFieldInRange |= this -> range.isInRange(valueIndex);
             addValueToResult(valueIndex, result);
@@ -85,11 +93,8 @@ class ListColumn : public TypedColumn<T> {
             return -1;
         }
 
-        row -> set<std::list<T> >(columnIndex, result);
+        row -> set<std::list<T> >(this -> columnId, result);
         return fields[valueIndex].nextFieldId;
-    }
-    bool isFieldVisitedAt(int index) {
-        return visited[index - this -> range.left];
     }
     void markAsMainQueryColumn() {
         isMainColumn = true;

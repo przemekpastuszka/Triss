@@ -46,12 +46,8 @@ TEST_F(NumericalListColumnTest, shouldFillRowWithGoodValues) {
     c.prepareColumnForQuery();
     c.reduceConstraintsToRange();
     c.markAsMainQueryColumn();
+    c.setColumnId(1);
 
-    ASSERT_EQ(80, c.fillRowWithValueAndGetNextFieldId(3, 1, &row));
+    ASSERT_EQ(80, c.fillRowWithValueAndGetNextFieldId(3, &row));
     Tools::assertThatListIsEqualTo(row.get<std::list<double> >(1), Tools::vector<double>(3, /**/ 8.0, 19.0, 1.0));
-
-    ASSERT_FALSE(c.isFieldVisitedAt(2));
-    for(int i = 3; i < 6; ++i) {
-        ASSERT_TRUE(c.isFieldVisitedAt(i));
-    }
 }

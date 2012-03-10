@@ -59,6 +59,7 @@ void BobTable::prepareColumns() {
     columns.reserve(schema.size());
     for(unsigned int i = 0; i < schema.size();++i){
         columns[i] = generateColumn(schema[i]);
+        columns[i] -> setColumnId(i);
     }
 }
 
@@ -101,30 +102,25 @@ Result *BobTable::select(const Query & q) const {
         return new Result(result);
     }
 
-    Schema s(schema);
-    Row* row = new Row(s);
+    Row* row = createTableRow();
     int limit = q.getLimit();
 
     columns[minRangeIndex] -> markAsMainQueryColumn();
     for(; minRange.left <= minRange.right && result.size() < limit; ++minRange.left) {
-        if(columns[minRangeIndex] -> isFieldVisitedAt(minRange.left)) {
-            continue;
-        }
         bool isRowOk = true;
-
-        int nextFieldId = columns[minRangeIndex] -> fillRowWithValueAndGetNextFieldId(minRange.left, minRangeIndex, row);
-        for(unsigned int i = 1; i < schema.size(); ++i) {
+        int nextFieldId = minRange.left;
+        for(unsigned int i = 0; i < schema.size(); ++i) {
             int nextColumnId = (minRangeIndex + i) % schema.size();
-            nextFieldId = columns[nextColumnId] -> fillRowWithValueAndGetNextFieldId(nextFieldId, nextColumnId, row);
+            nextFieldId = columns[nextColumnId] -> fillRowWithValueAndGetNextFieldId(nextFieldId, row);
             if(nextFieldId < 0) {
                 isRowOk = false;
                 break;
             }
         }
         if(isRowOk) {
-            columns[minRangeIndex] -> fillRowWithValueAndGetNextFieldId(nextFieldId, minRangeIndex, row);
+            columns[minRangeIndex] -> fillRowWithValueAndGetNextFieldId(nextFieldId, row);
             result.push_back(row);
-            row = new Row(s);
+            row = createTableRow();
         }
     }
     delete row;

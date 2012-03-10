@@ -40,16 +40,13 @@ class ScalarColumn : public TypedColumn<T> {
                 std::upper_bound(fields.begin(), fields.end(), value);
         return int(it - fields.begin()) - 1;
     }
-    int fillRowWithValueAndGetNextFieldId(int valueIndex, int columnIndex, Row* row) {
+    int fillRowWithValueAndGetNextFieldId(int valueIndex, Row* row) {
         if(this -> range.isInRange(valueIndex) == false) {
             return -1;
         }
 
-        row -> set<T>(columnIndex, fields[valueIndex].value);
+        row -> set<T>(this -> columnId, fields[valueIndex].value);
         return fields[valueIndex].nextFieldId;
-    }
-    bool isFieldVisitedAt(int index) {
-        return false;
     }
     void markAsMainQueryColumn() {
     }

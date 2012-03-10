@@ -36,12 +36,12 @@ class Column {
     virtual void addConstraint(Constraint* constraint) = 0;
     virtual IndexRange reduceConstraintsToRange() = 0;
 
-    virtual int fillRowWithValueAndGetNextFieldId(int valueIndex, int columnIndex, Row* row) = 0;
+    virtual int fillRowWithValueAndGetNextFieldId(int valueIndex, Row* row) = 0;
 
     virtual void prepareColumnForQuery() = 0;
-
-    virtual bool isFieldVisitedAt(int index) = 0;
     virtual void markAsMainQueryColumn() = 0;
+
+    virtual void setColumnId(int id) = 0;
 };
 
 template <class T>
@@ -60,6 +60,7 @@ class TypedColumn : public Column {
 
     protected:
     IndexRange range;
+    int columnId;
 
     public:
     virtual Field<T>* getField(unsigned int i) = 0;
@@ -76,6 +77,8 @@ class TypedColumn : public Column {
     virtual IndexRange reduceConstraintsToRange();
 
     virtual void prepareColumnForQuery();
+
+    void setColumnId(int id) { columnId = id; }
 };
 
 template <class T>
