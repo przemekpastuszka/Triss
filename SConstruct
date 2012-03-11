@@ -20,8 +20,14 @@ def build_project_with_tests(output, sources):
     env.Alias(output, prog)
 
 def build_project(output, sources):
+    # if scons does not know where to search for boost libraries
+    # you may want to uncomment two following lines and maybe
+    # adjust them to your boost installation path
+    #env.Append(LIBPATH = ['/usr/local/lib'])
+    #env.Append(CPPPATH = ['/usr/local/include/boost'])
+    env.Append(LIBS = ['boost_program_options', 'boost_thread'])
     inputs = get_objects_at(sources)
-    prog = env.Program('build/' + output, inputs, LIBS=['pthread'])
+    prog = env.Program('build/' + output, inputs)
     env.Alias(output, prog)
 
 build_project_with_tests('bob_test', ['utils/src', 'prototypes/common/src', 'prototypes/bob/src', 'prototypes/bob/tests'])

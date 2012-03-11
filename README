@@ -52,7 +52,7 @@ TRISS is in pre-alpha phase at the moment and is not yet usable. Nevertheless, y
 
 Current state of work (8.03.2012)
 ----------------------------------
-- script for generating sample data is done (source: tests/helpers/bid_req_generator)
+- script for generating sample data is done (source: prototypes/benchmark/test_data_generator)
 - Bob prototype is done in 70% (source: prototypes/bob)
     we're planning to finish it within a week
 - Alice is also going to be here soon (and the source dir will be: prototypes/alice)

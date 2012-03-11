@@ -15,7 +15,7 @@ def parse(filename):
     return res
 
 sample_values = {
-        'empty': [''],
+        #'empty': [''],
         'age': [str(a) for a in range(14, 100)],
         'os': parse('operating_systems'),
         'country': parse('countries'),
