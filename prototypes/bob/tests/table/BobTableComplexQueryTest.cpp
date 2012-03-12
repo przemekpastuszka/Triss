@@ -67,6 +67,6 @@ TEST_F(BobTableComplexQueryTest, shouldReturnAnswerForConstraintsOnAllColumns) {
 TEST_F(BobTableComplexQueryTest, shouldReturnAllRowsWhenNoConstraintsGiven) {
     result = bobTable -> select(q);
 
-    ASSERT_EQ(7, result -> fetchAll().size());
+    ASSERT_EQ(7, result -> fetchAll() -> size());
 }
 

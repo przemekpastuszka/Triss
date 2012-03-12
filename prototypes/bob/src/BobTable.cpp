@@ -69,15 +69,15 @@ Result *BobTable::select(const Query & q) {
 }
 
 Result* BobTable::gatherResults(const Query& q){
-    std::list<Row*> results;
+    std::list<Row*>* results = new std::list<Row*>();
     int limit = q.getLimit();
 
     if(mainColumnRange.left >= 0) {
         Row* row = createTableRow();
 
-        for(int i = 0; i < mainColumnRange.length() && results.size() < limit; ++i) {
+        for(int i = 0; i < mainColumnRange.length() && results -> size() < limit; ++i) {
             if(retrieveRowBeginningWith(mainColumnRange.left + i, row)) {
-                results.push_back(row);
+                results -> push_back(row);
                 row = createTableRow();
             }
         }

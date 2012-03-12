@@ -10,15 +10,15 @@
 
 class Result {
     private:
-    std::list<Row*> rows;
+    std::list<Row*>* rows;
     std::list<Row*>::iterator current;
 
     public:
-    Result(std::list<Row*>& rows);
+    Result(std::list<Row*>* rows);
     ~Result();
     bool hasNext();
     Row* next();
-    std::list<Row*> fetchAll();
+    std::list<Row*>* fetchAll();
 };
 
 #endif  // PROTOTYPES_COMMON_SRC_RESULT_H_

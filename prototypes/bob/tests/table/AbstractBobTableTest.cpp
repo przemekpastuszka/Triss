@@ -9,9 +9,9 @@
 #include <prototypes/bob/src/BobTable.h>
 #include <prototypes/common/src/Constraint.h>
 #include <utils/src/Tools.h>
-#include <prototypes/bob/src/columns/TypedColumn.h>
+#include <prototypes/bob/tests/AbstractBobTest.h>
 
-class AbstractBobTableTest : public testing::Test {
+class AbstractBobTableTest : public testing::Test, public AbstractBobTest {
     protected:
     std::vector<std::list<double> > listColumn;
     std::vector<double> numericColumn;
@@ -69,12 +69,7 @@ class AbstractBobTableTest : public testing::Test {
         result = bobTable -> select(q);
 
         ASSERT_FALSE(result -> hasNext());
-        std::list<Row*> results = result -> fetchAll();
-        ASSERT_EQ(0, results.size());
-    }
-
-    template <class T>
-    TypedColumn<T>* getColumn(int i) {
-        return static_cast<TypedColumn<T>*>(bobTable -> columns[i]);
+        std::list<Row*>* results = result -> fetchAll();
+        ASSERT_EQ(0, results -> size());
     }
 };

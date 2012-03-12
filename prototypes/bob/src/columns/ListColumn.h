@@ -32,35 +32,44 @@ class ListColumn : public TypedColumn<T> {
     }
 
     bool shouldBeVisited(int valueIndex) {
-        return isMainColumn && this -> range.isInRange(valueIndex);
+        return isMainColumn && this -> constraintRange.isInRange(valueIndex);
     }
 
     bool isVisited(int valueIndex) {
-        return shouldBeVisited(valueIndex) && visited[valueIndex - this -> range.left];
+        return shouldBeVisited(valueIndex) && visited[valueIndex - this -> constraintRange.left];
     }
 
     void addValueToResult(int valueIndex, std::list<T>& result) {
         if(shouldBeVisited(valueIndex)) {
-            visited[valueIndex - this -> range.left] = true;
+            visited[valueIndex - this -> constraintRange.left] = true;
         }
         result.push_back(fields[valueIndex].value);
     }
 
     public:
     unsigned int getSize() const { return fields.size(); }
-    void sort() {
-        std::sort(fields.begin(), fields.end());
-    }
 
     void add(const Row& row, int nextFieldId) {
         std::list<T>& ls = row.get<std::list<T> >(this -> columnId);
+
         typename std::list<T>::iterator left = ls.begin(), right = ls.begin();
         right++;
-        for(;right != ls.end(); left++, right++){
+        for(;right != ls.end(); left++, right++) {
             addField(*left, fields.size() + 1, false);
         }
         addField(*left, nextFieldId, true);
     }
+
+    void sort() {
+        std::sort(fields.begin(), fields.end());
+    }
+
+    void prepareColumnForQuery() {
+        TypedColumn<T>::prepareColumnForQuery();
+        isMainColumn = false;
+        visited.clear();
+    }
+
     int lowerBound(const T& value) {
         typename std::vector<ListField<T> >::iterator it =
                 std::lower_bound(fields.begin(), fields.end(), value);
@@ -71,6 +80,12 @@ class ListColumn : public TypedColumn<T> {
                 std::upper_bound(fields.begin(), fields.end(), value);
         return int(it - fields.begin()) - 1;
     }
+
+    void markAsMainQueryColumn() {
+        isMainColumn = true;
+        visited.resize(this -> constraintRange.length(), false);
+    }
+
     int fillRowWithValueAndGetNextFieldId(int valueIndex, Row* row) {
         if(isVisited(valueIndex)) {
             return -1;
@@ -79,11 +94,11 @@ class ListColumn : public TypedColumn<T> {
         std::list<T> result;
         bool hasAnyFieldInRange = false;
         while(fields[valueIndex].isLastElement == false) {
-            hasAnyFieldInRange |= this -> range.isInRange(valueIndex);
+            hasAnyFieldInRange |= this -> constraintRange.isInRange(valueIndex);
             addValueToResult(valueIndex, result);
             valueIndex = fields[valueIndex].nextFieldId;
         }
-        hasAnyFieldInRange |= this -> range.isInRange(valueIndex);
+        hasAnyFieldInRange |= this -> constraintRange.isInRange(valueIndex);
         addValueToResult(valueIndex, result);
 
         if(hasAnyFieldInRange == false) {
@@ -92,15 +107,6 @@ class ListColumn : public TypedColumn<T> {
 
         row -> set<std::list<T> >(this -> columnId, result);
         return fields[valueIndex].nextFieldId;
-    }
-    void markAsMainQueryColumn() {
-        isMainColumn = true;
-        visited.resize(this -> range.right - this -> range.left + 1, false);
-    }
-    void prepareColumnForQuery() {
-        TypedColumn<T>::prepareColumnForQuery();
-        isMainColumn = false;
-        visited.clear();
     }
 };
 
