@@ -20,14 +20,15 @@ class ScalarColumn : public TypedColumn<T> {
 
     public:
     unsigned int getSize() const { return fields.size(); }
-    void sort() {
-        std::sort(fields.begin(), fields.end());
-    }
+
     void add(const Row& row, int nextFieldId) {
         Field<T> field;
         field.value = row.get<T>(this -> columnId);
         field.nextFieldId = nextFieldId;
         fields.push_back(field);
+    }
+    void sort() {
+        std::sort(fields.begin(), fields.end());
     }
 
     int lowerBound(const T& value) {
@@ -40,8 +41,9 @@ class ScalarColumn : public TypedColumn<T> {
                 std::upper_bound(fields.begin(), fields.end(), value);
         return int(it - fields.begin()) - 1;
     }
+
     int fillRowWithValueAndGetNextFieldId(int valueIndex, Row* row) {
-        if(this -> range.isInRange(valueIndex) == false) {
+        if(this -> constraintRange.isInRange(valueIndex) == false) {
             return -1;
         }
 

@@ -39,7 +39,7 @@ class BobTable : public Table {
     void addRow(Row& row);
     Result* select(const Query& q);
 
-    friend class AbstractBobTableTest;
+    friend class AbstractBobTest;
 };
 
 #endif  // PROTOTYPES_BOB_SRC_BOBTABLE_H_

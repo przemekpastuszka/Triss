@@ -24,10 +24,9 @@ class TypedColumn : public Column {
     ValueRange<T>* valueRange;
 
     protected:
-    IndexRange range;
     int columnId;
+    IndexRange constraintRange;
 
-    public:
     virtual Field<T>* getField(unsigned int i) = 0;
     virtual int lowerBound(const T& value) = 0;
     virtual int upperBound(const T& value) = 0;
@@ -35,15 +34,17 @@ class TypedColumn : public Column {
     public:
     TypedColumn() : valueRange(NULL) {}
 
+    /*** preparing structure ***/
+    void setColumnId(int id) { columnId = id; }
     void createMappingFromCurrentToSortedPositions(std::vector<int>& mapping);
     void updateNextFieldIdsUsingMapping(std::vector<int>& current, std::vector<int>& next);
 
+    /*** 'select' auxiliary methods ***/
+    virtual void prepareColumnForQuery();
     virtual void addConstraint(Constraint* constraint);
     virtual IndexRange reduceConstraintsToRange();
 
-    virtual void prepareColumnForQuery();
-
-    void setColumnId(int id) { columnId = id; }
+    friend class AbstractBobTest;
 };
 
 template <class T>
@@ -90,21 +91,21 @@ template<class T> void TypedColumn<T>::addConstraint(Constraint *constraint) {
 
 template<class T> Column::IndexRange TypedColumn<T>::reduceConstraintsToRange() {
     if(valueRange != NULL && valueRange -> isEmpty()) {
-        range = IndexRange();
-        return range;
+        constraintRange = IndexRange();
+        return constraintRange;
     }
 
-    range = IndexRange(0, getSize() - 1);
+    constraintRange = IndexRange(0, getSize() - 1);
     if(valueRange != NULL) {
         if(valueRange -> isFiniteOnTheLeft()) {
-            range.left = lowerBound(valueRange -> getLeft());
+            constraintRange.left = lowerBound(valueRange -> getLeft());
         }
         if(valueRange -> isFiniteOnTheRight()) {
-            range.right = upperBound(valueRange -> getRight());
+            constraintRange.right = upperBound(valueRange -> getRight());
         }
     }
-    range.validate(getSize());
-    return range;
+    constraintRange.validate(getSize());
+    return constraintRange;
 }
 
 
