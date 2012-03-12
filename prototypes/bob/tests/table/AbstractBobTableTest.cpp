@@ -69,8 +69,8 @@ class AbstractBobTableTest : public testing::Test {
         result = bobTable -> select(q);
 
         ASSERT_FALSE(result -> hasNext());
-        std::list<Row*> results = result -> fetchAll();
-        ASSERT_EQ(0, results.size());
+        std::list<Row*>* results = result -> fetchAll();
+        ASSERT_EQ(0, results -> size());
     }
 
     template <class T>
