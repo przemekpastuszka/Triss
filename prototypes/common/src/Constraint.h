@@ -9,6 +9,7 @@ class Constraint {
     enum ConstraintType {
         EQUALS, CONTAINS, GREATER_OR_EQUAL, LESS_OR_EQUAL
     };
+    virtual ~Constraint() {};
 
     protected:
     Constraint(ConstraintType type, int column) : type(type), column(column) {};
@@ -26,24 +27,24 @@ template <class T>
 class TypedConstraint : public Constraint {
     private:
     T constraint;
-    TypedConstraint(Constraint::ConstraintType type, int column, T constraint) :
+    TypedConstraint(Constraint::ConstraintType type, int column, const T& constraint) :
         Constraint(type, column), constraint(constraint) {};
     
     public:
-        static TypedConstraint* equals(int column, T constraint) {
+        static TypedConstraint* equals(int column, const T& constraint) {
             return new TypedConstraint(Constraint::EQUALS, column, constraint);
         };
         
-        static TypedConstraint* contains(int column, T constraint) {
+        static TypedConstraint* contains(int column, const T& constraint) {
             return new TypedConstraint(Constraint::CONTAINS, column,
                                        constraint);
         };
         
-        static TypedConstraint* greaterOrEqual(int column, T constraint) {
+        static TypedConstraint* greaterOrEqual(int column, const T& constraint) {
             return new TypedConstraint(Constraint::GREATER_OR_EQUAL, column, constraint);
         };
         
-        static TypedConstraint* lessOrEqual(int column, T constraint) {
+        static TypedConstraint* lessOrEqual(int column, const T& constraint) {
             return new TypedConstraint(Constraint::LESS_OR_EQUAL, column, constraint);
         };
 
