@@ -7,6 +7,9 @@
 #include "helpers.h"
 
 int NTYPES = 4;
+int NLIST_CONSTR = 2;
+int NNON_LIST_CONSTR = 2;
+int MAXRESULTS = 10;
 char TEST_DATA_FILE[] = "test_data";
 
 namespace po = boost::program_options;
@@ -48,17 +51,25 @@ int main(int argc, char** argv) {
     srand(seed);
     if (verbose) { std::cout << "[++] Seed for random number generator set to "
                              << seed << "\n"; }
+    if (verbose) { std::cout << "[++] Retrieving info on available fields ... "
+                             << std::flush; }
+    std::vector< Field > fields = get_field_info();
+    if (verbose) { std::cout << "done\n"; }
+    // choose distinct random fields
+    int fnums[ncolumns];
+    sample(0, fields.size()-1, fnums, ncolumns);
+    if (verbose) {
+        std::cout << "[++] Selected fields: ";
+        for (int i = 0; i < ncolumns; ++i) {
+            std::cout << fields[fnums[i]].name << " ";
+        }
+        std::cout << std::endl;
+    }
+
     if (!quiet) { std::cout << "[+] Generating test data (" << ndocs <<
                                " documents) ... " << std::flush; }
-    // choose distinct random columns
-    int cols[ncolumns];
-    sample(1,14,cols,ncolumns);
-    int types[ncolumns];
-    for (int i = 0; i < ncolumns; ++i) {
-        types[i] = rand() % 2;
-    }
     if (!generate_test_data(TEST_DATA_FILE, seed, ndocs,
-                            cols, types, ncolumns)) {
+                            fnums, ncolumns, &fields)) {
         std::cerr << "\n   [-] Test data generation failed\n";
         return 1;
     }
@@ -70,19 +81,7 @@ int main(int argc, char** argv) {
     if (verbose) { std::cout << "\n[++] Creating random schema\n"; }
     Schema::DataType s[ncolumns];
     for (int i = 0; i < ncolumns; ++i) {
-        if (types[i]) { // list type
-            if (cols[i]) { // non-numerical type
-                s[i] = Schema::STRING_LIST;
-            } else { // numerical type
-                s[i] = Schema::NUMERICAL_LIST;
-            }
-        } else { // non-list type
-            if (cols[i]) {
-                s[i] = Schema::STRING;
-            } else {
-                s[i] = Schema::NUMERICAL;
-            }
-        }
+        s[i] = fields[fnums[i]].schemaType;
     }
     Schema schema(s, ncolumns);
     BobTable table(schema);
@@ -116,47 +115,65 @@ int main(int argc, char** argv) {
     }
     table.prepareStructure();
     if (verbose) { std::cout << "[++] Creating tables" << std::flush; }
-    std::cout << " done\n";
-    /*
-    std::cout << "[+] Creating queries..." << std::endl;
-    // commit nqueries to the database
-    srand(time(NULL));
-    int nquery = atoi(argv[2]);
-    // build random queries
-    std::vector<Query> queries;
-    queries.resize(nquery, Query());
-    for (int qn = 0; qn < nquery; ++qn) {
-        // choose num of columns to inclue in query
-        int ncol = (rand() % NCOLS) + 1;
-        // choose column numbers
-        int shuffle_arr[NCOLS];
-        for (int i = 0; i < NCOLS; ++i) {
-            shuffle_arr[i] = i;
-        }
-        for (int i = NCOLS-1; i > 0; --i) {
-            int rand_pos = rand() % (i+1);
-            int tmp = shuffle_arr[i];
-            shuffle_arr[i] = shuffle_arr[rand_pos];
-            shuffle_arr[rand_pos] = tmp;
-        }
-        std::list<int> columns;
-        for (int i = 0; i < ncol; ++i) {
-            columns.push_back(shuffle_arr[i]);
-        }
-        queries[qn].selectColumns(columns);
-        // add constraints
-        // later
-    }
-    std::cout << "   [+] Done creating queries" << std::endl;
-    std::cout << "[+] Starting benchmark..." << std::endl;
-    for (int qn; qn < nquery; ++qn) {
-        Result *result = table.select(queries[qn]);
-        std::list<Row *> rows = result -> fetchAll();
-        delete [] rows;
-    }
-    std::cout << "   [+] Benchmark done" << std::endl;
+    if (!quiet) { std::cout << "done\n"; }
 
-    */
+    if (!quiet) { std::cout << "[+] Creating queries (" << nqueries
+                            << ") ... " << std::flush; }
+    // build random queries
+    std::vector<Query> qs;
+    qs.resize(nqueries, Query());
+    for (int i = 0; i < nqueries; ++i) {
+        // choose num of columns to inclue in query
+        int nselect_cols = (rand() % ncolumns) + 1;
+        // choose column numbers
+        int select_cols[nselect_cols];
+        sample(0, ncolumns-1, select_cols, nselect_cols);
+        std::list<int> columns;
+        for (int j = 0; j < nselect_cols; ++j) {
+            columns.push_back(select_cols[j]);
+        }
+        qs[i].selectColumns(columns);
+        qs[i].limit((rand() % MAXRESULTS)+1);
+        // select random contraints on previously selected columns
+        for (int j = 0; j < nselect_cols; ++j) {
+            if (is_list_type(fields[fnums[select_cols[j]]])) {
+                switch (rand() % (NLIST_CONSTR+1)) {
+                    case 0:
+                    case 1:
+                    default: break;
+                }
+            } else {
+                switch (rand() % (NNON_LIST_CONSTR+1)) {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                    default: break;
+                }
+            }
+        }
+    }
+    if (!quiet) { std::cout << "done\n"; }
+    if (!quiet) { std::cout << "[+] Starting benchmark ... \n"; }
+    // measure elapsing time
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
+    for (int qn = 0; qn < nqueries; ++qn) {
+        Result *result = table.select(qs[qn]);
+        std::list<Row *> rows = result -> fetchAll();
+        for (std::list<Row *>::iterator it = rows.begin();
+             it != rows.end(); ++it) {
+            delete *it;
+        }
+    }
+    gettimeofday(&end, NULL);
+    struct timeval *diff = diff_timeval(&start, &end);
+    std::cout << "Elapsed: " << diff->tv_sec << " second";
+    if (diff->tv_sec != 1) { std::cout << "s"; }
+    std::cout << " and " << diff->tv_usec << " microseconds\n";
+    free(diff);
+    //if (!quiet) { std::cout << "done\n"; }
+
     if (verbose) { std::cout << "[++] Removing test data file... "
                              << std::flush; }
     std::remove(TEST_DATA_FILE);

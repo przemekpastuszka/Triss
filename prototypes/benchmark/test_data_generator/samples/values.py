@@ -16,18 +16,18 @@ def parse(filename):
 
 sample_values = {
         #'empty': [''],
-        'age': [str(a) for a in range(14, 100)],
-        'os': parse('operating_systems'),
-        'country': parse('countries'),
-        'content': parse('content'),
-        'browser': parse('browser_ids'),
-        'resolution': parse('resolutions'),
-        'language': parse('languages'),
-        'sex': parse('sex'),
-        'job': parse('jobs'),
-        'name': parse('names'),
-        'music': parse('music'),
-        'hobby': parse('hobbies'),
-        'movie_genre': parse('movie_genres'),
-        'religion': parse('religions')
+        'age': ("num", [str(a) for a in range(14, 100)]),
+        'os': ("str", parse('operating_systems')),
+        'country': ("str", parse('countries')),
+        'content': ("str", parse('content')),
+        'browser': ("str", parse('browser_ids')),
+        'resolution': ("str", parse('resolutions')),
+        'language': ("str", parse('languages')),
+        'sex': ("str", parse('sex')),
+        'job': ("str", parse('jobs')),
+        'name': ("str", parse('names')),
+        'music': ("str", parse('music')),
+        'hobby': ("str", parse('hobbies')),
+        'movie_genre': ("str", parse('movie_genres')),
+        'religion': ("str", parse('religions'))
 }

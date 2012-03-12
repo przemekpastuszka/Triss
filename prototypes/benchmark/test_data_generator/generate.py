@@ -6,6 +6,8 @@ import random
 import sys
 import argparse
 from samples.values import sample_values
+TYPE = 0
+VAL = 1
 
 
 class BidRequestGenerator:
@@ -21,13 +23,13 @@ class BidRequestGenerator:
             else:
                 # special case for list value
                 if ptype == 'list':
-                    vals = sample_values[pname]
+                    vals = sample_values[pname][VAL]
                     nelem = random.randint(1, max_len)
                     vals = random.sample(vals, nelem)
                     # convert it to comma delimited string
                     rand_param_value = ','.join(vals)
                 else:
-                    rand_param_value = random.choice(sample_values[pname])
+                    rand_param_value = random.choice(sample_values[pname][VAL])
             bid.append(str(rand_param_value))
         return ';'.join(bid) + '\n'
 
@@ -49,8 +51,8 @@ def three_colon_separated_vals(string):
             raise argparse.ArgumentTypeError(msg)
         if ptype == 'list':
             max_len = int(max_len)
-            if max_len < 0 or max_len > len(sample_values[pname]):
-                max_len = len(sample_values[pname])
+            if max_len < 0 or max_len > len(sample_values[pname][VAL]):
+                max_len = len(sample_values[pname][VAL])
         elif ptype != '':
             msg = 'Invalid param type %s\n' % ptype
             msg += 'Should be "list" or empty'
@@ -62,9 +64,10 @@ def three_colon_separated_vals(string):
 
 class ListParamNames(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        print "Param names (total %s):" % len(sample_values.keys())
-        for pname in sorted(sample_values.keys()):
-            print pname
+        sorted_keys = sorted(sample_values.keys())
+        pnames = [(key, sample_values[key][TYPE]) for key in sorted_keys]
+        for pname,ptype in pnames:
+            print pname + "-" + ptype
         sys.exit()
 
 if __name__ == '__main__':
