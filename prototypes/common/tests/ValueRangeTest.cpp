@@ -22,11 +22,11 @@ class ValueRangeTest : public testing::Test {
     }
 
     void setUpRangeA(TypedConstraint<double>* constraint) {
-        rangeA = ValueRange<double>::createFromConstraint(*constraint);
+        rangeA = ValueRange<double>::createFromConstraint(constraint);
         delete constraint;
     }
     void setUpRangeB(TypedConstraint<double>* constraint) {
-        rangeB = ValueRange<double>::createFromConstraint(*constraint);
+        rangeB = ValueRange<double>::createFromConstraint(constraint);
         delete constraint;
     }
 

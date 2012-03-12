@@ -11,8 +11,8 @@ template <class T>
 class ValueRange {
     private:
     T left, right;
-    bool empty;
     bool leftInfinity, rightInfinity;
+    bool empty;
 
     ValueRange() : empty(true) {}
     ValueRange(const T& l)
@@ -23,7 +23,7 @@ class ValueRange {
             : left(l), right(r), leftInfinity(false), rightInfinity(false), empty(false) {}
 
     public:
-    static ValueRange* createFromConstraint(const TypedConstraint<T>& constraint);
+    static ValueRange<T>* createFromConstraint(const TypedConstraint<T>* constraint);
     bool isInRange(const T& value);
     bool isEmpty() { return empty; }
     bool isInfiniteOnTheLeft() { return leftInfinity; }
@@ -38,16 +38,16 @@ class ValueRange {
 };
 
 template<class T>
-ValueRange<T>* ValueRange<T>::createFromConstraint(const TypedConstraint<T> & constraint) {
-    const T& value = constraint.getConstraintValue();
-    switch(constraint.getConstraintType()) {
+ValueRange<T>* ValueRange<T>::createFromConstraint(const TypedConstraint<T>* constraint) {
+    const T& value = constraint -> getConstraintValue();
+    switch(constraint -> getConstraintType()) {
         case Constraint::EQUALS:
         case Constraint::CONTAINS:
-            return new ValueRange(value, value);
+            return new ValueRange<T>(value, value);
         case Constraint::GREATER_OR_EQUAL:
-            return new ValueRange(value);
+            return new ValueRange<T>(value);
         case Constraint::LESS_OR_EQUAL:
-            return new ValueRange(false, value);
+            return new ValueRange<T>(false, value);
     }
     return NULL;
 }
