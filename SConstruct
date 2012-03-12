@@ -1,7 +1,14 @@
 import fnmatch
 import os
 
-env = Environment(CPPPATH = os.getcwd())
+AddOption('--release', dest = 'release', action = 'store_true',
+    default = False, help ='build with release flags')
+
+simple_env = Environment(CPPPATH = os.getcwd())
+if GetOption('release'):
+    env = simple_env.Clone(CCFLAGS = ['-O2'])
+else:
+    env = simple_env.Clone(CCFLAGS = ['-g', '-O0'])
 
 def get_all_files_at(path):
     files = []
