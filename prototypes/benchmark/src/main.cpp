@@ -160,9 +160,9 @@ int main(int argc, char** argv) {
     gettimeofday(&start, NULL);
     for (int qn = 0; qn < nqueries; ++qn) {
         Result *result = table.select(qs[qn]);
-        std::list<Row *> rows = result -> fetchAll();
-        for (std::list<Row *>::iterator it = rows.begin();
-             it != rows.end(); ++it) {
+        std::list<Row *> *rows = result -> fetchAll();
+        for (std::list<Row *>::iterator it = rows->begin();
+             it != rows->end(); ++it) {
             delete *it;
         }
     }
