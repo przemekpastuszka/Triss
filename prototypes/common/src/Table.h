@@ -20,6 +20,7 @@ class Table {
     Table(const Schema& schema) {
         this -> schema = schema.schema;
     }
+    virtual ~Table() {};
 
     virtual unsigned int getNrOfColumns() const {
         return schema.size();
