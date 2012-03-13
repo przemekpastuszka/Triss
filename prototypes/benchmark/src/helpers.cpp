@@ -4,9 +4,9 @@ Field::Field(std::string name, std::string type) : name(name), type(type) {}
 
 char GENERATE_SCRIPT_PATH[] =
     "./prototypes/benchmark/test_data_generator/generate.py";
-int NAME = 0;
-int TYPE = 1;
-long long int MS_PER_SEC = 1000000;
+#define NAME 0
+#define TYPE 1
+#define MS_PER_SEC 1000000
 
 struct timeval *diff_timeval(struct timeval *start, struct timeval *end) {
     struct timeval *res = (struct timeval *) malloc(sizeof(struct timeval));

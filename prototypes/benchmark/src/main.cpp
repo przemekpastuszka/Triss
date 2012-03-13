@@ -1,10 +1,11 @@
 #include <iostream>
 #include <fstream>
-#include <boost/thread.hpp>
 #include <boost/program_options.hpp>
+#include <math.h>
 #include "../../common/src/Schema.h"
 #include "../../bob/src/BobTable.h"
 #include "helpers.h"
+
 
 int NTYPES = 4;
 int NLIST_CONSTR = 2;
@@ -15,18 +16,20 @@ char TEST_DATA_FILE[] = "test_data";
 namespace po = boost::program_options;
 
 int main(int argc, char** argv) {
-    int seed, ndocs, nqueries, ncolumns;
+    int seed, ndocs, nqueries, ncolumns, nthreads;
     po::options_description opt_descr("Optional arguments");
     opt_descr.add_options()
         ("help,h", "view this help message")
-        ("seed,s", po::value<int>(&seed) -> default_value(0),
+        ("seed,s", po::value<int>(&seed)->default_value(0),
          "seed for random number generator")
-        ("ndocs,d", po::value<int>(&ndocs) -> default_value(10000),
+        ("ndocs,d", po::value<int>(&ndocs)->default_value(10000),
          "number of documents to generate and load to database")
-        ("nqueries,n", po::value<int>(&nqueries) -> default_value(10000),
+        ("nqueries,n", po::value<int>(&nqueries)->default_value(10000),
          "number of queries to commit")
-        ("ncolumns,c", po::value<int>(&ncolumns) -> default_value(1),
+        ("ncolumns,c", po::value<int>(&ncolumns)->default_value(1),
          "number of columns in table")
+        ("nthreads,t", po::value<int>(&nthreads)->default_value(1),
+         "specify number of threads in which work will be splitted to")
         ("quiet,q", "turns quiet mode on")
         ("verbose,v", "turns verbose mode on (overrides quiet option)")
     ;
@@ -154,25 +157,18 @@ int main(int argc, char** argv) {
         }
     }
     if (!quiet) { std::cout << "done\n"; }
-    if (!quiet) { std::cout << "[+] Starting benchmark ... \n"; }
+    if (!quiet) { std::cout << "[+] Starting benchmark (using "
+                            << nthreads << " threads) ... \n"; }
     // measure elapsing time
     struct timeval start, end;
     gettimeofday(&start, NULL);
-    for (int qn = 0; qn < nqueries; ++qn) {
-        Result *result = table.select(qs[qn]);
-        std::list<Row *> *rows = result -> fetchAll();
-        for (std::list<Row *>::iterator it = rows->begin();
-             it != rows->end(); ++it) {
-            delete *it;
-        }
-    }
+    benchmark(&table, &qs, nthreads);
     gettimeofday(&end, NULL);
     struct timeval *diff = diff_timeval(&start, &end);
     std::cout << "Elapsed: " << diff->tv_sec << " second";
     if (diff->tv_sec != 1) { std::cout << "s"; }
     std::cout << " and " << diff->tv_usec << " microseconds\n";
     free(diff);
-    //if (!quiet) { std::cout << "done\n"; }
 
     if (verbose) { std::cout << "[++] Removing test data file... "
                              << std::flush; }
