@@ -13,6 +13,7 @@ class Column {
     public:
     struct IndexRange;
 
+    virtual ~Column() {};
     virtual unsigned int getSize() const = 0;
 
     /*** preparing structure ***/

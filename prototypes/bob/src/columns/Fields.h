@@ -9,6 +9,8 @@
 template <class T>
 class Field {
     public:
+    virtual ~Field() {};
+
     T value;
     int nextFieldId;
 
@@ -38,7 +40,7 @@ class ListField : public Field<T> {
     public:
     bool isLastElement;
 
-    virtual void updateNextFieldUsingMapping(std::vector<int>& current, std::vector<int>& next) {
+    void updateNextFieldUsingMapping(std::vector<int>& current, std::vector<int>& next) {
         if(isLastElement) {
             this -> nextFieldId = next[this -> nextFieldId];
         }

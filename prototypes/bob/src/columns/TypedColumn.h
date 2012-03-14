@@ -23,6 +23,11 @@ class TypedColumn : public Column {
 
     ValueRange<T>* valueRange;
 
+    void deleteValueRange() {
+        if(valueRange != NULL) { delete valueRange; }
+        valueRange = NULL;
+    }
+
     protected:
     int columnId;
     IndexRange constraintRange;
@@ -33,6 +38,7 @@ class TypedColumn : public Column {
 
     public:
     TypedColumn() : valueRange(NULL) {}
+    virtual ~TypedColumn() { deleteValueRange(); }
 
     /*** preparing structure ***/
     void setColumnId(int id) { columnId = id; }
@@ -40,20 +46,12 @@ class TypedColumn : public Column {
     void updateNextFieldIdsUsingMapping(std::vector<int>& current, std::vector<int>& next);
 
     /*** 'select' auxiliary methods ***/
-    virtual void prepareColumnForQuery();
+    virtual void prepareColumnForQuery() { deleteValueRange(); }
     virtual void addConstraint(Constraint* constraint);
     virtual IndexRange reduceConstraintsToRange();
 
     friend class AbstractBobTest;
 };
-
-template <class T>
-void TypedColumn<T>::prepareColumnForQuery() {
-    if(valueRange != NULL) {
-        delete valueRange;
-    }
-    valueRange = NULL;
-}
 
 template <class T>
 void TypedColumn<T>::createMappingFromCurrentToSortedPositions(std::vector<int>& mapping) {
@@ -80,12 +78,13 @@ void TypedColumn<T>::updateNextFieldIdsUsingMapping(std::vector<int>& current, s
 }
 
 template<class T> void TypedColumn<T>::addConstraint(Constraint *constraint) {
-    ValueRange<T>* r = ValueRange<T>::createFromConstraint(*((TypedConstraint<T>*) constraint));
+    ValueRange<T>* r = ValueRange<T>::createFromConstraint((TypedConstraint<T>*) constraint);
     if(valueRange == NULL) {
         valueRange = r;
     }
     else {
         valueRange -> intersectWith(r);
+        delete r;
     }
 }
 
