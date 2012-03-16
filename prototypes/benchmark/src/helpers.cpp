@@ -66,6 +66,7 @@ std::vector< Field > get_field_info(void) {
     for (int i = 0; i < tmp -> size(); ++i) {
         std::vector<std::string> *f_info = split((*tmp)[i], '-');
         fields[i] = Field((*f_info)[NAME], (*f_info)[TYPE]);
+        delete f_info;
     }
     delete tmp;
     return fields;

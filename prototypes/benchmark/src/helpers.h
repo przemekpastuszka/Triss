@@ -36,10 +36,7 @@ void commit(T *table, std::vector< Query > *qs, int start, int end) {
     for (int qn = start; qn <= end; ++qn) {
         Result *result = table->select((*qs)[qn]);
         std::list<Row *> *rows = result -> fetchAll();
-        for (std::list<Row *>::iterator it = rows->begin();
-             it != rows->end(); ++it) {
-            delete *it;
-        }
+        delete result;
     }
 }
 
