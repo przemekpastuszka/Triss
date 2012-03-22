@@ -63,7 +63,7 @@ int main(int argc, char** argv) {
     // choose ncolumns random columns
     std::vector< ::Benchmark::Column > columns =
         Benchmark::choose_random_columns(field_infos, ncolumns);
-    set_possible_vals(columns);
+    Benchmark::set_possible_vals(columns);
     if (verbose) {
         std::cout << "[++] Selected fields: ";
         for (int i = 0; i < ncolumns; ++i) {
