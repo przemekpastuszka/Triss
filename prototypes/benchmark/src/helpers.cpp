@@ -95,10 +95,21 @@ void Benchmark::set_possible_vals(std::vector< Column > &columns) {
         std::stringstream cmd;
         cmd << GENERATE_SCRIPT_PATH << " -v " << columns[i].name;
         std::vector< std::string > *tmp = split(exec(cmd.str().c_str()), '\n');
+
         for (int j = 0; j < tmp->size(); ++j) {
             columns[i].vals.push_back((*tmp)[j]);
         }
     }
+}
+
+void Benchmark::save_quantities(const char *file_path, int *quantities,
+                                int len) {
+    std::ofstream myFile;
+    myFile.open(file_path);
+    for (int i = 0; i < len; ++i) {
+        myFile << quantities[i] << std::endl;
+    }
+    myFile.close();
 }
 
 bool Benchmark::is_list_type(Benchmark::Column f) {
