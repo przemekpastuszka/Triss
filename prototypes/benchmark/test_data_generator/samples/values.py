@@ -11,7 +11,7 @@ def parse(filename):
     """ parse sample-content files """
     res = []
     for line in open(os.path.join(PATH_PREFIX, filename), 'r'):
-        res.append(re.escape(line.strip()))
+        res.append(re.escape(re.subn(';','',line.strip())[0]))
     return res
 
 sample_values = {

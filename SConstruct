@@ -42,4 +42,4 @@ build_project_with_tests('alice_test', ['prototypes/common/src', 'prototypes/ali
 build_project_with_tests('common_test', ['prototypes/common/src', 'prototypes/common/tests'])
 build_project_with_tests('utils_test', ['utils/src', 'utils/tests'])
 
-build_project('benchmark', ['prototypes/bob/src','prototypes/common/src', 'prototypes/benchmark/src'])
+build_project('benchmark', ['prototypes/bob/src','prototypes/alice/src','prototypes/common/src', 'prototypes/benchmark/src'])

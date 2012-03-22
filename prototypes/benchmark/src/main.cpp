@@ -4,11 +4,13 @@
 #include <math.h>
 #include "../../common/src/Schema.h"
 #include "../../bob/src/BobTable.h"
+//#include "../../alice/src/AliceTable.h"
 #include "helpers.h"
 
 
 int NTYPES = 4;
 int NLIST_CONSTR = 2;
+int DIVIDENT = 2;
 int NNON_LIST_CONSTR = 2;
 int MAXRESULTS = 10;
 char TEST_DATA_FILE[] = "test_data";
@@ -56,23 +58,22 @@ int main(int argc, char** argv) {
                              << seed << "\n"; }
     if (verbose) { std::cout << "[++] Retrieving info on available fields ... "
                              << std::flush; }
-    std::vector< Field > fields = get_field_info();
+    std::vector< Benchmark::FieldInfo > field_infos = Benchmark::get_field_infos();
     if (verbose) { std::cout << "done\n"; }
-    // choose distinct random fields
-    int fnums[ncolumns];
-    sample(0, fields.size()-1, fnums, ncolumns);
+    // choose ncolumns random columns
+    std::vector< ::Benchmark::Column > columns =
+        Benchmark::choose_random_columns(field_infos, ncolumns);
+    Benchmark::set_possible_vals(columns);
     if (verbose) {
         std::cout << "[++] Selected fields: ";
         for (int i = 0; i < ncolumns; ++i) {
-            std::cout << fields[fnums[i]].name << " ";
+            std::cout << columns[i].name << " ";
         }
         std::cout << std::endl;
     }
-
     if (!quiet) { std::cout << "[+] Generating test data (" << ndocs <<
                                " documents) ... " << std::flush; }
-    if (!generate_test_data(TEST_DATA_FILE, seed, ndocs,
-                            fnums, ncolumns, &fields)) {
+    if (!Benchmark::generate_test_data(TEST_DATA_FILE, seed, ndocs, columns)) {
         std::cerr << "\n   [-] Test data generation failed\n";
         return 1;
     }
@@ -84,17 +85,18 @@ int main(int argc, char** argv) {
     if (verbose) { std::cout << "\n[++] Creating random schema\n"; }
     Schema::DataType s[ncolumns];
     for (int i = 0; i < ncolumns; ++i) {
-        s[i] = fields[fnums[i]].schemaType;
+        s[i] = columns[i].type;
     }
     Schema schema(s, ncolumns);
     BobTable table(schema);
+    //AliceTable table(schema);
     // fill the table with documents from data file
     if (verbose) { std::cout << "[++] filling table with documents\n"; }
     std::ifstream ifs(TEST_DATA_FILE);
     std::string line;
     Row row(schema);
     while(std::getline(ifs, line)) {
-        std::vector<std::string> *vals = split(line, ';');
+        std::vector<std::string> *vals = Benchmark::split(line, ';');
         for (int i = 0; i < vals -> size(); ++i) {
             switch(s[i]) {
                 case Schema::NUMERICAL:
@@ -104,10 +106,12 @@ int main(int argc, char** argv) {
                     row.set<std::string>(i, (*vals)[i]);
                     break;
                 case Schema::NUMERICAL_LIST:
-                    row.set< std::list<double> >(i, to_num_list((*vals)[i]));
+                    row.set< std::list<double> >(
+                        i, Benchmark::to_num_list((*vals)[i]));
                     break;
                 case Schema::STRING_LIST:
-                    std::vector<std::string> *tmp = split((*vals)[i], ',');
+                    std::vector<std::string> *tmp =
+                        Benchmark::split((*vals)[i], ',');
                     std::list<std::string> str_list(tmp->begin(), tmp->end());
                     row.set< std::list<std::string> >(i, str_list);
                     break;
@@ -117,7 +121,7 @@ int main(int argc, char** argv) {
         table.addRow(row);
     }
     table.prepareStructure();
-    if (verbose) { std::cout << "[++] Creating tables" << std::flush; }
+    if (verbose) { std::cout << "[++] Creating tables " << std::flush; }
     if (!quiet) { std::cout << "done\n"; }
 
     if (!quiet) { std::cout << "[+] Creating queries (" << nqueries
@@ -126,32 +130,18 @@ int main(int argc, char** argv) {
     std::vector<Query> qs;
     qs.resize(nqueries, Query());
     for (int i = 0; i < nqueries; ++i) {
-        // choose num of columns to inclue in query
-        int nselect_cols = (rand() % ncolumns) + 1;
-        // choose column numbers
-        int select_cols[nselect_cols];
-        sample(0, ncolumns-1, select_cols, nselect_cols);
-        std::list<int> columns;
-        for (int j = 0; j < nselect_cols; ++j) {
-            columns.push_back(select_cols[j]);
-        }
-        qs[i].selectColumns(columns);
+        std::list<int> q_cols = Benchmark::select_columns(ncolumns);
+        qs[i].selectColumns(q_cols);
         qs[i].limit((rand() % MAXRESULTS)+1);
         // select random contraints on previously selected columns
-        for (int j = 0; j < nselect_cols; ++j) {
-            if (is_list_type(fields[fnums[select_cols[j]]])) {
-                switch (rand() % (NLIST_CONSTR+1)) {
-                    case 0:
-                    case 1:
-                    default: break;
-                }
-            } else {
-                switch (rand() % (NNON_LIST_CONSTR+1)) {
-                    case 0:
-                    case 1:
-                    case 2:
-                    case 3:
-                    default: break;
+        for (int j = 0; j < q_cols.size(); ++j) {
+            // constraint only some % of columns - 1/DIVIDENT-th of columns
+            if (!(rand() % DIVIDENT)) {
+                std::string val = columns[j].random_val();
+                if (Benchmark::is_string_type(columns[j])) {
+                    Benchmark::add_random_constraint<std::string>(qs[i], j, val, columns[j]);
+                } else {
+                    Benchmark::add_random_constraint<double>(qs[i], j, atoi(val.c_str()), columns[j]);
                 }
             }
         }
@@ -159,21 +149,23 @@ int main(int argc, char** argv) {
     if (!quiet) { std::cout << "done\n"; }
     if (!quiet) { std::cout << "[+] Starting benchmark (using "
                             << nthreads << " threads) ... \n"; }
-    // measure elapsing time
+    // measure elapsing time and gather result quantities
+    int quantities[nqueries];
     struct timeval start, end;
     gettimeofday(&start, NULL);
-    benchmark(&table, &qs, nthreads);
+    Benchmark::benchmark<BobTable>(&table, &qs, nthreads, quantities);
     gettimeofday(&end, NULL);
-    struct timeval *diff = diff_timeval(&start, &end);
+    struct timeval *diff = Benchmark::diff_timeval(&start, &end);
     std::cout << "Elapsed: " << diff->tv_sec << " second";
     if (diff->tv_sec != 1) { std::cout << "s"; }
     std::cout << " and " << diff->tv_usec << " microseconds\n";
     free(diff);
+    // write quantities to a file
+    Benchmark::save_quantities("build/bob", quantities, nqueries);
 
     if (verbose) { std::cout << "[++] Removing test data file... "
                              << std::flush; }
     std::remove(TEST_DATA_FILE);
     if (verbose) { std::cout << "done\n"; }
-
     return 0;
 }

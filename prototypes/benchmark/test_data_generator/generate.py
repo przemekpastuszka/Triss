@@ -70,6 +70,13 @@ class ListParamNames(argparse.Action):
             print pname + "-" + ptype
         sys.exit()
 
+class PrintAllValues(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        param = values[0]
+        for val in sample_values[param][VAL]:
+            print val
+        sys.exit()
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Generate bid request batch file')
@@ -93,6 +100,9 @@ if __name__ == '__main__':
     parser.add_argument('-l', '--list-param-names',
                         action=ListParamNames, nargs=0,
                         help='lists available parameter names and exits')
+    parser.add_argument('-v', '--values',
+                        action=PrintAllValues, nargs=1,
+                        help='prints possible values for a given field')
     args = parser.parse_args()
     a = BidRequestGenerator(args.seed)
     a.gen_bid_req_batch_file(args.outfile, args.params, args.ndocs, args.empty)
