@@ -38,7 +38,6 @@ def build_project(output, sources):
     env.Alias(output, prog)
 
 build_project_with_tests('bob_test', ['utils/src', 'prototypes/common/src', 'prototypes/bob/src', 'prototypes/bob/tests'])
-build_project('use_test', ['kupa','prototypes/common/src', 'prototypes/alice/src'])
 build_project_with_tests('alice_test', ['prototypes/common/src', 'prototypes/alice/src', 'prototypes/alice/tests'])
 build_project_with_tests('common_test', ['prototypes/common/src', 'prototypes/common/tests'])
 build_project_with_tests('utils_test', ['utils/src', 'utils/tests'])
