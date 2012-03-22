@@ -3,8 +3,8 @@
 #include <boost/program_options.hpp>
 #include <math.h>
 #include "../../common/src/Schema.h"
-//#include "../../bob/src/BobTable.h"
-#include "../../alice/src/AliceTable.h"
+#include "../../bob/src/BobTable.h"
+//#include "../../alice/src/AliceTable.h"
 #include "helpers.h"
 
 
@@ -88,8 +88,8 @@ int main(int argc, char** argv) {
         s[i] = columns[i].type;
     }
     Schema schema(s, ncolumns);
-    //BobTable table(schema);
-    AliceTable table(schema);
+    BobTable table(schema);
+    //AliceTable table(schema);
     // fill the table with documents from data file
     if (verbose) { std::cout << "[++] filling table with documents\n"; }
     std::ifstream ifs(TEST_DATA_FILE);
@@ -139,7 +139,7 @@ int main(int argc, char** argv) {
             if (!(rand() % DIVIDENT)) {
                 std::string val = columns[j].random_val();
                 if (Benchmark::is_string_type(columns[j])) {
-                    Benchmark::add_random_constraint< std::string>(qs[i], j, val, columns[j]);
+                    Benchmark::add_random_constraint<std::string>(qs[i], j, val, columns[j]);
                 } else {
                     Benchmark::add_random_constraint<double>(qs[i], j, atoi(val.c_str()), columns[j]);
                 }
@@ -149,16 +149,19 @@ int main(int argc, char** argv) {
     if (!quiet) { std::cout << "done\n"; }
     if (!quiet) { std::cout << "[+] Starting benchmark (using "
                             << nthreads << " threads) ... \n"; }
-    // measure elapsing time
+    // measure elapsing time and gather result quantities
+    int quantities[nqueries];
     struct timeval start, end;
     gettimeofday(&start, NULL);
-    Benchmark::benchmark(&table, &qs, nthreads);
+    Benchmark::benchmark<BobTable>(&table, &qs, nthreads, quantities);
     gettimeofday(&end, NULL);
     struct timeval *diff = Benchmark::diff_timeval(&start, &end);
     std::cout << "Elapsed: " << diff->tv_sec << " second";
     if (diff->tv_sec != 1) { std::cout << "s"; }
     std::cout << " and " << diff->tv_usec << " microseconds\n";
     free(diff);
+    // write quantities to a file
+    Benchmark::save_quantities("build/bob", quantities, nqueries);
 
     if (verbose) { std::cout << "[++] Removing test data file... "
                              << std::flush; }
