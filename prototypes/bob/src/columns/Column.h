@@ -8,11 +8,11 @@
 #include <prototypes/common/src/Constraint.h>
 #include <prototypes/common/src/ValueRange.h>
 #include <prototypes/common/src/Row.h>
+#include "ColumnQueryState.h"
+#include "IndexRange.h"
 
 class Column {
     public:
-    struct IndexRange;
-
     virtual ~Column() {};
     virtual unsigned int getSize() const = 0;
 
@@ -24,11 +24,11 @@ class Column {
     virtual void sort() = 0;
 
     /*** 'select' auxiliary methods ***/
-    virtual void prepareColumnForQuery() = 0;
-    virtual void addConstraint(Constraint* constraint) = 0;
-    virtual IndexRange reduceConstraintsToRange() = 0;
-    virtual void markAsMainQueryColumn() {}
-    virtual int fillRowWithValueAndGetNextFieldId(int valueIndex, Row* row) = 0;
+    virtual ColumnQueryState* prepareColumnForQuery() const = 0;
+    virtual void addConstraint(Constraint* constraint, ColumnQueryState* state) const = 0;
+    virtual IndexRange reduceConstraintsToRange(ColumnQueryState* state) const = 0;
+    virtual void markAsMainQueryColumn(ColumnQueryState* state) const {}
+    virtual int fillRowWithValueAndGetNextFieldId(int valueIndex, Row* row, ColumnQueryState* state) const = 0;
 };
 
 #endif  // PROTOTYPES_BOB_SRC_COLUMNS_COLUMN_H_
