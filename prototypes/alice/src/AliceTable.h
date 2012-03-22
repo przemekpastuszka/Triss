@@ -13,7 +13,7 @@
 class AliceTable : public Table {
     private:
         std::vector<Schema::DataType> listTypes;
-        std::vector<Column> columns;
+        std::vector<Column*> columns;
         std::vector<Row*> rows;
     public:
         AliceTable(const Schema& schema);

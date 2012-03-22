@@ -7,6 +7,7 @@
 #include <set>
 #include <vector>
 #include <string>
+#include <iostream>
 #include <sparsehash/dense_hash_map>
 #include <ext/hash_map>
 #include "AliceTable.h"
@@ -21,6 +22,14 @@ struct eqint {
 AliceTable::AliceTable(const Schema& schema) : Table(schema) {
     listTypes.push_back(Schema::NUMERICAL_LIST);
     listTypes.push_back(Schema::STRING_LIST);
+    for (int i = 0; i < this->schema.size(); ++i) {
+        switch (this->schema[i]) {
+            case Schema::NUMERICAL: columns.push_back(new TypedColumn<double>()); break;
+            case Schema::STRING: columns.push_back(new TypedColumn<std::string>()); break;
+            case Schema::NUMERICAL_LIST: columns.push_back(new TypedColumn<double>()); break;
+            case Schema::STRING_LIST: columns.push_back(new TypedColumn<std::string>()); break;
+        }
+    }
 }
 
 void AliceTable::addRow(Row& row) {
@@ -29,24 +38,24 @@ void AliceTable::addRow(Row& row) {
         if (std::find(listTypes.begin(), listTypes.end(), schema[i]) != listTypes.end()) {
             if (schema[i] == Schema::NUMERICAL_LIST) {
                 TypedListField<double> listField(row.get< std::list<double> >(i), rows.size() - 1);
-                std::list< TypedField<double> > listMembers = listField.get_fields();
-                for (std::list< TypedField<double> >::iterator it = listMembers.begin(); it != listMembers.end(); ++it) {
-                    columns[i].addField(*it);
+                std::list< TypedField<double>* > listMembers = listField.get_fields();
+                for (std::list< TypedField<double>* >::iterator it = listMembers.begin(); it != listMembers.end(); ++it) {
+                    static_cast< TypedColumn<double>* >(columns[i])->addField(*it);
                 }
             } else {
                 TypedListField<std::string> listField(row.get< std::list<std::string> >(i), rows.size() - 1);
-                std::list< TypedField<std::string> > listMembers = listField.get_fields();
-                for (std::list< TypedField<std::string> >::iterator it = listMembers.begin(); it != listMembers.end(); ++it) {
-                    columns[i].addField(*it);
+                std::list< TypedField<std::string>* > listMembers = listField.get_fields();
+                for (std::list< TypedField<std::string>* >::iterator it = listMembers.begin(); it != listMembers.end(); ++it) {
+                    static_cast< TypedColumn<std::string>* >(columns[i])->addField(*it);
                 }
             } 
-        } else { 
+        } else {
             if (schema[i] == Schema::NUMERICAL) {
                 TypedField<double> field(row.get<double>(i), rows.size() - 1);
-                columns[i].addField(field);
+                static_cast< TypedColumn<double>* >(columns[i])->addField(&field);
             } else {
                 TypedField<std::string> field(row.get<std::string>(i), rows.size() - 1);
-                columns[i].addField(field);            
+                static_cast< TypedColumn<std::string>* >(columns[i])->addField(&field);
             }
         }
     }
@@ -54,7 +63,11 @@ void AliceTable::addRow(Row& row) {
 
 void AliceTable::prepareStructure() {
     for (int i = 0; i < columns.size(); ++i) {
-        columns[i].sort();
+        if (schema[i] == Schema::NUMERICAL || schema[i] == Schema::NUMERICAL_LIST) {
+            static_cast<TypedColumn<double>*>(columns[i])->sort();
+        } else {
+            static_cast<TypedColumn<std::string>*>(columns[i])->sort();
+        }
     }
 }
 
@@ -63,7 +76,13 @@ Result* AliceTable::select(const Query& q) {
     const std::list<Constraint*>& constraints = q.getConstraints();
     for (std::list<Constraint*>::const_iterator it = constraints.begin();
             it != constraints.end(); ++it) {
-        std::set<int> matchingIds = columns[(*it)->getAffectedColumn()].applyConstraint(**it);
+        int affected_column = (*it)->getAffectedColumn();
+        std::set<int> matchingIds;
+        if (schema[affected_column] == Schema::NUMERICAL || schema[affected_column] == Schema::NUMERICAL_LIST) {
+            matchingIds = static_cast<TypedColumn<double>*>(columns[affected_column])->applyConstraint(static_cast<TypedConstraint<double>*>(*it));
+        } else {
+            matchingIds = static_cast<TypedColumn<std::string>*>(columns[affected_column])->applyConstraint(static_cast<TypedConstraint<std::string>*>(*it));
+        }
         for (std::set<int>::iterator sit = matchingIds.begin(); sit != matchingIds.end(); ++sit) {
             hashMap[*sit] += 1;
         }
@@ -81,4 +100,3 @@ Result* AliceTable::select(const Query& q) {
     }
     return new Result(resultingRows);
 }
-

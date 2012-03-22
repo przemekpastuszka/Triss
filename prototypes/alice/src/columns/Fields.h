@@ -5,6 +5,7 @@
 #define PROTOTYPES_ALICE_SRC_COLUMNS_FIELD_H_
 
 #include <list>
+#include <prototypes/common/src/Constraint.h>
 
 class Field {
 protected:
@@ -29,13 +30,24 @@ class TypedField : public Field {
     }
     
     template <class C> friend bool operator<(const C&, const TypedField<C>&);
-
+    template <class C> friend bool operator<(const C&, const TypedConstraint<C>&);
+    template <class C> friend bool operator<(const TypedConstraint<C>&, const C&);
 };
 
 
 template <class C>
 bool operator<(const C& left, const TypedField<C>& other) {
     return left < other.value;
+};
+
+template <class C>
+bool operator<(const C& left, const TypedConstraint<C>& other) {
+    return left < other.getConstraintValue();
+};
+
+template <class C> 
+bool operator<(const TypedConstraint<C>& other, const C& left) {
+    return other.getConstraintValue() < left;  
 };
 
 
@@ -54,10 +66,10 @@ class TypedListField : public ListField {
         std::list<T> valuesList;
     public:
         TypedListField(std::list<T>& list, int id) : ListField(id), valuesList(list) {};
-        std::list< TypedField<T> > get_fields() {
-            std::list< TypedField<T> > result;
+        std::list< TypedField<T>* > get_fields() {
+            std::list< TypedField<T>* > result;
             for (typename std::list<T>::iterator it = valuesList.begin(); it != valuesList.end(); ++it) {
-                result.push_back(TypedField<T>(*it, id));
+                result.push_back(new TypedField<T>(*it, id));
             }
             return result;
         }
