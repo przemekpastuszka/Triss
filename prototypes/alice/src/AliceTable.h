@@ -5,8 +5,8 @@
 #define PROTOTYPES_ALICE_SRC_ALICETABLE_H_
 
 #include <prototypes/common/src/Table.h>
-#include <prototypes/common/src/Schema.h>
-#include <prototypes/common/src/Row.h>
+//#include <prototypes/common/src/Schema.h>
+//#include <prototypes/common/src/Row.h>
 #include "columns/Column.h"
 #include "columns/Fields.h"
 
