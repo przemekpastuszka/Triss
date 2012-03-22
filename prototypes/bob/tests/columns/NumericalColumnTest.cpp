@@ -45,12 +45,14 @@ TEST_F(NumericalColumnTest, shouldFillRowWithGoodValue) {
     Schema schema(s, 2);
     Row row(schema);
 
-    c.prepareColumnForQuery();
-    c.reduceConstraintsToRange();
-    c.markAsMainQueryColumn();
+    ColumnQueryState* state = c.prepareColumnForQuery();
+    c.reduceConstraintsToRange(state);
+    c.markAsMainQueryColumn(state);
 
-    ASSERT_EQ(5, c.fillRowWithValueAndGetNextFieldId(1, &row));
+    ASSERT_EQ(5, c.fillRowWithValueAndGetNextFieldId(1, &row, state));
     ASSERT_EQ(12, row.get<double>(1));
+
+    delete state;
 }
 
 TEST_F(NumericalColumnTest, shouldCreateValidMapping) {

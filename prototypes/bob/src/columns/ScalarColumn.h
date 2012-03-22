@@ -31,24 +31,28 @@ class ScalarColumn : public TypedColumn<T> {
         std::sort(fields.begin(), fields.end());
     }
 
-    int lowerBound(const T& value) {
-        typename std::vector<Field<T> >::iterator it =
+    int lowerBound(const T& value) const {
+        typename std::vector<Field<T> >::const_iterator it =
                 std::lower_bound(fields.begin(), fields.end(), value);
         return int(it - fields.begin());
     }
-    int upperBound(const T& value) {
-        typename std::vector<Field<T> >::iterator it =
+    int upperBound(const T& value) const {
+        typename std::vector<Field<T> >::const_iterator it =
                 std::upper_bound(fields.begin(), fields.end(), value);
         return int(it - fields.begin()) - 1;
     }
 
-    int fillRowWithValueAndGetNextFieldId(int valueIndex, Row* row) {
-        if(this -> constraintRange.isInRange(valueIndex) == false) {
+    int fillRowWithValueAndGetNextFieldId(int valueIndex, Row* row, ColumnQueryState* state) const {
+        if(state -> constraintRange.isInRange(valueIndex) == false) {
             return -1;
         }
 
         row -> set<T>(this -> columnId, fields[valueIndex].value);
         return fields[valueIndex].nextFieldId;
+    }
+
+    ColumnQueryState* prepareColumnForQuery() const {
+        return new TypedColumnQueryState<T>();
     }
 };
 

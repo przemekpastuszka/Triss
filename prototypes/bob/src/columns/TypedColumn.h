@@ -7,7 +7,6 @@
 #include <algorithm>
 #include "Fields.h"
 #include "Column.h"
-#include "Column.cpp"
 
 template <class T>
 class TypedColumn : public Column {
@@ -21,24 +20,18 @@ class TypedColumn : public Column {
         }
     };
 
-    ValueRange<T>* valueRange;
-
-    void deleteValueRange() {
-        if(valueRange != NULL) { delete valueRange; }
-        valueRange = NULL;
-    }
-
     protected:
     int columnId;
-    IndexRange constraintRange;
 
     virtual Field<T>* getField(unsigned int i) = 0;
-    virtual int lowerBound(const T& value) = 0;
-    virtual int upperBound(const T& value) = 0;
+    virtual int lowerBound(const T& value) const = 0;
+    virtual int upperBound(const T& value) const = 0;
+    virtual TypedColumnQueryState<T>* getTypedState(ColumnQueryState* state) const {
+        return static_cast<TypedColumnQueryState<T>*>(state);
+    }
 
     public:
-    TypedColumn() : valueRange(NULL) {}
-    virtual ~TypedColumn() { deleteValueRange(); }
+    virtual ~TypedColumn() {}
 
     /*** preparing structure ***/
     void setColumnId(int id) { columnId = id; }
@@ -46,9 +39,9 @@ class TypedColumn : public Column {
     void updateNextFieldIdsUsingMapping(std::vector<int>& current, std::vector<int>& next);
 
     /*** 'select' auxiliary methods ***/
-    virtual void prepareColumnForQuery() { deleteValueRange(); }
-    virtual void addConstraint(Constraint* constraint);
-    virtual IndexRange reduceConstraintsToRange();
+    virtual ColumnQueryState* prepareColumnForQuery() const = 0;
+    virtual void addConstraint(Constraint* constraint, ColumnQueryState* state) const;
+    virtual IndexRange reduceConstraintsToRange(ColumnQueryState* state) const;
 
     friend class AbstractBobTest;
 };
@@ -77,34 +70,36 @@ void TypedColumn<T>::updateNextFieldIdsUsingMapping(std::vector<int>& current, s
     }
 }
 
-template<class T> void TypedColumn<T>::addConstraint(Constraint *constraint) {
+template<class T> void TypedColumn<T>::addConstraint(Constraint *constraint, ColumnQueryState* state) const {
+    TypedColumnQueryState<T>* typedState = getTypedState(state);
     ValueRange<T>* r = ValueRange<T>::createFromConstraint((TypedConstraint<T>*) constraint);
-    if(valueRange == NULL) {
-        valueRange = r;
+    if(typedState -> valueRange == NULL) {
+        typedState -> valueRange = r;
     }
     else {
-        valueRange -> intersectWith(r);
+        typedState -> valueRange -> intersectWith(r);
         delete r;
     }
 }
 
-template<class T> Column::IndexRange TypedColumn<T>::reduceConstraintsToRange() {
-    if(valueRange != NULL && valueRange -> isEmpty()) {
-        constraintRange = IndexRange();
-        return constraintRange;
+template<class T> IndexRange TypedColumn<T>::reduceConstraintsToRange(ColumnQueryState* state) const {
+    TypedColumnQueryState<T>* typedState = getTypedState(state);
+    if(typedState -> valueRange != NULL && typedState -> valueRange -> isEmpty()) {
+        typedState -> constraintRange = IndexRange();
+        return typedState -> constraintRange;
     }
 
-    constraintRange = IndexRange(0, getSize() - 1);
-    if(valueRange != NULL) {
-        if(valueRange -> isFiniteOnTheLeft()) {
-            constraintRange.left = lowerBound(valueRange -> getLeft());
+    typedState -> constraintRange = IndexRange(0, getSize() - 1);
+    if(typedState -> valueRange != NULL) {
+        if(typedState -> valueRange -> isFiniteOnTheLeft()) {
+            typedState -> constraintRange.left = lowerBound(typedState -> valueRange -> getLeft());
         }
-        if(valueRange -> isFiniteOnTheRight()) {
-            constraintRange.right = upperBound(valueRange -> getRight());
+        if(typedState -> valueRange -> isFiniteOnTheRight()) {
+            typedState -> constraintRange.right = upperBound(typedState -> valueRange -> getRight());
         }
     }
-    constraintRange.validate(getSize());
-    return constraintRange;
+    typedState -> constraintRange.validate(getSize());
+    return typedState -> constraintRange;
 }
 
 
