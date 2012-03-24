@@ -7,14 +7,16 @@
 #include <prototypes/common/src/Table.h>
 #include <prototypes/common/src/Schema.h>
 #include "columns/Column.h"
-#include "columns/Column.cpp"
+#include "columns/IndexRange.h"
 
 class BobTable : public Table {
     private:
     std::vector<Column*> columns;
 
-    int mainColumnId;
-    Column::IndexRange mainColumnRange;
+    struct MainColumnInfo {
+        int mainColumnId;
+        IndexRange mainColumnRange;
+    };
 
     /*** preparing structure ***/
     void prepareColumns();
@@ -23,11 +25,11 @@ class BobTable : public Table {
     void sortColumns();
 
     /*** 'select' auxiliary methods ***/
-    void prepareColumnsForQuery();
-    void applyConstraintsToColumns(const Query& q);
-    void chooseMainColumn();
-    bool retrieveRowBeginningWith(int indexOnMainColumn, Row*);
-    Result* gatherResults(const Query& q);
+    void prepareColumnsForQuery(std::vector<ColumnQueryState*>& columnStates) const;
+    void applyConstraintsToColumns(const Query& q, std::vector<ColumnQueryState*>& columnStates) const;
+    MainColumnInfo chooseMainColumn(std::vector<ColumnQueryState*>& columnStates)  const;
+    bool retrieveRowBeginningWith(int indexOnMainColumn, Row*, std::vector<ColumnQueryState*>& columnStates, MainColumnInfo& info) const;
+    Result* gatherResults(const Query& q, std::vector<ColumnQueryState*>& columnStates, MainColumnInfo& info) const;
 
     public:
     BobTable(const Schema& schema) : Table(schema) {

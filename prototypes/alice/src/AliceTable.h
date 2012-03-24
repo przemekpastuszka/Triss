@@ -12,14 +12,14 @@
 
 class AliceTable : public Table {
     private:
-        std::vector<Schema::DataType> listTypes;
-        std::vector<Column> columns;
+        std::vector<Column*> columns;
         std::vector<Row*> rows;
     public:
         AliceTable(const Schema& schema);
         void prepareStructure();
         void addRow(Row& row);
         Result* select(const Query& q);
+        ~AliceTable();
 };
 
 #endif  // PROTOTYPES_ALICE_SRC_ALICETABLE_H_

@@ -61,22 +61,30 @@ void BobTable::sortColumns() {
 }
 
 Result *BobTable::select(const Query & q) {
-    prepareColumnsForQuery();
-    applyConstraintsToColumns(q);
-    chooseMainColumn();
+    std::vector<ColumnQueryState*> columnStates;
 
-    return gatherResults(q);
+    prepareColumnsForQuery(columnStates);
+    applyConstraintsToColumns(q, columnStates);
+    MainColumnInfo mainColumnInfo = chooseMainColumn(columnStates);
+
+    Result* results = gatherResults(q, columnStates, mainColumnInfo);
+
+    for(unsigned int i = 0; i < this -> schema.size(); ++i) {
+        delete columnStates[i];
+    }
+
+    return results;
 }
 
-Result* BobTable::gatherResults(const Query& q){
+Result* BobTable::gatherResults(const Query& q, std::vector<ColumnQueryState*>& columnStates, MainColumnInfo& info) const {
     std::list<Row*>* results = new std::list<Row*>();
     int limit = q.getLimit();
 
-    if(mainColumnRange.left >= 0) {
+    if(info.mainColumnRange.left >= 0) {
         Row* row = createTableRow();
 
-        for(int i = 0; i < mainColumnRange.length() && results -> size() < limit; ++i) {
-            if(retrieveRowBeginningWith(mainColumnRange.left + i, row)) {
+        for(int i = 0; i < info.mainColumnRange.length() && results -> size() < limit; ++i) {
+            if(retrieveRowBeginningWith(info.mainColumnRange.left + i, row, columnStates, info)) {
                 results -> push_back(row);
                 row = createTableRow();
             }
@@ -86,40 +94,43 @@ Result* BobTable::gatherResults(const Query& q){
     return new Result(results);
 }
 
-bool BobTable::retrieveRowBeginningWith(int nextFieldId, Row* row) {
+bool BobTable::retrieveRowBeginningWith(int nextFieldId, Row* row, std::vector<ColumnQueryState*>& columnStates, MainColumnInfo& info) const {
     unsigned int i;
     for(i = 0; i <= schema.size() && nextFieldId >= 0; ++i) {
-        int nextColumnId = (mainColumnId + i) % schema.size();
-        nextFieldId = columns[nextColumnId] -> fillRowWithValueAndGetNextFieldId(nextFieldId, row);
+        int nextColumnId = (info.mainColumnId + i) % schema.size();
+        nextFieldId = columns[nextColumnId] -> fillRowWithValueAndGetNextFieldId(nextFieldId, row, columnStates[nextColumnId]);
     }
     return i > schema.size();
 }
 
-void BobTable::prepareColumnsForQuery() {
+void BobTable::prepareColumnsForQuery(std::vector<ColumnQueryState*>& columnStates) const {
     for(unsigned int i = 0; i < schema.size(); ++i) {
-        columns[i] -> prepareColumnForQuery();
+        columnStates.push_back(columns[i] -> prepareColumnForQuery());
     }
 }
 
-void BobTable::applyConstraintsToColumns(const Query& q) {
+void BobTable::applyConstraintsToColumns(const Query& q, std::vector<ColumnQueryState*>& columnStates) const {
     std::list<Constraint*> constraints = q.getConstraints();
     for(std::list<Constraint*>::iterator it = constraints.begin(); it != constraints.end(); it++) {
         Constraint* c = *it;
-        columns[c -> getAffectedColumn()] -> addConstraint(c);
+        int columnId = c -> getAffectedColumn();
+        columns[columnId] -> addConstraint(c, columnStates[columnId]);
     }
 }
 
-void BobTable::chooseMainColumn() {
-    mainColumnRange = columns[0] -> reduceConstraintsToRange();
-    mainColumnId = 0;
+BobTable::MainColumnInfo BobTable::chooseMainColumn(std::vector<ColumnQueryState*>& columnStates) const {
+    MainColumnInfo info;
+    info.mainColumnRange = columns[0] -> reduceConstraintsToRange(columnStates[0]);
+    info.mainColumnId = 0;
     for(unsigned int i = 1; i < schema.size(); ++i) {
-        Column::IndexRange candidateColumnRange = columns[i] -> reduceConstraintsToRange();
-        if(candidateColumnRange.length() < mainColumnRange.length()) {
-            mainColumnRange = candidateColumnRange;
-            mainColumnId = i;
+        IndexRange candidateColumnRange = columns[i] -> reduceConstraintsToRange(columnStates[i]);
+        if(candidateColumnRange.length() < info.mainColumnRange.length()) {
+            info.mainColumnRange = candidateColumnRange;
+            info.mainColumnId = i;
         }
     }
-    columns[mainColumnId] -> markAsMainQueryColumn();
+    columns[info.mainColumnId] -> markAsMainQueryColumn(columnStates[info.mainColumnId]);
+    return info;
 }
 
 BobTable::~BobTable() {
