@@ -6,7 +6,7 @@
 #include "../../common/src/Schema.h"
 #include "../../bob/src/BobTable.h"
 //#include "../../alice/src/AliceTable.h"
-#include "helpers.h"
+#include "benchmark.h"
 
 namespace po = boost::program_options;
 
