@@ -2,23 +2,16 @@
 #include <fstream>
 #include <boost/program_options.hpp>
 #include <math.h>
+#include <stdlib.h>
 #include "../../common/src/Schema.h"
 #include "../../bob/src/BobTable.h"
 //#include "../../alice/src/AliceTable.h"
 #include "helpers.h"
 
-
-int NTYPES = 4;
-int NLIST_CONSTR = 2;
-int DIVIDENT = 2;
-int NNON_LIST_CONSTR = 2;
-int MAXRESULTS = 10;
-char TEST_DATA_FILE[] = "test_data";
-
 namespace po = boost::program_options;
 
 int main(int argc, char** argv) {
-    int seed, ndocs, nqueries, ncolumns, nthreads;
+    int seed, ndocs, nqueries, ncolumns, nthreads, limit, nrounds;
     po::options_description opt_descr("Optional arguments");
     opt_descr.add_options()
         ("help,h", "view this help message")
@@ -30,8 +23,13 @@ int main(int argc, char** argv) {
          "number of queries to commit")
         ("ncolumns,c", po::value<int>(&ncolumns)->default_value(1),
          "number of columns in table")
+        ("limit,l", po::value<int>(&limit)->default_value(10),
+         "set limit of each query results (zero turns it off)")
         ("nthreads,t", po::value<int>(&nthreads)->default_value(1),
          "specify number of threads in which work will be splitted to")
+        ("random,r", "makes all optional parameters (except from seed) random")
+        ("rounds,ro", po::value<int>(&nrounds)->default_value(1),
+         "how many times test one table (to count average running time)")
         ("quiet,q", "turns quiet mode on")
         ("verbose,v", "turns verbose mode on (overrides quiet option)")
     ;
@@ -52,120 +50,27 @@ int main(int argc, char** argv) {
         verbose = true;
         quiet = false;
     }
-
     srand(seed);
-    if (verbose) { std::cout << "[++] Seed for random number generator set to "
-                             << seed << "\n"; }
-    if (verbose) { std::cout << "[++] Retrieving info on available fields ... "
-                             << std::flush; }
-    std::vector< Benchmark::FieldInfo > field_infos = Benchmark::get_field_infos();
-    if (verbose) { std::cout << "done\n"; }
-    // choose ncolumns random columns
-    std::vector< ::Benchmark::Column > columns =
-        Benchmark::choose_random_columns(field_infos, ncolumns);
-    Benchmark::set_possible_vals(columns);
-    if (verbose) {
-        std::cout << "[++] Selected fields: ";
-        for (int i = 0; i < ncolumns; ++i) {
-            std::cout << columns[i].name << " ";
-        }
-        std::cout << std::endl;
+    if (vm.count("random")) {
+        ndocs = (rand() % 5000) + 5000;
+        nqueries = (rand() % 5000) + 5000;
+        ncolumns = (rand() % 12) + 1;
+        nthreads = (rand() % 5) + 5;
+        limit = (rand() % 10) + 10;
     }
-    if (!quiet) { std::cout << "[+] Generating test data (" << ndocs <<
-                               " documents) ... " << std::flush; }
-    if (!Benchmark::generate_test_data(TEST_DATA_FILE, seed, ndocs, columns)) {
-        std::cerr << "\n   [-] Test data generation failed\n";
-        return 1;
+    struct timeval **run_time = (struct timeval **) malloc(
+            nrounds*sizeof(struct timeval *));
+    if (verbose) { std::cout << "[++] Total number of rounds: " << nrounds
+                             << std::endl; }
+    for (int i = 0; i < nrounds; ++i) {
+        if (verbose) { std::cout << "[++] Running round " << i << std::endl; }
+        run_time[i] = (struct timeval *) malloc(sizeof (struct timeval));
+        Benchmark::run(seed, ndocs, nqueries, ncolumns, nthreads, limit,
+                       quiet, verbose, run_time+i);
     }
-    if (!quiet) { std::cout << "done\n"; }
-
-    if (!quiet) { std::cout << "[+] Creating tables (" << ncolumns
-                            << " columns) ... " << std::flush; }
-    // build random schema
-    if (verbose) { std::cout << "\n[++] Creating random schema\n"; }
-    Schema::DataType s[ncolumns];
-    for (int i = 0; i < ncolumns; ++i) {
-        s[i] = columns[i].type;
+    for (int i = 0; i < nrounds; ++i) {
+        free(run_time[i]);
     }
-    Schema schema(s, ncolumns);
-    BobTable table(schema);
-    //AliceTable table(schema);
-    // fill the table with documents from data file
-    if (verbose) { std::cout << "[++] filling table with documents\n"; }
-    std::ifstream ifs(TEST_DATA_FILE);
-    std::string line;
-    Row row(schema);
-    while(std::getline(ifs, line)) {
-        std::vector<std::string> *vals = Benchmark::split(line, ';');
-        for (int i = 0; i < vals -> size(); ++i) {
-            switch(s[i]) {
-                case Schema::NUMERICAL:
-                    row.set<double>(i, std::atoi((*vals)[i].c_str()));
-                    break;
-                case Schema::STRING:
-                    row.set<std::string>(i, (*vals)[i]);
-                    break;
-                case Schema::NUMERICAL_LIST:
-                    row.set< std::list<double> >(
-                        i, Benchmark::to_num_list((*vals)[i]));
-                    break;
-                case Schema::STRING_LIST:
-                    std::vector<std::string> *tmp =
-                        Benchmark::split((*vals)[i], ',');
-                    std::list<std::string> str_list(tmp->begin(), tmp->end());
-                    row.set< std::list<std::string> >(i, str_list);
-                    break;
-            }
-        }
-        delete vals;
-        table.addRow(row);
-    }
-    table.prepareStructure();
-    if (verbose) { std::cout << "[++] Creating tables " << std::flush; }
-    if (!quiet) { std::cout << "done\n"; }
-
-    if (!quiet) { std::cout << "[+] Creating queries (" << nqueries
-                            << ") ... " << std::flush; }
-    // build random queries
-    std::vector<Query> qs;
-    qs.resize(nqueries, Query());
-    for (int i = 0; i < nqueries; ++i) {
-        std::list<int> q_cols = Benchmark::select_columns(ncolumns);
-        qs[i].selectColumns(q_cols);
-        qs[i].limit((rand() % MAXRESULTS)+1);
-        // select random contraints on previously selected columns
-        for (int j = 0; j < q_cols.size(); ++j) {
-            // constraint only some % of columns - 1/DIVIDENT-th of columns
-            if (!(rand() % DIVIDENT)) {
-                std::string val = columns[j].random_val();
-                if (Benchmark::is_string_type(columns[j])) {
-                    Benchmark::add_random_constraint<std::string>(qs[i], j, val, columns[j]);
-                } else {
-                    Benchmark::add_random_constraint<double>(qs[i], j, atoi(val.c_str()), columns[j]);
-                }
-            }
-        }
-    }
-    if (!quiet) { std::cout << "done\n"; }
-    if (!quiet) { std::cout << "[+] Starting benchmark (using "
-                            << nthreads << " threads) ... \n"; }
-    // measure elapsing time and gather result quantities
-    int quantities[nqueries];
-    struct timeval start, end;
-    gettimeofday(&start, NULL);
-    Benchmark::benchmark<BobTable>(&table, &qs, nthreads, quantities);
-    gettimeofday(&end, NULL);
-    struct timeval *diff = Benchmark::diff_timeval(&start, &end);
-    std::cout << "Elapsed: " << diff->tv_sec << " second";
-    if (diff->tv_sec != 1) { std::cout << "s"; }
-    std::cout << " and " << diff->tv_usec << " microseconds\n";
-    free(diff);
-    // write quantities to a file
-    Benchmark::save_quantities("build/bob", quantities, nqueries);
-
-    if (verbose) { std::cout << "[++] Removing test data file... "
-                             << std::flush; }
-    std::remove(TEST_DATA_FILE);
-    if (verbose) { std::cout << "done\n"; }
+    free(run_time);
     return 0;
 }

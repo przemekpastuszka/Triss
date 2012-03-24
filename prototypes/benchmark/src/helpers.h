@@ -15,19 +15,25 @@
 #include "../../bob/src/BobTable.h"
 //#include "../../alice/src/AliceTable.h"
 
-#ifndef GENERATE_SCRIPT_PATH
+#ifndef __CONSTANTS
+#define NTYPES 4
+#define NLIST_CONSTR 2
+#define DIVIDENT 2
+#define NNON_LIST_CONSTR 2
+#define MAXRESULTS 10
+#define TEST_DATA_FILE "test_data"
 #define GENERATE_SCRIPT_PATH "./prototypes/benchmark/test_data_generator/generate.py"
-#endif
+#endif //__CONSTANTS
 
 namespace Benchmark {
     class Column {
         public:
         std::string name;
         Schema::DataType type;
+        std::vector< std::string > vals;
+
         Column(std::string name, Schema::DataType type);
         std::string random_val(void);
-        //~Column();
-        std::vector< std::string > vals;
     };
 
     std::string exec(const char *cmd);
@@ -48,7 +54,7 @@ namespace Benchmark {
     }
 
     template<class T>
-    void benchmark(T *table, std::vector< Query > *qs, int nthreads, int *quantities) {
+    void submitQueries(T *table, std::vector< Query > *qs, int nthreads, int *quantities) {
         int qpt = qs->size() / nthreads; // queries per thread
         int mod = qs->size() % nthreads;
         int start, end = -1;
@@ -104,6 +110,8 @@ namespace Benchmark {
     std::vector< FieldInfo > get_field_infos(void);
     std::vector<std::string> *split(const std::string &s, char delim);
     std::list<double> to_num_list(const std::string &s);
+    int run(int seed, int ndocs, int nqueries, int ncolumns, int nthreads,
+            int limit, bool quiet, bool verbose, struct timeval **run_time);
 }
 
 #endif //__BENCHMARK_HELPERS
