@@ -88,7 +88,7 @@ int main(int argc, char** argv) {
         create_random_queries(nqueries, ncolumns, limit, columns);
     int *qtts;
     for (int i = 0; i < nrounds; ++i) {
-        if (verbose) { std::cout << "[++] Running round " << i << std::endl; }
+        if (verbose) { std::cout << "[++] Running round " << i+1 << std::endl; }
         run_time[i] = (struct timeval *) malloc(sizeof (struct timeval));
         qtts = Benchmark::run<BobTable>(table, qs, nthreads, run_time+i);
     }
