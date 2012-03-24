@@ -78,7 +78,7 @@ int main(int argc, char** argv) {
         std::cout << std::endl;
     }
 
-    BobTable *table = Benchmark::prepare_table<BobTable>(
+    Bob::BobTable *table = Benchmark::prepare_table<Bob::BobTable>(
         field_infos, seed, ndocs, columns, ncolumns);
     struct timeval **run_time = (struct timeval **) malloc(
             nrounds*sizeof(struct timeval *));
@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < nrounds; ++i) {
         if (verbose) { std::cout << "[++] Running round " << i+1 << std::endl; }
         run_time[i] = (struct timeval *) malloc(sizeof (struct timeval));
-        qtts = Benchmark::run<BobTable>(table, qs, nthreads, run_time+i);
+        qtts = Benchmark::run<Bob::BobTable>(table, qs, nthreads, run_time+i);
     }
     // write quantities to a file
     Helpers::save_quantities("build/bob", qtts, qs->size());

@@ -64,7 +64,7 @@ namespace Benchmark {
             start = end + 1;
             end += qpt;
             if (i < mod) { end += 1; }
-            threads.create_thread(boost::bind(&commit<BobTable>, table, qs,
+            threads.create_thread(boost::bind(&commit<T>, table, qs,
                                               start, end, quantities));
         }
         threads.join_all();
@@ -163,7 +163,7 @@ namespace Benchmark {
         int *quantities = (int *) malloc(qs->size() * sizeof (int));
         struct timeval start, end;
         gettimeofday(&start, NULL);
-        Benchmark::submitQueries<BobTable>(table, qs, nthreads, quantities);
+        Benchmark::submitQueries<T>(table, qs, nthreads, quantities);
         gettimeofday(&end, NULL);
         struct timeval *diff = Helpers::diff_timeval(&start, &end);
         if (!quiet) { std::cout << "Elapsed: "; Helpers::print_timeval(diff); }
