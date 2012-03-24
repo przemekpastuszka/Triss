@@ -18,6 +18,25 @@ struct timeval *Helpers::diff_timeval(struct timeval *start, struct timeval *end
     return res;
 }
 
+struct timeval *Helpers::average_time(struct timeval **run_time, int nrounds) {
+    struct timeval *res = (struct timeval *) malloc(sizeof(struct timeval));
+    long long u_sec = 0;
+    for (int i = 0; i < nrounds; ++i) {
+        u_sec += run_time[i]->tv_sec * MS_PER_SEC;
+        u_sec += run_time[i]->tv_usec;
+    }
+    u_sec /= nrounds;
+    res->tv_sec = u_sec / MS_PER_SEC;
+    res->tv_usec = u_sec % MS_PER_SEC;
+    return res;
+}
+
+void Helpers::print_timeval(struct timeval *t) {
+    std::cout << t->tv_sec << " second";
+    if (t->tv_sec != 1) { std::cout << "s"; }
+    std::cout << " and " << t->tv_usec << " microseconds" << std::endl;
+}
+
 void Helpers::sample(int start, int end, int *dest, int dlen) {
     int ilen = end-start+1;
     int shuffle_arr[ilen];
@@ -64,12 +83,15 @@ std::list<int> Helpers::select_columns(int total_cols) {
 
 void Helpers::save_quantities(const char *file_path, int *quantities,
                                 int len) {
+    if (verbose) { std::cout << "[++] Saving result quantities to file "
+                             << file_path << " ... "; }
     std::ofstream myFile;
     myFile.open(file_path);
     for (int i = 0; i < len; ++i) {
         myFile << quantities[i] << std::endl;
     }
     myFile.close();
+    if (verbose) { std::cout << "done\n"; }
 }
 
 std::vector< Helpers::FieldInfo > Helpers::get_field_infos(void) {
