@@ -9,109 +9,110 @@
 #include <vector>
 #include "TypedColumn.h"
 
+namespace Bob {
 template <class T>
-class ListColumn : public TypedColumn<T> {
-    private:
-    std::vector<ListField<T> > fields;
+    class ListColumn : public TypedColumn<T> {
+        private:
+        std::vector<ListField<T> > fields;
 
-    virtual TypedListColumnQueryState<T>* getTypedListState(ColumnQueryState* state) const {
-            return static_cast<TypedListColumnQueryState<T>*>(state);
+        virtual TypedListColumnQueryState<T>* getTypedListState(ColumnQueryState* state) const {
+                return static_cast<TypedListColumnQueryState<T>*>(state);
+            }
+
+        public:
+        Field<T>* getField(unsigned int i) {
+            return &fields[i];
         }
 
-    public:
-    Field<T>* getField(unsigned int i) {
-        return &fields[i];
-    }
-
-    protected:
-    void addField(const T& value, int nextFieldId, bool isLastElement) {
-        ListField<T> field;
-        field.value = value;
-        field.nextFieldId = nextFieldId;
-        field.isLastElement = isLastElement;
-        fields.push_back(field);
-    }
-
-    bool shouldBeVisited(int valueIndex, TypedListColumnQueryState<T>* state) const {
-        return state -> isMainColumn && state -> constraintRange.isInRange(valueIndex);
-    }
-
-    bool isVisited(int valueIndex, TypedListColumnQueryState<T>* state) const {
-        return shouldBeVisited(valueIndex, state) && state -> visited[valueIndex - state -> constraintRange.left];
-    }
-
-    void addValueToResult(int valueIndex, std::list<T>& result, TypedListColumnQueryState<T>* state) const {
-        if(shouldBeVisited(valueIndex, state)) {
-            state -> visited[valueIndex - state -> constraintRange.left] = true;
-        }
-        result.push_back(fields[valueIndex].value);
-    }
-
-    public:
-    unsigned int getSize() const { return fields.size(); }
-
-    void add(const Row& row, int nextFieldId) {
-        std::list<T>& ls = row.get<std::list<T> >(this -> columnId);
-
-        typename std::list<T>::iterator left = ls.begin(), right = ls.begin();
-        right++;
-        for(;right != ls.end(); left++, right++) {
-            addField(*left, fields.size() + 1, false);
-        }
-        addField(*left, nextFieldId, true);
-    }
-
-    void sort() {
-        std::sort(fields.begin(), fields.end());
-    }
-
-    ColumnQueryState* prepareColumnForQuery() const {
-        TypedListColumnQueryState<T>* typedListState = new TypedListColumnQueryState<T>();
-        typedListState -> isMainColumn = false;
-        typedListState -> visited.clear();
-        return typedListState;
-    }
-
-    int lowerBound(const T& value) const {
-        typename std::vector<ListField<T> >::const_iterator it =
-                std::lower_bound(fields.begin(), fields.end(), value);
-        return int(it - fields.begin());
-    }
-    int upperBound(const T& value) const {
-        typename std::vector<ListField<T> >::const_iterator it =
-                std::upper_bound(fields.begin(), fields.end(), value);
-        return int(it - fields.begin()) - 1;
-    }
-
-    void markAsMainQueryColumn(ColumnQueryState* state) const {
-        TypedListColumnQueryState<T>* typedListState = getTypedListState(state);
-        typedListState -> isMainColumn = true;
-        typedListState -> visited.resize(state -> constraintRange.length(), false);
-    }
-
-    int fillRowWithValueAndGetNextFieldId(int valueIndex, Row* row, ColumnQueryState* state) const {
-        TypedListColumnQueryState<T>* typedListState = getTypedListState(state);
-        if(isVisited(valueIndex, typedListState)) {
-            return -1;
+        protected:
+        void addField(const T& value, int nextFieldId, bool isLastElement) {
+            ListField<T> field;
+            field.value = value;
+            field.nextFieldId = nextFieldId;
+            field.isLastElement = isLastElement;
+            fields.push_back(field);
         }
 
-        std::list<T> result;
-        bool hasAnyFieldInRange = false;
-        while(fields[valueIndex].isLastElement == false) {
+        bool shouldBeVisited(int valueIndex, TypedListColumnQueryState<T>* state) const {
+            return state -> isMainColumn && state -> constraintRange.isInRange(valueIndex);
+        }
+
+        bool isVisited(int valueIndex, TypedListColumnQueryState<T>* state) const {
+            return shouldBeVisited(valueIndex, state) && state -> visited[valueIndex - state -> constraintRange.left];
+        }
+
+        void addValueToResult(int valueIndex, std::list<T>& result, TypedListColumnQueryState<T>* state) const {
+            if(shouldBeVisited(valueIndex, state)) {
+                state -> visited[valueIndex - state -> constraintRange.left] = true;
+            }
+            result.push_back(fields[valueIndex].value);
+        }
+
+        public:
+        unsigned int getSize() const { return fields.size(); }
+
+        void add(const Row& row, int nextFieldId) {
+            std::list<T>& ls = row.get<std::list<T> >(this -> columnId);
+
+            typename std::list<T>::iterator left = ls.begin(), right = ls.begin();
+            right++;
+            for(;right != ls.end(); left++, right++) {
+                addField(*left, fields.size() + 1, false);
+            }
+            addField(*left, nextFieldId, true);
+        }
+
+        void sort() {
+            std::sort(fields.begin(), fields.end());
+        }
+
+        ColumnQueryState* prepareColumnForQuery() const {
+            TypedListColumnQueryState<T>* typedListState = new TypedListColumnQueryState<T>();
+            typedListState -> isMainColumn = false;
+            typedListState -> visited.clear();
+            return typedListState;
+        }
+
+        int lowerBound(const T& value) const {
+            typename std::vector<ListField<T> >::const_iterator it =
+                    std::lower_bound(fields.begin(), fields.end(), value);
+            return int(it - fields.begin());
+        }
+        int upperBound(const T& value) const {
+            typename std::vector<ListField<T> >::const_iterator it =
+                    std::upper_bound(fields.begin(), fields.end(), value);
+            return int(it - fields.begin()) - 1;
+        }
+
+        void markAsMainQueryColumn(ColumnQueryState* state) const {
+            TypedListColumnQueryState<T>* typedListState = getTypedListState(state);
+            typedListState -> isMainColumn = true;
+            typedListState -> visited.resize(state -> constraintRange.length(), false);
+        }
+
+        int fillRowWithValueAndGetNextFieldId(int valueIndex, Row* row, ColumnQueryState* state) const {
+            TypedListColumnQueryState<T>* typedListState = getTypedListState(state);
+            if(isVisited(valueIndex, typedListState)) {
+                return -1;
+            }
+
+            std::list<T> result;
+            bool hasAnyFieldInRange = false;
+            while(fields[valueIndex].isLastElement == false) {
+                hasAnyFieldInRange |= state -> constraintRange.isInRange(valueIndex);
+                addValueToResult(valueIndex, result, typedListState);
+                valueIndex = fields[valueIndex].nextFieldId;
+            }
             hasAnyFieldInRange |= state -> constraintRange.isInRange(valueIndex);
             addValueToResult(valueIndex, result, typedListState);
-            valueIndex = fields[valueIndex].nextFieldId;
+
+            if(hasAnyFieldInRange == false) {
+                return -1;
+            }
+
+            row -> set<std::list<T> >(this -> columnId, result);
+            return fields[valueIndex].nextFieldId;
         }
-        hasAnyFieldInRange |= state -> constraintRange.isInRange(valueIndex);
-        addValueToResult(valueIndex, result, typedListState);
-
-        if(hasAnyFieldInRange == false) {
-            return -1;
-        }
-
-        row -> set<std::list<T> >(this -> columnId, result);
-        return fields[valueIndex].nextFieldId;
-    }
-};
-
+    };
+}
 #endif /* PROTOTYPES_BOB_SRC_COLUMNS_LISTCOLUMN_H_ */

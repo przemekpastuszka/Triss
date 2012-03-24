@@ -11,6 +11,8 @@
 #include <utils/src/Tools.h>
 #include <prototypes/bob/tests/AbstractBobTest.h>
 
+using namespace Bob;
+
 class AbstractBobTableTest : public testing::Test, public AbstractBobTest {
     protected:
     std::vector<std::list<double> > listColumn;

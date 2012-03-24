@@ -9,6 +9,8 @@
 #include <prototypes/bob/src/columns/ScalarColumn.h>
 #include <prototypes/common/src/Schema.h>
 
+using namespace Bob;
+
 class NumericalColumnTest : public ::testing::Test {
     public:
     ScalarColumn<double> c;

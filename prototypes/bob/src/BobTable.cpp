@@ -9,7 +9,7 @@
 #include <prototypes/common/src/ValueRange.h>
 #include <prototypes/common/src/Row.h>
 
-void BobTable::prepareColumns() {
+void Bob::BobTable::prepareColumns() {
     columns.reserve(schema.size());
     for(unsigned int i = 0; i < schema.size();++i){
         columns[i] = generateColumn(schema[i]);
@@ -17,7 +17,7 @@ void BobTable::prepareColumns() {
     }
 }
 
-Column* BobTable :: generateColumn(Schema::DataType type) {
+Bob::Column* Bob::BobTable :: generateColumn(Schema::DataType type) {
     switch(type) {
         case Schema::STRING:
             return new ScalarColumn<std::string>();
@@ -31,7 +31,7 @@ Column* BobTable :: generateColumn(Schema::DataType type) {
     return NULL;
 }
 
-void BobTable::addRow(Row& row) {
+void Bob::BobTable::addRow(Row& row) {
     int initialFirstColumnSize = columns[0] -> getSize();
     for(unsigned int i = 0; i < schema.size() - 1; ++i) {
         columns[i] -> add(row, columns[i + 1] -> getSize());
@@ -39,12 +39,12 @@ void BobTable::addRow(Row& row) {
     columns[schema.size() - 1] -> add(row, initialFirstColumnSize);
 }
 
-void BobTable::prepareStructure() {
+void Bob::BobTable::prepareStructure() {
     prepareCrossColumnPointers();
     sortColumns();
 }
 
-void BobTable::prepareCrossColumnPointers() {
+void Bob::BobTable::prepareCrossColumnPointers() {
     std::vector<int> mappings[2];
     columns[0] -> createMappingFromCurrentToSortedPositions(mappings[1]);
     for(unsigned int i = 0; i < schema.size(); ++i) {
@@ -54,13 +54,13 @@ void BobTable::prepareCrossColumnPointers() {
     }
 }
 
-void BobTable::sortColumns() {
+void Bob::BobTable::sortColumns() {
     for(unsigned int i = 0; i < schema.size(); ++i) {
         columns[i] -> sort();
     }
 }
 
-Result *BobTable::select(const Query & q) {
+Result* Bob::BobTable::select(const Query & q) {
     std::vector<ColumnQueryState*> columnStates;
 
     prepareColumnsForQuery(columnStates);
@@ -76,7 +76,7 @@ Result *BobTable::select(const Query & q) {
     return results;
 }
 
-Result* BobTable::gatherResults(const Query& q, std::vector<ColumnQueryState*>& columnStates, MainColumnInfo& info) const {
+Result* Bob::BobTable::gatherResults(const Query& q, std::vector<ColumnQueryState*>& columnStates, MainColumnInfo& info) const {
     std::list<Row*>* results = new std::list<Row*>();
     int limit = q.getLimit();
 
@@ -94,7 +94,7 @@ Result* BobTable::gatherResults(const Query& q, std::vector<ColumnQueryState*>& 
     return new Result(results);
 }
 
-bool BobTable::retrieveRowBeginningWith(int nextFieldId, Row* row, std::vector<ColumnQueryState*>& columnStates, MainColumnInfo& info) const {
+bool Bob::BobTable::retrieveRowBeginningWith(int nextFieldId, Row* row, std::vector<ColumnQueryState*>& columnStates, MainColumnInfo& info) const {
     unsigned int i;
     for(i = 0; i <= schema.size() && nextFieldId >= 0; ++i) {
         int nextColumnId = (info.mainColumnId + i) % schema.size();
@@ -103,13 +103,13 @@ bool BobTable::retrieveRowBeginningWith(int nextFieldId, Row* row, std::vector<C
     return i > schema.size();
 }
 
-void BobTable::prepareColumnsForQuery(std::vector<ColumnQueryState*>& columnStates) const {
+void Bob::BobTable::prepareColumnsForQuery(std::vector<ColumnQueryState*>& columnStates) const {
     for(unsigned int i = 0; i < schema.size(); ++i) {
         columnStates.push_back(columns[i] -> prepareColumnForQuery());
     }
 }
 
-void BobTable::applyConstraintsToColumns(const Query& q, std::vector<ColumnQueryState*>& columnStates) const {
+void Bob::BobTable::applyConstraintsToColumns(const Query& q, std::vector<ColumnQueryState*>& columnStates) const {
     std::list<Constraint*> constraints = q.getConstraints();
     for(std::list<Constraint*>::iterator it = constraints.begin(); it != constraints.end(); it++) {
         Constraint* c = *it;
@@ -118,7 +118,7 @@ void BobTable::applyConstraintsToColumns(const Query& q, std::vector<ColumnQuery
     }
 }
 
-BobTable::MainColumnInfo BobTable::chooseMainColumn(std::vector<ColumnQueryState*>& columnStates) const {
+Bob::BobTable::MainColumnInfo Bob::BobTable::chooseMainColumn(std::vector<ColumnQueryState*>& columnStates) const {
     MainColumnInfo info;
     info.mainColumnRange = columns[0] -> reduceConstraintsToRange(columnStates[0]);
     info.mainColumnId = 0;
@@ -133,7 +133,7 @@ BobTable::MainColumnInfo BobTable::chooseMainColumn(std::vector<ColumnQueryState
     return info;
 }
 
-BobTable::~BobTable() {
+Bob::BobTable::~BobTable() {
     for(unsigned int i = 0; i < this -> schema.size(); ++i) {
         delete columns[i];
     }

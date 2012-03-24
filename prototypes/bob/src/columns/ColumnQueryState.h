@@ -8,32 +8,33 @@
 #include "IndexRange.h"
 #include <prototypes/common/src/ValueRange.h>
 
-class ColumnQueryState {
-    public:
-    IndexRange constraintRange;
+namespace Bob {
+    class ColumnQueryState {
+        public:
+        IndexRange constraintRange;
 
-    virtual ~ColumnQueryState() {}
-};
+        virtual ~ColumnQueryState() {}
+    };
 
-template <class T>
-class TypedColumnQueryState : public ColumnQueryState {
-    public:
-    TypedColumnQueryState() : valueRange(NULL) {};
-    ~TypedColumnQueryState() { deleteValueRange(); }
+    template <class T>
+    class TypedColumnQueryState : public ColumnQueryState {
+        public:
+        TypedColumnQueryState() : valueRange(NULL) {};
+        ~TypedColumnQueryState() { deleteValueRange(); }
 
-    ValueRange<T>* valueRange;
+        ValueRange<T>* valueRange;
 
-    void deleteValueRange() {
-        if(valueRange != NULL) { delete valueRange; }
-        valueRange = NULL;
-    }
-};
+        void deleteValueRange() {
+            if(valueRange != NULL) { delete valueRange; }
+            valueRange = NULL;
+        }
+    };
 
-template <class T>
-class TypedListColumnQueryState : public TypedColumnQueryState<T> {
-    public:
-    std::vector<bool> visited;
-    bool isMainColumn;
-};
-
+    template <class T>
+    class TypedListColumnQueryState : public TypedColumnQueryState<T> {
+        public:
+        std::vector<bool> visited;
+        bool isMainColumn;
+    };
+}
 #endif /* COLUMNQUERYSTATE_H_ */

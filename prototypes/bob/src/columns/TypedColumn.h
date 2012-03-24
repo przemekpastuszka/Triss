@@ -8,46 +8,48 @@
 #include "Fields.h"
 #include "Column.h"
 
-template <class T>
-class TypedColumn : public Column {
-    private:
-    struct Position {
-        int position;
-        T element;
+namespace Bob {
+    template <class T>
+    class TypedColumn : public Column {
+        private:
+        struct Position {
+            int position;
+            T element;
 
-        bool operator<(const Position& t) const {
-            return element < t.element;
+            bool operator<(const Position& t) const {
+                return element < t.element;
+            }
+        };
+
+        protected:
+        int columnId;
+
+        virtual Field<T>* getField(unsigned int i) = 0;
+        virtual int lowerBound(const T& value) const = 0;
+        virtual int upperBound(const T& value) const = 0;
+        virtual TypedColumnQueryState<T>* getTypedState(ColumnQueryState* state) const {
+            return static_cast<TypedColumnQueryState<T>*>(state);
         }
+
+        public:
+        virtual ~TypedColumn() {}
+
+        /*** preparing structure ***/
+        void setColumnId(int id) { columnId = id; }
+        void createMappingFromCurrentToSortedPositions(std::vector<int>& mapping);
+        void updateNextFieldIdsUsingMapping(std::vector<int>& current, std::vector<int>& next);
+
+        /*** 'select' auxiliary methods ***/
+        virtual ColumnQueryState* prepareColumnForQuery() const = 0;
+        virtual void addConstraint(Constraint* constraint, ColumnQueryState* state) const;
+        virtual IndexRange reduceConstraintsToRange(ColumnQueryState* state) const;
+
+        friend class AbstractBobTest;
     };
-
-    protected:
-    int columnId;
-
-    virtual Field<T>* getField(unsigned int i) = 0;
-    virtual int lowerBound(const T& value) const = 0;
-    virtual int upperBound(const T& value) const = 0;
-    virtual TypedColumnQueryState<T>* getTypedState(ColumnQueryState* state) const {
-        return static_cast<TypedColumnQueryState<T>*>(state);
-    }
-
-    public:
-    virtual ~TypedColumn() {}
-
-    /*** preparing structure ***/
-    void setColumnId(int id) { columnId = id; }
-    void createMappingFromCurrentToSortedPositions(std::vector<int>& mapping);
-    void updateNextFieldIdsUsingMapping(std::vector<int>& current, std::vector<int>& next);
-
-    /*** 'select' auxiliary methods ***/
-    virtual ColumnQueryState* prepareColumnForQuery() const = 0;
-    virtual void addConstraint(Constraint* constraint, ColumnQueryState* state) const;
-    virtual IndexRange reduceConstraintsToRange(ColumnQueryState* state) const;
-
-    friend class AbstractBobTest;
-};
+}
 
 template <class T>
-void TypedColumn<T>::createMappingFromCurrentToSortedPositions(std::vector<int>& mapping) {
+void Bob::TypedColumn<T>::createMappingFromCurrentToSortedPositions(std::vector<int>& mapping) {
     std::vector<Position> positions;
     positions.resize(getSize(), Position());
 
@@ -64,13 +66,13 @@ void TypedColumn<T>::createMappingFromCurrentToSortedPositions(std::vector<int>&
 }
 
 template <class T>
-void TypedColumn<T>::updateNextFieldIdsUsingMapping(std::vector<int>& current, std::vector<int>& next) {
+void Bob::TypedColumn<T>::updateNextFieldIdsUsingMapping(std::vector<int>& current, std::vector<int>& next) {
     for(unsigned int i = 0; i < getSize(); ++i) {
         getField(i) -> updateNextFieldUsingMapping(current, next);
     }
 }
 
-template<class T> void TypedColumn<T>::addConstraint(Constraint *constraint, ColumnQueryState* state) const {
+template<class T> void Bob::TypedColumn<T>::addConstraint(Constraint *constraint, ColumnQueryState* state) const {
     TypedColumnQueryState<T>* typedState = getTypedState(state);
     ValueRange<T>* r = ValueRange<T>::createFromConstraint((TypedConstraint<T>*) constraint);
     if(typedState -> valueRange == NULL) {
@@ -82,7 +84,7 @@ template<class T> void TypedColumn<T>::addConstraint(Constraint *constraint, Col
     }
 }
 
-template<class T> IndexRange TypedColumn<T>::reduceConstraintsToRange(ColumnQueryState* state) const {
+template<class T> Bob::IndexRange Bob::TypedColumn<T>::reduceConstraintsToRange(ColumnQueryState* state) const {
     TypedColumnQueryState<T>* typedState = getTypedState(state);
     if(typedState -> valueRange != NULL && typedState -> valueRange -> isEmpty()) {
         typedState -> constraintRange = IndexRange();

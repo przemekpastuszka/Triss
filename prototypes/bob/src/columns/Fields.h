@@ -6,53 +6,54 @@
 
 #include <vector>
 
-template <class T>
-class Field {
-    public:
-    virtual ~Field() {};
+namespace Bob {
+    template <class T>
+    class Field {
+        public:
+        virtual ~Field() {};
 
-    T value;
-    int nextFieldId;
+        T value;
+        int nextFieldId;
 
-    bool operator<(const Field<T>& other) const {
-        return value < other.value;
+        bool operator<(const Field<T>& other) const {
+            return value < other.value;
+        }
+        bool operator<(const T& other) const {
+            return value < other;
+        }
+
+        virtual void updateNextFieldUsingMapping(std::vector<int>& current, std::vector<int>& next) {
+            nextFieldId = next[nextFieldId];
+        }
+
+        virtual bool isLastListElement() {
+            return true;
+        }
+    };
+
+    template <class T>
+    bool operator<(const T& left, const Field<T>& other) {
+        return left < other.value;
     }
-    bool operator<(const T& other) const {
-        return value < other;
-    }
 
-    virtual void updateNextFieldUsingMapping(std::vector<int>& current, std::vector<int>& next) {
-        nextFieldId = next[nextFieldId];
-    }
+    template <class T>
+    class ListField : public Field<T> {
+        public:
+        bool isLastElement;
 
-    virtual bool isLastListElement() {
-        return true;
-    }
-};
+        void updateNextFieldUsingMapping(std::vector<int>& current, std::vector<int>& next) {
+            if(isLastElement) {
+                this -> nextFieldId = next[this -> nextFieldId];
+            }
+            else {
+                this -> nextFieldId = current[this -> nextFieldId];
+            }
+        }
 
-template <class T>
-bool operator<(const T& left, const Field<T>& other) {
-    return left < other.value;
+        bool isLastListElement() {
+            return isLastElement;
+        }
+    };
 }
-
-template <class T>
-class ListField : public Field<T> {
-    public:
-    bool isLastElement;
-
-    void updateNextFieldUsingMapping(std::vector<int>& current, std::vector<int>& next) {
-        if(isLastElement) {
-            this -> nextFieldId = next[this -> nextFieldId];
-        }
-        else {
-            this -> nextFieldId = current[this -> nextFieldId];
-        }
-    }
-
-    bool isLastListElement() {
-        return isLastElement;
-    }
-};
-
 
 #endif /* PROTOTYPES_BOB_SRC_COLUMNS_FIELDS_H_ */
