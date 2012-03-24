@@ -29,9 +29,13 @@ private:
 
 public:
     TypedColumn() {};
+    ~TypedColumn() {
+        for (int i = 0; i < fields.size(); ++i) {
+            delete fields[i];
+        }
+    }
     void addField(TypedField<T>* f) {
-        std::cout << this->fields.size() << std::endl;
-        this->fields.push_back(f);
+        fields.push_back(f);
     };
     void sort() { 
         std::sort(fields.begin(), fields.end());
