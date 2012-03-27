@@ -11,55 +11,59 @@
 #include "Fields.h"
 #include <prototypes/common/src/Constraint.h>
 
-class Column {
-};
+namespace Alice {
 
-template <class T>
-class TypedColumn : public Column {
-private:
-    std::vector< TypedField<T>* > fields;
-    struct TypedColumnLessThan {
-        bool operator() (TypedField<T>* left, T right) {
-            return *left < right;
-        }
-        bool operator() (T left, TypedField<T>* right) {
-            return left < *right;
-        }
-    } comparator;
+    class Column {
+    };
 
-public:
-    TypedColumn() {};
-    ~TypedColumn() {
-        for (int i = 0; i < fields.size(); ++i) {
-            delete fields[i];
+    template <class T>
+    class TypedColumn : public Column {
+    private:
+        std::vector< TypedField<T>* > fields;
+        struct TypedColumnLessThan {
+            bool operator() (TypedField<T>* left, T right) {
+                return *left < right;
+            }
+            bool operator() (T left, TypedField<T>* right) {
+                return left < *right;
+            }
+        } comparator;
+
+    public:
+        TypedColumn() {};
+        ~TypedColumn() {
+            for (int i = 0; i < fields.size(); ++i) {
+                delete fields[i];
+            }
         }
-    }
-    void addField(TypedField<T>* f) {
-        fields.push_back(f);
+        void addField(TypedField<T>* f) {
+            fields.push_back(f);
+        };
+        void sort() { 
+            std::sort(fields.begin(), fields.end());
+        };
+        
+        std::set<int> applyConstraint(TypedConstraint<T> * ct) {
+            std::set<int> matchingIds;
+            typename std::vector< TypedField<T>* >::iterator first = fields.begin();
+            typename std::vector< TypedField<T>* >::iterator last = fields.end();
+            switch(ct->getConstraintType()) {
+                case Constraint::EQUALS:
+                case Constraint::CONTAINS:
+                    first = std::lower_bound(fields.begin(), fields.end(), ct->getConstraintValue(), comparator);
+                    last = std::upper_bound(fields.begin(), fields.end(), ct->getConstraintValue(), comparator);
+                case Constraint::GREATER_OR_EQUAL:
+                    first = std::lower_bound(fields.begin(), fields.end(), ct->getConstraintValue(), comparator); 
+                case Constraint::LESS_OR_EQUAL:
+                    last = std::upper_bound(fields.begin(), fields.end(), ct->getConstraintValue(), comparator);
+            }
+            for (typename std::vector< TypedField<T>* >::iterator it = first; it != last; ++it) {
+                matchingIds.insert((*it)->id);
+            }
+            return matchingIds;
+        }
     };
-    void sort() { 
-        std::sort(fields.begin(), fields.end());
-    };
-    
-    std::set<int> applyConstraint(TypedConstraint<T> * ct) {
-        std::set<int> matchingIds;
-        typename std::vector< TypedField<T>* >::iterator first = fields.begin();
-        typename std::vector< TypedField<T>* >::iterator last = fields.end();
-        switch(ct->getConstraintType()) {
-            case Constraint::EQUALS:
-            case Constraint::CONTAINS:
-                first = std::lower_bound(fields.begin(), fields.end(), ct->getConstraintValue(), comparator);
-                last = std::upper_bound(fields.begin(), fields.end(), ct->getConstraintValue(), comparator);
-            case Constraint::GREATER_OR_EQUAL:
-                first = std::lower_bound(fields.begin(), fields.end(), ct->getConstraintValue(), comparator); 
-            case Constraint::LESS_OR_EQUAL:
-                last = std::upper_bound(fields.begin(), fields.end(), ct->getConstraintValue(), comparator);
-        }
-        for (typename std::vector< TypedField<T>* >::iterator it = first; it != last; ++it) {
-            matchingIds.insert((*it)->id);
-        }
-        return matchingIds;
-    }
-};
+
+}
 
 #endif /* PROTOTYPES_ALICE_SRC_COLUMNS_COLUMN_H_ */

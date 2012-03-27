@@ -19,7 +19,7 @@ struct eqint {
   }
 };
 
-AliceTable::AliceTable(const Schema& schema) : Table(schema) {
+Alice::AliceTable::AliceTable(const Schema& schema) : Table(schema) {
     for (int i = 0; i < this->schema.size(); ++i) {
         switch (this->schema[i]) {
             case Schema::NUMERICAL: columns.push_back(new TypedColumn<double>()); break;
@@ -30,7 +30,7 @@ AliceTable::AliceTable(const Schema& schema) : Table(schema) {
     }
 }
 
-void AliceTable::addRow(Row& row) {
+void Alice::AliceTable::addRow(Row& row) {
     rows.push_back(&row);
     for (int i = 0; i < schema.size(); ++i) {
         TypedListField<double> * numericalListField;
@@ -68,7 +68,7 @@ void AliceTable::addRow(Row& row) {
     }
 }
 
-void AliceTable::prepareStructure() {
+void Alice::AliceTable::prepareStructure() {
     for (int i = 0; i < columns.size(); ++i) {
         if (schema[i] == Schema::NUMERICAL || schema[i] == Schema::NUMERICAL_LIST) {
             static_cast<TypedColumn<double>*>(columns[i])->sort();
@@ -78,7 +78,7 @@ void AliceTable::prepareStructure() {
     }
 }
 
-Result* AliceTable::select(const Query& q) {
+Result* Alice::AliceTable::select(const Query& q) {
     google::dense_hash_map<int, int, __gnu_cxx::hash<int>, eqint> hashMap;
     hashMap.set_empty_key(-1);
     const std::list<Constraint*>& constraints = q.getConstraints();
@@ -109,7 +109,7 @@ Result* AliceTable::select(const Query& q) {
     return new Result(resultingRows);
 }
 
-AliceTable::~AliceTable(){
+Alice::AliceTable::~AliceTable(){
     for (int i = 0; i < columns.size(); ++i) {
         delete columns[i];
     }

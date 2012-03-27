@@ -10,17 +10,21 @@
 #include "columns/Column.h"
 #include "columns/Fields.h"
 
-class AliceTable : public Table {
-    private:
-        std::vector<Column*> columns;
-        std::vector<Row*> rows;
-    public:
-        AliceTable(const Schema& schema);
-        void prepareStructure();
-        void addRow(Row& row);
-        Result* select(const Query& q);
-        ~AliceTable();
-};
+namespace Alice {
+
+    class AliceTable : public Table {
+        private:
+            std::vector<Column*> columns;
+            std::vector<Row*> rows;
+        public:
+            AliceTable(const Schema& schema);
+            void prepareStructure();
+            void addRow(Row& row);
+            Result* select(const Query& q);
+            ~AliceTable();
+    };
+
+}
 
 #endif  // PROTOTYPES_ALICE_SRC_ALICETABLE_H_
 
