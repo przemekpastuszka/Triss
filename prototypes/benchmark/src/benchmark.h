@@ -5,7 +5,7 @@
 #include <boost/thread.hpp>
 #include "../../common/src/Schema.h"
 #include "../../bob/src/BobTable.h"
-//#include "../../alice/src/AliceTable.h"
+#include "../../alice/src/AliceTable.h"
 #include "helpers.h"
 
 #define DIVIDENT 2
@@ -155,7 +155,7 @@ namespace Benchmark {
     }
 
     template <class T>
-    int *run(T *table, std::vector< Query > *qs, int nthreads,
+    int *submit_and_count_time(T *table, std::vector< Query > *qs, int nthreads,
              struct timeval **run_time) {
         if (!quiet) { std::cout << "[+] Starting benchmark (using "
                                 << nthreads << " threads) ... \n"; }
@@ -169,6 +169,31 @@ namespace Benchmark {
         if (!quiet) { std::cout << "Elapsed: "; Helpers::print_timeval(diff); }
         *run_time = diff;
         return quantities;
+    }
+    template <class T>
+    void run(std::vector< Helpers::FieldInfo > &field_infos,
+            int seed, int ndocs,
+            std::vector< Benchmark::Column > &columns,
+            int ncolumns, struct timeval **run_time,
+            std::vector< Query > *qs, int nthreads, int nrounds,
+            const char *result_file) {
+
+        T *table = Benchmark::prepare_table<T>(
+            field_infos, seed, ndocs, columns, ncolumns);
+
+        int *qtts;
+        for (int i = 0; i < nrounds; ++i) {
+            if (verbose) { std::cout << "[++] Running round " << i+1 << std::endl; }
+            qtts = Benchmark::submit_and_count_time<T>(table, qs, nthreads,
+                                                       run_time+i);
+        }
+        // write quantities to a file
+        Helpers::save_quantities(result_file, qtts, qs->size());
+        struct timeval *av = Helpers::average_time(run_time, nrounds);
+        std::cout << "Average time of execution: "; Helpers::print_timeval(av);
+        free(av);
+        free(qtts);
+        delete table;
     }
 }
 

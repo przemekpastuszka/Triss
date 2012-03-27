@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "../../common/src/Schema.h"
 #include "../../bob/src/BobTable.h"
-//#include "../../alice/src/AliceTable.h"
+#include "../../alice/src/AliceTable.h"
 #include "benchmark.h"
 
 bool quiet = false, verbose = false;
@@ -14,6 +14,7 @@ namespace po = boost::program_options;
 
 int main(int argc, char** argv) {
     int seed, ndocs, nqueries, ncolumns, nthreads, limit, nrounds;
+    bool should_test_alice = false, should_test_bob = false;
     po::options_description opt_descr("Optional arguments");
     opt_descr.add_options()
         ("help,h", "view this help message")
@@ -29,9 +30,11 @@ int main(int argc, char** argv) {
          "set limit of each query results (zero turns it off)")
         ("nthreads,t", po::value<int>(&nthreads)->default_value(1),
          "specify number of threads in which work will be splitted to")
-        ("random,r", "makes all optional parameters (except from seed) random")
-        ("rounds,ro", po::value<int>(&nrounds)->default_value(1),
+        ("random", "makes all optional parameters (except from seed) random")
+        ("rounds,r", po::value<int>(&nrounds)->default_value(1),
          "the more rounds the more plausible running-queries-time")
+        ("alice,a", "benchmark Alice prototype (default false)")
+        ("bob,b", "benchmark Bob prototype (default false")
         ("quiet,q", "turns quiet mode on")
         ("verbose,v", "turns verbose mode on (overrides quiet option)")
     ;
@@ -41,7 +44,7 @@ int main(int argc, char** argv) {
 
     if (vm.count("help")) {
         std::cout << opt_descr << std::endl;
-        return 1;
+        return 0;
     }
     // quiet and verbose options are NOT complementary
     if (vm.count("quiet")) {
@@ -50,6 +53,17 @@ int main(int argc, char** argv) {
     if (vm.count("verbose")) {
         verbose = true;
         quiet = false;
+    }
+    if (vm.count("alice")) {
+        should_test_alice = true;
+    }
+    if (vm.count("bob")) {
+        should_test_bob = true;
+    }
+    if (!should_test_bob and !should_test_alice) {
+        std::cout << "Please specify at least one prototype to benchmark."
+                  << std::endl;
+        return 1;
     }
     if (verbose) { std::cout << "[++] Seed for random number generator set to "
                              << seed << "\n"; }
@@ -77,32 +91,30 @@ int main(int argc, char** argv) {
         }
         std::cout << std::endl;
     }
-
-    Bob::BobTable *table = Benchmark::prepare_table<Bob::BobTable>(
-        field_infos, seed, ndocs, columns, ncolumns);
-    struct timeval **run_time = (struct timeval **) malloc(
-            nrounds*sizeof(struct timeval *));
     if (verbose) { std::cout << "[++] Total number of rounds: " << nrounds
                              << std::endl; }
     std::vector< Query > *qs =
         create_random_queries(nqueries, ncolumns, limit, columns);
-    int *qtts;
+    struct timeval **run_time = (struct timeval **) malloc(
+            nrounds*sizeof(struct timeval *));
     for (int i = 0; i < nrounds; ++i) {
-        if (verbose) { std::cout << "[++] Running round " << i+1 << std::endl; }
         run_time[i] = (struct timeval *) malloc(sizeof (struct timeval));
-        qtts = Benchmark::run<Bob::BobTable>(table, qs, nthreads, run_time+i);
     }
-    // write quantities to a file
-    Helpers::save_quantities("build/bob", qtts, qs->size());
-    struct timeval *av = Helpers::average_time(run_time, nrounds);
-    std::cout << "Average time of execution: "; Helpers::print_timeval(av);
-    free(av);
+    if (should_test_alice) {
+        Benchmark::run<Alice::AliceTable>(
+            field_infos, seed, ndocs, columns, ncolumns, run_time, qs, nthreads,
+            nrounds, "build/alice");
+    }
+    if (should_test_bob) {
+        Benchmark::run<Bob::BobTable>(
+            field_infos, seed, ndocs, columns, ncolumns, run_time, qs, nthreads,
+            nrounds, "build/bob");
+    }
+    /* free all allocated memory */
     for (int i = 0; i < nrounds; ++i) {
         free(run_time[i]);
     }
     free(run_time);
-    free(qtts);
     delete qs;
-    delete table;
     return 0;
 }
