@@ -43,6 +43,8 @@ class Row {
     bool isNull(int i) const {
         return values[i] == NULL;
     }
+    
+    Row* getRowCopy();
 };
 
 

@@ -33,3 +33,24 @@ void Row::deleteFieldAt(int index) {
         }
     }
 }
+
+Row* Row::getRowCopy() {
+    Row* result = new Row(this->schema);
+    for (int i = 0; i < this->schema.size(); ++i) {
+      switch (this->schema[i]) {
+        case Schema::NUMERICAL:
+          result->set<double>(i, this->get<double>(i));
+          break;
+        case Schema::STRING:
+          result->set<std::string>(i, this->get<std::string>(i));
+          break;
+        case Schema::NUMERICAL_LIST:
+          result->set< std::list<double> >(i, std::list<double>(this->get< std::list<double> >(i)));
+          break;
+        case Schema::STRING_LIST:
+          result->set< std::list<std::string> >(i, std::list<std::string>(this->get< std::list<std::string> >(i)));
+          break;          
+      } 
+    }
+    return result;
+}

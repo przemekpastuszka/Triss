@@ -104,7 +104,7 @@ Result* Alice::AliceTable::select(const Query& q) {
     }
     std::list<Row*>* resultingRows = new std::list<Row*>;
     for (int i = 0; i < std::min(q.getLimit(), (int)resultingIds.size()); ++i) {
-        resultingRows->push_back(rows[resultingIds[i]]);        
+        resultingRows->push_back(rows[resultingIds[i]]->getRowCopy());        
     }
     return new Result(resultingRows);
 }
