@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
         ("rounds,r", po::value<int>(&nrounds)->default_value(1),
          "the more rounds the more plausible running-queries-time")
         ("alice,a", "benchmark Alice prototype (default false)")
-        ("bob,b", "benchmark Bob prototype (default false")
+        ("bob,b", "benchmark Bob prototype (default false)")
         ("quiet,q", "turns quiet mode on")
         ("verbose,v", "turns verbose mode on (overrides quiet option)")
     ;
