@@ -85,8 +85,8 @@ Result* Alice::AliceTable::select(const Query& q) {
     int no_constraints = constraints.size();
     std::vector<int> resultingIds;
     if (no_constraints > 0) {
-        std::vector< std::set<int> > matchedRows;
-        std::set<int> matchingIds;
+        std::vector< std::vector<int> > matchedRows;
+        std::vector<int> matchingIds;
         for (std::list<Constraint*>::const_iterator it = constraints.begin();
                 it != constraints.end(); ++it) {
             int affected_column = (*it)->getAffectedColumn();
@@ -99,7 +99,7 @@ Result* Alice::AliceTable::select(const Query& q) {
         }
         
         for (int i = 1; i <= matchedRows.size(); ++i) {
-            for (std::set<int>::iterator sit = matchedRows[i - 1].begin(); sit != matchedRows[i - 1].end(); ++sit) {
+            for (std::vector<int>::iterator sit = matchedRows[i - 1].begin(); sit != matchedRows[i - 1].end(); ++sit) {
                 if (hashMap[*sit] == i - 1) {
                     hashMap[*sit] += 1;
                 }            

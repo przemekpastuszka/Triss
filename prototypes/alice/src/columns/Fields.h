@@ -69,8 +69,12 @@ namespace Alice {
         public:
             TypedListField(std::list<T>& list, int id) : ListField(id), valuesList(list) {};
             std::list< TypedField<T>* > get_fields() {
-                std::list< TypedField<T>* > result;
+                std::set<T> uniqueValues;
                 for (typename std::list<T>::iterator it = valuesList.begin(); it != valuesList.end(); ++it) {
+                    uniqueValues.insert(*it);
+                }
+                std::list< TypedField<T>* > result;
+                for (typename std::set<T>::iterator it = uniqueValues.begin(); it != uniqueValues.end(); ++it) {
                     result.push_back(new TypedField<T>(*it, id));
                 }
                 return result;

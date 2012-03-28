@@ -51,8 +51,8 @@ namespace Alice {
             std::sort(fields.begin(), fields.end(), sortComparator);
         }
         
-        std::set<int> applyConstraint(TypedConstraint<T> * ct) {
-            std::set<int> matchingIds;
+        std::vector<int> applyConstraint(TypedConstraint<T> * ct) {
+            std::vector<int> matchingIds;
             typename std::vector< TypedField<T>* >::iterator first = fields.begin();
             typename std::vector< TypedField<T>* >::iterator last = fields.end();             
             switch(ct->getConstraintType()) {
@@ -69,7 +69,7 @@ namespace Alice {
                     break;
             }
             for (typename std::vector< TypedField<T>* >::iterator it = first; it != last; ++it) {
-                matchingIds.insert((*it)->id);
+                matchingIds.push_back((*it)->id);
             }
             return matchingIds;
         }
