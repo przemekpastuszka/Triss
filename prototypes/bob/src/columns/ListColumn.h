@@ -38,12 +38,18 @@ template <class T>
         }
 
         bool isVisited(int valueIndex, TypedListColumnQueryState<T>* state) const {
-            return shouldBeVisited(valueIndex, state) && state -> visited[valueIndex - state -> constraintRange.left];
+            return shouldBeVisited(valueIndex, state)
+                    && state -> visited.size() > valueIndex - state -> constraintRange.left
+                    && state -> visited[valueIndex - state -> constraintRange.left];
         }
 
         void addValueToResult(int valueIndex, std::list<T>& result, TypedListColumnQueryState<T>* state) const {
             if(shouldBeVisited(valueIndex, state)) {
-                state -> visited[valueIndex - state -> constraintRange.left] = true;
+                int relativeValueIndex = valueIndex - state -> constraintRange.left;
+                if(state -> visited.size() <= relativeValueIndex) {
+                    state -> visited.resize(relativeValueIndex + 1, false);
+                }
+                state -> visited[relativeValueIndex] = true;
             }
             result.push_back(fields[valueIndex].value);
         }
@@ -87,7 +93,6 @@ template <class T>
         void markAsMainQueryColumn(ColumnQueryState* state) const {
             TypedListColumnQueryState<T>* typedListState = getTypedListState(state);
             typedListState -> isMainColumn = true;
-            typedListState -> visited.resize(state -> constraintRange.length(), false);
         }
 
         int fillRowWithValueAndGetNextFieldId(int valueIndex, Row* row, ColumnQueryState* state) const {
