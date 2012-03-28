@@ -9,12 +9,12 @@ Helpers::FieldInfo::FieldInfo(std::string name, std::string type) :
 
 struct timeval *Helpers::diff_timeval(struct timeval *start, struct timeval *end) {
     struct timeval *res = (struct timeval *) malloc(sizeof(struct timeval));
-    res->tv_sec = end->tv_sec - start->tv_sec;
-    if (end->tv_usec < start->tv_usec) {
-        res->tv_usec = MS_PER_SEC - start->tv_usec + end->tv_usec;
-    } else {
-        res->tv_usec = end->tv_usec - start->tv_usec;
-    }
+
+    long long usec_start = start->tv_sec*MS_PER_SEC + start->tv_usec;
+    long long usec_end = end->tv_sec*MS_PER_SEC + end->tv_usec;
+    long long usec_res = usec_end - usec_start;
+    res->tv_sec = usec_res / MS_PER_SEC;
+    res->tv_usec = usec_res % MS_PER_SEC;
     return res;
 }
 
