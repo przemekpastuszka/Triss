@@ -86,7 +86,7 @@ Result* Alice::AliceTable::select(const Query& q) {
     int no_constraints = constraints.size();
     std::vector<int> resultingIds;
     if (no_constraints > 0) {
-        std::vector< std::vector<int> > matchedRows;
+        std::list< std::vector<int> > matchedRows;
         std::vector<int> matchingIds;
         for (std::list<Constraint*>::const_iterator it = constraints.begin();
                 it != constraints.end(); ++it) {
@@ -100,26 +100,28 @@ Result* Alice::AliceTable::select(const Query& q) {
         }
         
         int min_size = INT_MAX;
-        int min_index = -1;
-        for (int i = 0; i < matchedRows.size(); ++i) {
-            if (matchedRows[i].size() < min_size) {
-                min_size = matchedRows[i].size();
-                min_index = i;
+        std::list< std::vector<int> >::iterator min_index;
+        for (std::list< std::vector<int> >::iterator it = matchedRows.begin(); it != matchedRows.end(); ++it) {
+            if (it->size() < min_size) {
+                min_size = it->size();
+                min_index = it;
             }
         }
         
-        for (int i = 0; i < matchedRows[min_index].size(); ++i) {
-            hashMap[matchedRows[min_index][i]] = 1;
+        for (int i = 0; i < min_size; ++i) {
+            hashMap[(*min_index)[i]] = 1;
         }
         
-        matchedRows.erase(matchedRows.begin() + min_index);
+        matchedRows.erase(min_index);
         
-        for (int i = 0; i < matchedRows.size(); ++i) {
-            for (std::vector<int>::iterator sit = matchedRows[i].begin(); sit != matchedRows[i].end(); ++sit) {
+        int i = 0;
+        for (std::list< std::vector<int> >::iterator lit = matchedRows.begin(); lit != matchedRows.end(); ++lit) {
+            for (std::vector<int>::iterator sit = lit->begin(); sit != lit->end(); ++sit) {
                 if (hashMap[*sit] == i + 1) {
                     hashMap[*sit] += 1;
                 }            
             }
+            ++i;
         }
         
         for (google::dense_hash_map<int, int, __gnu_cxx::hash<int>, eqint>::iterator it = hashMap.begin(); it != hashMap.end(); ++it) {
