@@ -45,32 +45,6 @@ namespace Benchmark {
 
 
     template<class T>
-    void commit(T *table, std::vector< Query > *qs, int start, int end, int *quantities) {
-        for (int qn = start; qn <= end; ++qn) {
-            Result *result = table->select((*qs)[qn]);
-            std::list<Row *> *rows = result -> fetchAll();
-            quantities[qn] = rows->size();
-            delete result;
-        }
-    }
-
-    template<class T>
-    void submitQueries(T *table, std::vector< Query > *qs, int nthreads, int *quantities) {
-        int qpt = qs->size() / nthreads; // queries per thread
-        int mod = qs->size() % nthreads;
-        int start, end = -1;
-        boost::thread_group threads;
-        for (int i = 0; i < nthreads; ++i) {
-            start = end + 1;
-            end += qpt;
-            if (i < mod) { end += 1; }
-            threads.create_thread(boost::bind(&commit<T>, table, qs,
-                                              start, end, quantities));
-        }
-        threads.join_all();
-    }
-
-    template<class T>
     void add_random_constraint(Query &q, int col_num, T val, Column &c) {
         // distinguish list and non-list types
         if (is_list_type(c)) {
@@ -132,35 +106,48 @@ namespace Benchmark {
     T *prepare_table(std::vector< Helpers::FieldInfo > &field_infos,
                     int seed, int ndocs, std::vector< Benchmark::Column > &columns,
                     int ncolumns) {
-        // prepare test data and table
-        if (!quiet) { std::cout << "[+] Generating test data (" << ndocs <<
-                                " documents) ... " << std::flush; }
-        if (!Benchmark::generate_test_data(TEST_DATA_FILE, seed, ndocs, columns)) {
-            std::cerr << "\n   [-] Test data generation failed\n";
-            exit(1);
-        }
-        if (!quiet) { std::cout << "done\n"; }
-
         Schema *schema = create_schema(columns, ncolumns);
         T *table = new T(*schema);
 
-        fill_table_with_docs(table, schema,columns);
+        fill_table_with_docs(table, schema, columns);
 
-        if (verbose) { std::cout << "[++] Removing test data file... "
-                                << std::flush; }
-        std::remove(TEST_DATA_FILE);
-        if (verbose) { std::cout << "done\n"; }
         delete schema;
         return table;
     }
 
+
+    template<class T>
+    void commit(T *table, std::vector< Query > *qs, int start, int end, int *quantities) {
+        for (int qn = start; qn <= end; ++qn) {
+            Result *result = table->select((*qs)[qn]);
+            std::list<Row *> *rows = result -> fetchAll();
+            quantities[qn] = rows->size();
+            delete result;
+        }
+    }
+
+    template<class T>
+    void submitQueries(T *table, std::vector< Query > *qs, int nthreads, int *quantities) {
+        int qpt = qs->size() / nthreads; // queries per thread
+        int mod = qs->size() % nthreads;
+        int start, end = -1;
+        boost::thread_group threads;
+        for (int i = 0; i < nthreads; ++i) {
+            start = end + 1;
+            end += qpt;
+            if (i < mod) { end += 1; }
+            threads.create_thread(boost::bind(&commit<T>, table, qs,
+                                              start, end, quantities));
+        }
+        threads.join_all();
+    }
+
     template <class T>
     int *submit_and_count_time(T *table, std::vector< Query > *qs, int nthreads,
-             struct timeval **run_time) {
+                               struct timeval **run_time, int *quantities) {
         if (!quiet) { std::cout << "[+] Starting benchmark (using "
                                 << nthreads << " threads) ... \n"; }
         // measure elapsing time and gather result quantities
-        int *quantities = (int *) malloc(qs->size() * sizeof (int));
         struct timeval start, end;
         gettimeofday(&start, NULL);
         Benchmark::submitQueries<T>(table, qs, nthreads, quantities);
@@ -170,6 +157,7 @@ namespace Benchmark {
         *run_time = diff;
         return quantities;
     }
+
     template <class T>
     void run(std::vector< Helpers::FieldInfo > &field_infos,
             int seed, int ndocs,
@@ -181,18 +169,18 @@ namespace Benchmark {
         T *table = Benchmark::prepare_table<T>(
             field_infos, seed, ndocs, columns, ncolumns);
 
-        int *qtts;
+        int *quantities = (int *) calloc(qs->size(), sizeof (int));
         for (int i = 0; i < nrounds; ++i) {
             if (verbose) { std::cout << "[++] Running round " << i+1 << std::endl; }
-            qtts = Benchmark::submit_and_count_time<T>(table, qs, nthreads,
-                                                       run_time+i);
+            Benchmark::submit_and_count_time<T>(table, qs, nthreads,
+                                                run_time+i, quantities);
         }
         // write quantities to a file
-        Helpers::save_quantities(result_file, qtts, qs->size());
+        Helpers::save_quantities(result_file, quantities, qs->size());
         struct timeval *av = Helpers::average_time(run_time, nrounds);
         std::cout << "Average time of execution: "; Helpers::print_timeval(av);
         free(av);
-        free(qtts);
+        free(quantities);
         delete table;
     }
 }

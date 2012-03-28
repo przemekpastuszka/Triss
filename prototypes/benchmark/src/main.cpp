@@ -100,6 +100,14 @@ int main(int argc, char** argv) {
     for (int i = 0; i < nrounds; ++i) {
         run_time[i] = (struct timeval *) malloc(sizeof (struct timeval));
     }
+    if (!quiet) { std::cout << "[+] Generating test data (" << ndocs <<
+                                " documents) ... " << std::flush; }
+    if (!Benchmark::generate_test_data(TEST_DATA_FILE, seed, ndocs, columns)) {
+        std::cerr << "\n   [-] Test data generation failed\n";
+        exit(1);
+    }
+    if (!quiet) { std::cout << "done\n"; }
+
     if (should_test_alice) {
         Benchmark::run<Alice::AliceTable>(
             field_infos, seed, ndocs, columns, ncolumns, run_time, qs, nthreads,
@@ -110,6 +118,10 @@ int main(int argc, char** argv) {
             field_infos, seed, ndocs, columns, ncolumns, run_time, qs, nthreads,
             nrounds, "build/bob");
     }
+    if (verbose) { std::cout << "[++] Removing test data file... "
+                            << std::flush; }
+    std::remove(TEST_DATA_FILE);
+    if (verbose) { std::cout << "done\n"; }
     /* free all allocated memory */
     for (int i = 0; i < nrounds; ++i) {
         free(run_time[i]);
