@@ -2,6 +2,7 @@
 * Copyright 2012 Michał Rychlik
 */
 #include <cstdlib>
+#include <climits>
 #include <algorithm>
 #include <list>
 #include <set>
@@ -98,14 +99,29 @@ Result* Alice::AliceTable::select(const Query& q) {
             matchedRows.push_back(matchingIds);         
         }
         
-        for (int i = 1; i <= matchedRows.size(); ++i) {
-            for (std::vector<int>::iterator sit = matchedRows[i - 1].begin(); sit != matchedRows[i - 1].end(); ++sit) {
-                if (hashMap[*sit] == i - 1) {
+        int min_size = INT_MAX;
+        int min_index = -1;
+        for (int i = 0; i < matchedRows.size(); ++i) {
+            if (matchedRows[i].size() < min_size) {
+                min_size = matchedRows[i].size();
+                min_index = i;
+            }
+        }
+        
+        for (int i = 0; i < matchedRows[min_index].size(); ++i) {
+            hashMap[matchedRows[min_index][i]] = 1;
+        }
+        
+        matchedRows.erase(matchedRows.begin() + min_index);
+        
+        for (int i = 0; i < matchedRows.size(); ++i) {
+            for (std::vector<int>::iterator sit = matchedRows[i].begin(); sit != matchedRows[i].end(); ++sit) {
+                if (hashMap[*sit] == i + 1) {
                     hashMap[*sit] += 1;
                 }            
             }
         }
-
+        
         for (google::dense_hash_map<int, int, __gnu_cxx::hash<int>, eqint>::iterator it = hashMap.begin(); it != hashMap.end(); ++it) {
             if (it->second == no_constraints) {
                 resultingIds.push_back(it->first);
