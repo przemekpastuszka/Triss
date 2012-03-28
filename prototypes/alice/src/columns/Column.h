@@ -14,6 +14,8 @@
 namespace Alice {
 
     class Column {
+    public:
+        virtual ~Column() {};
     };
 
     template <class T>
