@@ -29,7 +29,7 @@ namespace Bob {
         void prepareColumnsForQuery(std::vector<ColumnQueryState*>& columnStates) const;
         void applyConstraintsToColumns(const Query& q, std::vector<ColumnQueryState*>& columnStates) const;
         MainColumnInfo chooseMainColumn(std::vector<ColumnQueryState*>& columnStates)  const;
-        bool retrieveRowBeginningWith(int indexOnMainColumn, Row*, std::vector<ColumnQueryState*>& columnStates, MainColumnInfo& info) const;
+        bool retrieveRowBeginningWith(int indexOnMainColumn, Row*, std::vector<ColumnQueryState*>& columnStates, MainColumnInfo& info, bool fill) const;
         Result* gatherResults(const Query& q, std::vector<ColumnQueryState*>& columnStates, MainColumnInfo& info) const;
 
         public:

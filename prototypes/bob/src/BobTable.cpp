@@ -84,7 +84,8 @@ Result* Bob::BobTable::gatherResults(const Query& q, std::vector<ColumnQueryStat
         Row* row = createTableRow();
 
         for(int i = 0; i < info.mainColumnRange.length() && results -> size() < limit; ++i) {
-            if(retrieveRowBeginningWith(info.mainColumnRange.left + i, row, columnStates, info)) {
+            if(retrieveRowBeginningWith(info.mainColumnRange.left + i, row, columnStates, info, false)) {
+                retrieveRowBeginningWith(info.mainColumnRange.left + i, row, columnStates, info, true);
                 results -> push_back(row);
                 row = createTableRow();
             }
@@ -94,11 +95,11 @@ Result* Bob::BobTable::gatherResults(const Query& q, std::vector<ColumnQueryStat
     return new Result(results);
 }
 
-bool Bob::BobTable::retrieveRowBeginningWith(int nextFieldId, Row* row, std::vector<ColumnQueryState*>& columnStates, MainColumnInfo& info) const {
+bool Bob::BobTable::retrieveRowBeginningWith(int nextFieldId, Row* row, std::vector<ColumnQueryState*>& columnStates, MainColumnInfo& info, bool fill) const {
     unsigned int i;
     for(i = 0; i <= schema.size() && nextFieldId >= 0; ++i) {
         int nextColumnId = (info.mainColumnId + i) % schema.size();
-        nextFieldId = columns[nextColumnId] -> fillRowWithValueAndGetNextFieldId(nextFieldId, row, columnStates[nextColumnId]);
+        nextFieldId = columns[nextColumnId] -> fillRowWithValueAndGetNextFieldId(nextFieldId, row, columnStates[nextColumnId], fill);
     }
     return i > schema.size();
 }

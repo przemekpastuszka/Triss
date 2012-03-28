@@ -43,12 +43,14 @@ namespace Bob {
             return int(it - fields.begin()) - 1;
         }
 
-        int fillRowWithValueAndGetNextFieldId(int valueIndex, Row* row, ColumnQueryState* state) const {
+        int fillRowWithValueAndGetNextFieldId(int valueIndex, Row* row, ColumnQueryState* state, bool fill) const {
             if(state -> constraintRange.isInRange(valueIndex) == false) {
                 return -1;
             }
 
-            row -> set<T>(this -> columnId, fields[valueIndex].value);
+            if(fill) {
+                row -> set<T>(this -> columnId, fields[valueIndex].value);
+            }
             return fields[valueIndex].nextFieldId;
         }
 

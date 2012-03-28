@@ -95,7 +95,7 @@ template <class T>
             typedListState -> isMainColumn = true;
         }
 
-        int fillRowWithValueAndGetNextFieldId(int valueIndex, Row* row, ColumnQueryState* state) const {
+        int fillRowWithValueAndGetNextFieldId(int valueIndex, Row* row, ColumnQueryState* state, bool fill) const {
             TypedListColumnQueryState<T>* typedListState = getTypedListState(state);
             if(isVisited(valueIndex, typedListState)) {
                 return -1;
@@ -105,17 +105,23 @@ template <class T>
             bool hasAnyFieldInRange = false;
             while(fields[valueIndex].isLastElement == false) {
                 hasAnyFieldInRange |= state -> constraintRange.isInRange(valueIndex);
-                addValueToResult(valueIndex, result, typedListState);
+                if(fill) {
+                    addValueToResult(valueIndex, result, typedListState);
+                }
                 valueIndex = fields[valueIndex].nextFieldId;
             }
             hasAnyFieldInRange |= state -> constraintRange.isInRange(valueIndex);
-            addValueToResult(valueIndex, result, typedListState);
+            if(fill) {
+                addValueToResult(valueIndex, result, typedListState);
+            }
 
             if(hasAnyFieldInRange == false) {
                 return -1;
             }
 
-            row -> set<std::list<T> >(this -> columnId, result);
+            if(fill) {
+                row -> set<std::list<T> >(this -> columnId, result);
+            }
             return fields[valueIndex].nextFieldId;
         }
     };

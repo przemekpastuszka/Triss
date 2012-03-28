@@ -29,7 +29,7 @@ namespace Bob {
         virtual void addConstraint(Constraint* constraint, ColumnQueryState* state) const = 0;
         virtual IndexRange reduceConstraintsToRange(ColumnQueryState* state) const = 0;
         virtual void markAsMainQueryColumn(ColumnQueryState* state) const {}
-        virtual int fillRowWithValueAndGetNextFieldId(int valueIndex, Row* row, ColumnQueryState* state) const = 0;
+        virtual int fillRowWithValueAndGetNextFieldId(int valueIndex, Row* row, ColumnQueryState* state, bool fill) const = 0;
     };
 }
 #endif  // PROTOTYPES_BOB_SRC_COLUMNS_COLUMN_H_
