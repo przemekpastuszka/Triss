@@ -1,0 +1,13 @@
+#include <prototypes/alice/src/AliceTable.h>
+#include <prototypes/alice/src/columns/Column.h>
+
+namespace Bob {
+    class AbstractBobTest {
+        public:
+        template <class T>
+        TypedField<T>* getField(AliceTable* table, int columnId, int fieldId) {
+            TypedColumn<T>* column = static_cast<TypedColumn<T>*>(table -> columns[columnId]);
+            return column -> getField(fieldId);
+        }
+    };
+}

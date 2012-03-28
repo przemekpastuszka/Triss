@@ -28,7 +28,13 @@ namespace Alice {
                 return left < *right;
             }
         } comparator;
-
+        struct sortComparator {
+            bool operator() (TypedField<T>* left, TypedField<T>* right) {
+                return *left < *right;
+            }
+        } sortComparator;
+        
+        
     public:
         TypedColumn() {};
         ~TypedColumn() {
@@ -36,26 +42,31 @@ namespace Alice {
                 delete fields[i];
             }
         }
+        
         void addField(TypedField<T>* f) {
             fields.push_back(f);
-        };
+        }
+        
         void sort() { 
-            std::sort(fields.begin(), fields.end());
-        };
+            std::sort(fields.begin(), fields.end(), sortComparator);
+        }
         
         std::set<int> applyConstraint(TypedConstraint<T> * ct) {
             std::set<int> matchingIds;
             typename std::vector< TypedField<T>* >::iterator first = fields.begin();
-            typename std::vector< TypedField<T>* >::iterator last = fields.end();
+            typename std::vector< TypedField<T>* >::iterator last = fields.end();             
             switch(ct->getConstraintType()) {
                 case Constraint::EQUALS:
                 case Constraint::CONTAINS:
                     first = std::lower_bound(fields.begin(), fields.end(), ct->getConstraintValue(), comparator);
                     last = std::upper_bound(fields.begin(), fields.end(), ct->getConstraintValue(), comparator);
+                    break;
                 case Constraint::GREATER_OR_EQUAL:
-                    first = std::lower_bound(fields.begin(), fields.end(), ct->getConstraintValue(), comparator); 
+                    first = std::lower_bound(fields.begin(), fields.end(), ct->getConstraintValue(), comparator);
+                    break; 
                 case Constraint::LESS_OR_EQUAL:
                     last = std::upper_bound(fields.begin(), fields.end(), ct->getConstraintValue(), comparator);
+                    break;
             }
             for (typename std::vector< TypedField<T>* >::iterator it = first; it != last; ++it) {
                 matchingIds.insert((*it)->id);

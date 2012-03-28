@@ -22,6 +22,7 @@ namespace Alice {
             void addRow(Row& row);
             Result* select(const Query& q);
             ~AliceTable();
+            friend class AbstractAliceTest;
     };
 
 }

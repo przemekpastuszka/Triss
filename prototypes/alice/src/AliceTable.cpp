@@ -8,7 +8,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include <sparsehash/dense_hash_map>
+#include <google/dense_hash_map>
 #include <ext/hash_map>
 #include "AliceTable.h"
 #include <prototypes/common/src/Row.h>
@@ -31,7 +31,7 @@ Alice::AliceTable::AliceTable(const Schema& schema) : Table(schema) {
 }
 
 void Alice::AliceTable::addRow(Row& row) {
-    rows.push_back(&row);
+    rows.push_back(row.getRowCopy());
     for (int i = 0; i < schema.size(); ++i) {
         TypedListField<double> * numericalListField;
         std::list< TypedField<double>* > numericalListMembers;
@@ -82,24 +82,38 @@ Result* Alice::AliceTable::select(const Query& q) {
     google::dense_hash_map<int, int, __gnu_cxx::hash<int>, eqint> hashMap;
     hashMap.set_empty_key(-1);
     const std::list<Constraint*>& constraints = q.getConstraints();
-    for (std::list<Constraint*>::const_iterator it = constraints.begin();
-            it != constraints.end(); ++it) {
-        int affected_column = (*it)->getAffectedColumn();
-        std::set<int> matchingIds;
-        if (schema[affected_column] == Schema::NUMERICAL || schema[affected_column] == Schema::NUMERICAL_LIST) {
-            matchingIds = static_cast<TypedColumn<double>*>(columns[affected_column])->applyConstraint(static_cast<TypedConstraint<double>*>(*it));
-        } else {
-            matchingIds = static_cast<TypedColumn<std::string>*>(columns[affected_column])->applyConstraint(static_cast<TypedConstraint<std::string>*>(*it));
-        } 
-        for (std::set<int>::iterator sit = matchingIds.begin(); sit != matchingIds.end(); ++sit) {
-            hashMap[*sit] += 1;
-        }
-    }
     int no_constraints = constraints.size();
     std::vector<int> resultingIds;
-    for (google::dense_hash_map<int, int, __gnu_cxx::hash<int>, eqint>::iterator it = hashMap.begin(); it != hashMap.end(); ++it) {
-        if (it->second == no_constraints) {
-            resultingIds.push_back(it->first);
+    if (no_constraints > 0) {
+        std::vector< std::set<int> > matchedRows;
+        std::set<int> matchingIds;
+        for (std::list<Constraint*>::const_iterator it = constraints.begin();
+                it != constraints.end(); ++it) {
+            int affected_column = (*it)->getAffectedColumn();
+            if (schema[affected_column] == Schema::NUMERICAL || schema[affected_column] == Schema::NUMERICAL_LIST) {
+                matchingIds = static_cast<TypedColumn<double>*>(columns[affected_column])->applyConstraint(static_cast<TypedConstraint<double>*>(*it));
+            } else {
+                matchingIds = static_cast<TypedColumn<std::string>*>(columns[affected_column])->applyConstraint(static_cast<TypedConstraint<std::string>*>(*it));
+            }
+            matchedRows.push_back(matchingIds);         
+        }
+        
+        for (int i = 1; i <= matchedRows.size(); ++i) {
+            for (std::set<int>::iterator sit = matchedRows[i - 1].begin(); sit != matchedRows[i - 1].end(); ++sit) {
+                if (hashMap[*sit] == i - 1) {
+                    hashMap[*sit] += 1;
+                }            
+            }
+        }
+
+        for (google::dense_hash_map<int, int, __gnu_cxx::hash<int>, eqint>::iterator it = hashMap.begin(); it != hashMap.end(); ++it) {
+            if (it->second == no_constraints) {
+                resultingIds.push_back(it->first);
+            }
+        }
+    } else {
+        for (int i = 0; i < rows.size(); ++i) {
+            resultingIds.push_back(i);
         }
     }
     std::list<Row*>* resultingRows = new std::list<Row*>;
