@@ -38,8 +38,8 @@ template <class T>
         public:
         void updateNextFieldIdsUsingMapping(std::vector<int>& current, std::vector<int>& next, int indicesShift) {
             for(unsigned int i = 0; i < this -> fields.size(); ++i) {
-                if(this -> fields[i].nextFieldId < 0) {
-                    this -> fields[i].nextFieldId = next[-(this -> fields[i].nextFieldId) - 1] + indicesShift;
+                if(this -> fields[i].isLastElement) {
+                    this -> fields[i].nextFieldId = next[this -> fields[i].nextFieldId] + indicesShift;
                 }
                 else {
                     this -> fields[i].nextFieldId = current[this -> fields[i].nextFieldId] + this -> globalPosition;
@@ -53,9 +53,9 @@ template <class T>
             typename std::list<T>::iterator left = ls.begin(), right = ls.begin();
             right++;
             for(;right != ls.end(); left++, right++) {
-                addField(*left, this -> fields.size() + 1);
+                addField(*left, this -> fields.size() + 1, false);
             }
-            addField(*left, -nextFieldId - 1);
+            addField(*left, nextFieldId, true);
         }
 
         ColumnQueryState* prepareColumnForQuery() const {

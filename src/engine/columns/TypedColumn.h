@@ -33,7 +33,7 @@ class TypedColumn : public Column {
                 std::upper_bound(fields.begin(), fields.end(), value);
         return int(it - fields.begin()) - 1;
     }
-    void addField(const T& value, int nextFieldId);
+    void addField(const T& value, int nextFieldId, bool isLastElement);
 
     virtual TypedColumnQueryState<T>* getTypedState(ColumnQueryState* state) const {
         return static_cast<TypedColumnQueryState<T>*>(state);
@@ -60,10 +60,11 @@ class TypedColumn : public Column {
 };
 
 template <class T>
-void TypedColumn<T>::addField(const T& value, int nextFieldId) {
+void TypedColumn<T>::addField(const T& value, int nextFieldId, bool isLastElement) {
     Field<T> field;
     field.value = value;
     field.nextFieldId = nextFieldId;
+    field.isLastElement = isLastElement;
     this -> fields.push_back(field);
 }
 

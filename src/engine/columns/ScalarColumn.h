@@ -18,7 +18,7 @@ class ScalarColumn : public TypedColumn<T> {
     }
 
     void add(const Row& row, int nextFieldId) {
-        addField(row.get<T>(this -> columnId), nextFieldId);
+        addField(row.get<T>(this -> columnId), nextFieldId, true);
     }
 
     int fillRowWithValueAndGetNextFieldId(int valueIndex, Row* row, ColumnQueryState* state, bool fill) const {

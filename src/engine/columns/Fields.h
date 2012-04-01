@@ -9,10 +9,12 @@
 template <class T>
 class Field {
     public:
+    Field() : isLastElement(true) {};
     virtual ~Field() {};
 
     T value;
     int nextFieldId;
+    bool isLastElement;
 
     bool operator<(const Field<T>& other) const {
         return value < other.value;
