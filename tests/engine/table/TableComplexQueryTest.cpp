@@ -28,7 +28,7 @@ class TableComplexQueryTest : public AbstractTableTest {
 TEST_F(TableComplexQueryTest, shouldReturnFirstRow) {
     q.addConstraint(TypedConstraint<double>::greaterOrEqual(0, 3));
     q.addConstraint(TypedConstraint<double>::contains(1, 9));
-    result = table -> select(q);
+    result = table. select(q);
 
     ASSERT_TRUE(result -> hasNext());
     Row* row = result -> next();
@@ -39,7 +39,7 @@ TEST_F(TableComplexQueryTest, shouldReturnFirstRow) {
 
 TEST_F(TableComplexQueryTest, shouldReturnFirstTwoRows) {
     q.addConstraint(TypedConstraint<double>::contains(1, 9));
-    result = table -> select(q);
+    result = table. select(q);
 
     for(int i = 0; i < 2; ++i) {
         ASSERT_TRUE(result -> hasNext());
@@ -55,7 +55,7 @@ TEST_F(TableComplexQueryTest, shouldReturnAnswerForConstraintsOnAllColumns) {
     q.addConstraint(TypedConstraint<double>::lessOrEqual(0, 1.7));
     q.addConstraint(TypedConstraint<double>::lessOrEqual(1, 0));
     q.addConstraint(TypedConstraint<std::string>::lessOrEqual(2, "s"));
-    result = table -> select(q);
+    result = table. select(q);
 
     ASSERT_TRUE(result -> hasNext());
     Row* row = result -> next();
@@ -65,7 +65,7 @@ TEST_F(TableComplexQueryTest, shouldReturnAnswerForConstraintsOnAllColumns) {
 }
 
 TEST_F(TableComplexQueryTest, shouldReturnAllRowsWhenNoConstraintsGiven) {
-    result = table -> select(q);
+    result = table. select(q);
 
     ASSERT_EQ(7, result -> fetchAll() -> size());
 }

@@ -29,7 +29,7 @@ TEST_F(TableSimpleQueriesTest, shouldReturnEmptyResult) {
 
 TEST_F(TableSimpleQueriesTest, shouldReturnLastRowForContainsConstraint) {
     q.addConstraint(TypedConstraint<double>::contains(1, 10));
-    result = table -> select(q);
+    result = table.select(q);
 
     ASSERT_TRUE(result -> hasNext());
     Row* row = result -> next();
@@ -40,7 +40,7 @@ TEST_F(TableSimpleQueriesTest, shouldReturnLastRowForContainsConstraint) {
 
 TEST_F(TableSimpleQueriesTest, shouldReturnSecondRowForContainsConstraint) {
     q.addConstraint(TypedConstraint<double>::contains(1, 7));
-    result = table -> select(q);
+    result = table.select(q);
 
     ASSERT_TRUE(result -> hasNext());
     Row* row = result -> next();
@@ -52,7 +52,7 @@ TEST_F(TableSimpleQueriesTest, shouldReturnSecondRowForContainsConstraint) {
 TEST_F(TableSimpleQueriesTest, shouldReturnOneRowWithLimit) {
     q.addConstraint(TypedConstraint<double>::greaterOrEqual(0, 7));
     q.limit(1);
-    result = table -> select(q);
+    result = table.select(q);
 
     ASSERT_TRUE(result -> hasNext());
     Row* row = result -> next();
@@ -64,7 +64,7 @@ TEST_F(TableSimpleQueriesTest, shouldReturnOneRowWithLimit) {
 TEST_F(TableSimpleQueriesTest, shouldReturnOneRowWithTwoConstraintsOnOneColumn) {
     q.addConstraint(TypedConstraint<double>::greaterOrEqual(0, 7));
     q.addConstraint(TypedConstraint<double>::lessOrEqual(0, 7));
-    result = table -> select(q);
+    result = table.select(q);
 
     ASSERT_TRUE(result -> hasNext());
     Row* row = result -> next();
@@ -75,7 +75,7 @@ TEST_F(TableSimpleQueriesTest, shouldReturnOneRowWithTwoConstraintsOnOneColumn) 
 
 TEST_F(TableSimpleQueriesTest, shouldReturnTwoRows) {
     q.addConstraint(TypedConstraint<double>::greaterOrEqual(0, 7));
-    result = table -> select(q);
+    result = table.select(q);
 
     ASSERT_TRUE(result -> hasNext());
     ASSERT_GE(result -> next() -> get<double>(0), 7);

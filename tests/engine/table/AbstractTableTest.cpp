@@ -20,13 +20,13 @@ class AbstractTableTest : public testing::Test {
     Schema* schema;
 
     public:
-    Table *table;
+    Table table;
     Result* result;
     Query q;
 
     template <class T>
     Field<T>* getField(int columnId, int fieldId) {
-        TypedColumn<T>* column = static_cast<TypedColumn<T>*>(table -> columns[columnId]);
+        TypedColumn<T>* column = static_cast<TypedColumn<T>*>(table.columns[columnId]);
         return column -> getField(fieldId);
     }
 
@@ -39,17 +39,17 @@ class AbstractTableTest : public testing::Test {
     virtual void SetUp() {
         setUpSchemaAndColumns();
 
-        Table *table = new Table(*schema);
+        table.setSchema(*schema);
 
         for(int i = 0; i < numericColumn.size(); ++i) {
             Row row(*schema);
             row.set<double>(0, numericColumn[i]);
             row.set<std::list<double> >(1, listColumn[i]);
             row.set<std::string >(2, stringColumn[i]);
-            table -> addRow(row);
+            table.addRow(row);
         }
 
-        table -> prepareStructure();
+        table.prepareStructure();
 
         std::list<int> ls = Tools::listFrom(Tools::vector<int>(3, 0, 1, 2));
         q.selectColumns(ls);
@@ -57,7 +57,6 @@ class AbstractTableTest : public testing::Test {
 
     virtual void TearDown() {
         delete schema;
-        delete table;
 
         if(result != NULL) {
             delete result;
@@ -72,7 +71,7 @@ class AbstractTableTest : public testing::Test {
     }
 
     void assertEmptyResult() {
-        result = table -> select(q);
+        result = table.select(q);
 
         ASSERT_FALSE(result -> hasNext());
         std::list<Row*>* results = result -> fetchAll();

@@ -7,9 +7,7 @@
 #include <cstdarg>
 #include <cstdlib>
 #include <list>
-#include <prototypes/bob/src/columns/ScalarColumn.h>
-
-using namespace Bob;
+#include <src/engine/columns/ScalarColumn.h>
 
 class ColumnTest : public ::testing::Test {
     public:

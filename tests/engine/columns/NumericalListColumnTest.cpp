@@ -6,10 +6,8 @@
 #include <gtest/gtest.h>
 #include <cstdarg>
 #include <list>
-#include <prototypes/bob/src/columns/ListColumn.h>
+#include <src/engine/columns/ListColumn.h>
 #include <utils/src/Tools.h>
-
-using namespace Bob;
 
 double initialValues[] = {5, 12, 7, 8, 19, 1};
 

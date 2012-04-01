@@ -60,7 +60,7 @@ void Table::sortColumns() {
     }
 }
 
-Result* Table::select(const Query & q) const {
+Result* Table::select(const Query& q) const {
     std::vector<ColumnQueryState*> columnStates;
 
     prepareColumnsForQuery(columnStates);
@@ -134,8 +134,10 @@ Table::MainColumnInfo Table::chooseMainColumn(std::vector<ColumnQueryState*>& co
     return info;
 }
 
-Table::~Table() {
+void Table::deleteColumns() {
     for(unsigned int i = 0; i < schema.size(); ++i) {
         delete columns[i];
     }
+    columns.clear();
+    schema.clear();
 }

@@ -27,6 +27,7 @@ class Table {
     Column* generateColumn(Schema::DataType type);
     void prepareCrossColumnPointers();
     void sortColumns();
+    void deleteColumns();
 
     /*** 'select' auxiliary methods ***/
     void prepareColumnsForQuery(std::vector<ColumnQueryState*>& columnStates) const;
@@ -36,11 +37,14 @@ class Table {
     Result* gatherResults(const Query& q, std::vector<ColumnQueryState*>& columnStates, MainColumnInfo& info) const;
 
     public:
-    Table(const Schema& schema) {
+    void setSchema(const Schema& schema) {
+        deleteColumns();
+
         this -> schema = schema.schema;
         prepareColumns();
     };
-    virtual ~Table();
+
+    virtual ~Table() { deleteColumns(); }
 
     void prepareStructure();
     void addRow(Row& row);
