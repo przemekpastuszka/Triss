@@ -50,7 +50,7 @@ TEST_F(NumericalColumnTest, shouldFillRowWithGoodValue) {
     c.reduceConstraintsToRange(state);
     c.markAsMainQueryColumn(state);
 
-    ASSERT_EQ(5, c.fillRowWithValueAndGetNextFieldId(1, &row, state, true));
+    ASSERT_EQ(5, c.fillRowWithValueAndGetNextFieldId(1, 1, &row, state, true));
     ASSERT_EQ(12, row.get<double>(1));
 
     delete state;

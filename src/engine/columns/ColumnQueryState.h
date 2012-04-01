@@ -32,7 +32,6 @@ class TypedColumnQueryState : public ColumnQueryState {
 template <class T>
 class TypedListColumnQueryState : public TypedColumnQueryState<T> {
     public:
-    std::vector<bool> visited;
     bool isMainColumn;
 };
 #endif /* TRISS_ENGINE_SRC_COLUMNS_COLUMNQUERYSTATE_H_ */

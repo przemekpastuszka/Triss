@@ -12,7 +12,7 @@ class TableComplexQueryTest : public AbstractTableTest {
         listColumn.clear();
         listColumn.push_back(Tools::listFrom(Tools::vector<double>(4, /**/ 7.0, 9.0, 9.0, 10.0)));
         listColumn.push_back(Tools::listFrom(Tools::vector<double>(2, /**/ 21.0, 9.0)));
-        listColumn.push_back(Tools::listFrom(Tools::vector<double>(3, /**/ 4.0, 4.0, 4.0)));
+        listColumn.push_back(Tools::listFrom(Tools::vector<double>(3, /**/ 4.0, 4.0, 5.0)));
         listColumn.push_back(Tools::listFrom(Tools::vector<double>(3, /**/ 0.0, -3.0, 0.0)));
         listColumn.push_back(Tools::listFrom(Tools::vector<double>(1, /**/ -1.0)));
         listColumn.push_back(Tools::listFrom(Tools::vector<double>(3, /**/ 1.0)));
@@ -35,6 +35,18 @@ TEST_F(TableComplexQueryTest, shouldReturnFirstRow) {
     ASSERT_FALSE(result -> hasNext());
 
     assertThatRowIsEqualTo(row, 0);
+}
+
+TEST_F(TableComplexQueryTest, shouldReturnThirdRow) {
+    q.addConstraint(TypedConstraint<double>::lessOrEqual(1, 5));
+    q.addConstraint(TypedConstraint<double>::greaterOrEqual(1, 4));
+    result = table. select(q);
+
+    ASSERT_TRUE(result -> hasNext());
+    Row* row = result -> next();
+    ASSERT_FALSE(result -> hasNext());
+
+    assertThatRowIsEqualTo(row, 2);
 }
 
 TEST_F(TableComplexQueryTest, shouldReturnFirstTwoRows) {

@@ -21,7 +21,7 @@ class ScalarColumn : public TypedColumn<T> {
         addField(row.get<T>(this -> columnId), nextFieldId, true);
     }
 
-    int fillRowWithValueAndGetNextFieldId(int valueIndex, Row* row, ColumnQueryState* state, bool fill) const {
+    int fillRowWithValueAndGetNextFieldId(int valueIndex, int startPoint, Row* row, ColumnQueryState* state, bool fill) const {
         if(state -> constraintRange.isInRange(valueIndex) == false) {
             return -1;
         }

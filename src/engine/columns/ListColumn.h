@@ -17,22 +17,8 @@ template <class T>
             }
 
         protected:
-        bool shouldBeVisited(int valueIndex, TypedListColumnQueryState<T>* state) const {
-            return state -> isMainColumn && state -> constraintRange.isInRange(valueIndex);
-        }
-
-        bool isVisited(int valueIndex, TypedListColumnQueryState<T>* state) const {
-            return shouldBeVisited(valueIndex, state)
-                    && state -> visited.size() > valueIndex - state -> constraintRange.left
-                    && state -> visited[valueIndex - state -> constraintRange.left];
-        }
-
-        void addValueToResult(int valueIndex, std::list<T>& result, TypedListColumnQueryState<T>* state) const {
-            if(shouldBeVisited(valueIndex, state)) {
-                int relativeValueIndex = valueIndex - state -> constraintRange.left;
-                state -> visited[relativeValueIndex] = true;
-            }
-            result.push_back(this -> fields[valueIndex].value);
+        bool hasBeenVisited(int valueIndex, int startPoint, TypedListColumnQueryState<T>* state) const {
+            return state -> constraintRange.left <= valueIndex && valueIndex < startPoint;
         }
 
         public:
@@ -61,19 +47,17 @@ template <class T>
         ColumnQueryState* prepareColumnForQuery() const {
             TypedListColumnQueryState<T>* typedListState = new TypedListColumnQueryState<T>();
             typedListState -> isMainColumn = false;
-            typedListState -> visited.clear();
             return typedListState;
         }
 
         void markAsMainQueryColumn(ColumnQueryState* state) const {
             TypedListColumnQueryState<T>* typedListState = getTypedListState(state);
             typedListState -> isMainColumn = true;
-            typedListState -> visited.resize(typedListState -> constraintRange.length());
         }
 
-        int fillRowWithValueAndGetNextFieldId(int valueIndex, Row* row, ColumnQueryState* state, bool fill) const {
+        int fillRowWithValueAndGetNextFieldId(int valueIndex, int startPoint, Row* row, ColumnQueryState* state, bool fill) const {
             TypedListColumnQueryState<T>* typedListState = getTypedListState(state);
-            if(isVisited(valueIndex, typedListState)) {
+            if(typedListState -> isMainColumn && hasBeenVisited(valueIndex, startPoint, typedListState)) {
                 return -1;
             }
 
@@ -82,13 +66,16 @@ template <class T>
             while(this -> fields[valueIndex].nextFieldId < this -> fields.size()) {
                 hasAnyFieldInRange |= state -> constraintRange.isInRange(valueIndex);
                 if(fill) {
-                    addValueToResult(valueIndex, result, typedListState);
+                    result.push_back(this -> fields[valueIndex].value);
                 }
                 valueIndex = this -> fields[valueIndex].nextFieldId;
+                if(typedListState -> isMainColumn && hasBeenVisited(valueIndex, startPoint, typedListState)) {
+                    return -1;
+                }
             }
             hasAnyFieldInRange |= state -> constraintRange.isInRange(valueIndex);
             if(fill) {
-                addValueToResult(valueIndex, result, typedListState);
+                result.push_back(this -> fields[valueIndex].value);
             }
 
             if(hasAnyFieldInRange == false) {
