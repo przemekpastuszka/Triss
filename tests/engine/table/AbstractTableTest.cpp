@@ -8,7 +8,7 @@
 #include <string>
 #include <src/engine/Table.h>
 #include <src/common/Constraint.h>
-#include <utils/src/Tools.h>
+#include <src/utils/Tools.h>
 #include <src/engine/columns/Fields.h>
 #include <src/engine/columns/TypedColumn.h>
 
