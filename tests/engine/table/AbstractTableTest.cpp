@@ -41,13 +41,14 @@ class AbstractTableTest : public testing::Test {
 
         table.setSchema(*schema);
 
+        Row* row = table.createTableRow();
         for(int i = 0; i < numericColumn.size(); ++i) {
-            Row row(*schema);
-            row.set<double>(0, numericColumn[i]);
-            row.set<std::list<double> >(1, listColumn[i]);
-            row.set<std::string >(2, stringColumn[i]);
-            table.addRow(row);
+            row -> set<double>(0, numericColumn[i]);
+            row -> set<std::list<double> >(1, listColumn[i]);
+            row -> set<std::string >(2, stringColumn[i]);
+            table.addRow(*row);
         }
+        delete row;
 
         table.prepareStructure();
 

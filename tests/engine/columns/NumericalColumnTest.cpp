@@ -8,24 +8,34 @@
 #include <cstdlib>
 #include <src/engine/columns/ScalarColumn.h>
 #include <src/common/Schema.h>
+#include <src/engine/Table.h>
+#include <src/common/Schema.h>
 
 class NumericalColumnTest : public ::testing::Test {
     public:
     ScalarColumn<double> c;
     std::vector<int> mappings[2];
+    Row* row;
 
     virtual void SetUp() {
         c.setColumnId(1);
         c.setGlobalPosition(0);
 
         Schema::DataType schema[] = { Schema::NUMERICAL, Schema::NUMERICAL};
-        Row row(std::vector<Schema::DataType>(schema, schema + 2));
+        Schema sch(schema, 2);
+        Table table;
+        table.setSchema(sch);
+        row = table.createTableRow();
 
         double initialValues[] = {5, 12, 7, 8, 19, 1};
         for(int i = 0; i < 6; ++i) {
-            row.set<double>(1, initialValues[i]);
-            c.add(row, 5 - i);
+            row -> set<double>(1, initialValues[i]);
+            c.add(*row, 5 - i);
         }
+    }
+
+    virtual void TearDown() {
+        delete row;
     }
 };
 
@@ -42,16 +52,12 @@ TEST_F(NumericalColumnTest, shouldFillRowWithGoodValue) {
     c.createMappingFromCurrentToSortedPositions(mappings[1]);
     c.updateNextFieldIdsUsingMapping(mappings[0], mappings[1], 0);
 
-    Schema::DataType s[] = { Schema::NUMERICAL, Schema::NUMERICAL};
-    Schema schema(s, 2);
-    Row row(schema);
-
     ColumnQueryState* state = c.prepareColumnForQuery();
     c.reduceConstraintsToRange(state);
     c.markAsMainQueryColumn(state);
 
-    ASSERT_EQ(5, c.fillRowWithValueAndGetNextFieldId(1, 1, &row, state, true));
-    ASSERT_EQ(12, row.get<double>(1));
+    ASSERT_EQ(5, c.fillRowWithValueAndGetNextFieldId(1, 1, row, state, true));
+    ASSERT_EQ(12, row -> get<double>(1));
 
     delete state;
 }

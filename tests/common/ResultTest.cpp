@@ -6,6 +6,7 @@
 #include <string>
 
 #include <src/common/Result.h>
+#include <src/engine/Table.h>
 
 class ResultTest : public testing::Test {
     public:
@@ -16,7 +17,10 @@ class ResultTest : public testing::Test {
         Schema::DataType s[] = {Schema::NUMERICAL, Schema::NUMERICAL_LIST,
                                 Schema::STRING};
         Schema schema(s, 3);
-        Row* row1 = new Row(schema);
+        Table table;
+        table.setSchema(schema);
+
+        Row* row1 = table.createTableRow();
         row1->set<double>(0, 27);
         std::list<double> ls1;
         ls1.push_back(2);
@@ -24,7 +28,8 @@ class ResultTest : public testing::Test {
         row1->set<std::list<double> >(1, ls1);
         row1->set<std::string>(2, "abba");
         result_rows -> push_back(row1);
-        Row* row2 = new Row(schema);
+
+        Row* row2 = table.createTableRow();
         row2->set<double>(0, 13);
         std::list<double> ls2;
         ls2.push_back(13);

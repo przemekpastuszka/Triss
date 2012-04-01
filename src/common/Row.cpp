@@ -8,12 +8,19 @@
 #include <iostream>
 #include "Row.h"
 
-void Row::init(const std::vector<Schema::DataType>& schema) {
+Row::Row(const std::vector<Schema::DataType>& schema) {
     this -> schema = schema;
     values = new void*[schema.size()];
     for(int i = 0; i < schema.size(); ++i) {
         values[i] = NULL;
     }
+}
+
+Row::~Row() {
+    for(int i = 0; i < schema.size(); ++i) {
+        deleteFieldAt(i);
+    }
+    delete [] values;
 }
 
 void Row::deleteFieldAt(int index) {
@@ -35,7 +42,7 @@ void Row::deleteFieldAt(int index) {
     }
 }
 
-Row* Row::getRowCopy() {
+Row* Row::clone() const {
     Row* result = new Row(schema);
     for (int i = 0; i < schema.size(); ++i) {
       switch (this->schema[i]) {

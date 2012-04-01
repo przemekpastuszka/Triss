@@ -8,28 +8,37 @@
 #include <list>
 #include <src/engine/columns/ListColumn.h>
 #include <src/utils/Tools.h>
+#include <src/engine/Table.h>
+#include <src/common/Schema.h>
 
 double initialValues[] = {5, 12, 7, 8, 19, 1};
 
 class NumericalListColumnTest : public ::testing::Test {
-
     public:
     ListColumn<double> c;
+    Row* row;
 
     virtual void SetUp() {
         c.setColumnId(1);
         c.setGlobalPosition(0);
 
         Schema::DataType schema[] = { Schema::NUMERICAL, Schema::NUMERICAL_LIST};
-        Row row(std::vector<Schema::DataType>(schema, schema + 2));
+        Schema sch(schema, 2);
+        Table table;
+        table.setSchema(sch);
+        row = table.createTableRow();
 
         std::list<double> ls;
         for(int i = 0; i < 6; ++i) {
             ls.push_back(initialValues[i]);
         }
 
-        row.set<std::list<double> >(1, ls);
-        c.add(row, 80);
+        row -> set<std::list<double> >(1, ls);
+        c.add(*row, 80);
+    }
+
+    virtual void TearDown() {
+        delete row;
     }
 };
 
@@ -45,16 +54,12 @@ TEST_F(NumericalListColumnTest, shouldContainInitialElements) {
 }
 
 TEST_F(NumericalListColumnTest, shouldFillRowWithGoodValues) {
-    Schema::DataType s[] = { Schema::NUMERICAL, Schema::NUMERICAL_LIST};
-    Schema schema(s, 2);
-    Row row(schema);
-
     ColumnQueryState* state = c.prepareColumnForQuery();
     c.reduceConstraintsToRange(state);
     c.markAsMainQueryColumn(state);
 
-    ASSERT_EQ(80, c.fillRowWithValueAndGetNextFieldId(3, 3, &row, state, true));
-    Tools::assertThatListIsEqualTo(row.get<std::list<double> >(1), Tools::vector<double>(3, /**/ 8.0, 19.0, 1.0));
+    ASSERT_EQ(80, c.fillRowWithValueAndGetNextFieldId(3, 3, row, state, true));
+    Tools::assertThatListIsEqualTo(row -> get<std::list<double> >(1), Tools::vector<double>(3, /**/ 8.0, 19.0, 1.0));
 
     delete state;
 }

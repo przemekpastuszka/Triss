@@ -15,19 +15,12 @@ class Row {
     void** values;
     std::vector<Schema::DataType> schema;
 
-    void init(const std::vector<Schema::DataType>& schema);
     void deleteFieldAt(int index);
 
-    public:
-    Row(const Schema& schema) { init(schema.schema); }
-    Row(const std::vector<Schema::DataType>& schema) { init(schema); }
+    Row(const std::vector<Schema::DataType>& schema);
 
-    ~Row() {
-        for(int i = 0; i < schema.size(); ++i) {
-            deleteFieldAt(i);
-        }
-        delete [] values;
-    }
+    public:
+    ~Row();
 
     template <class T>
     void set(int i, const T& value) {
@@ -44,7 +37,9 @@ class Row {
         return values[i] == NULL;
     }
     
-    Row* getRowCopy();
+    Row* clone() const;
+
+    friend class Table;
 };
 
 

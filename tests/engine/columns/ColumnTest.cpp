@@ -8,6 +8,8 @@
 #include <cstdlib>
 #include <list>
 #include <src/engine/columns/ScalarColumn.h>
+#include <src/engine/Table.h>
+#include <src/common/Schema.h>
 
 class ColumnTest : public ::testing::Test {
     public:
@@ -19,14 +21,19 @@ class ColumnTest : public ::testing::Test {
         c.setColumnId(0);
 
         Schema::DataType schema[] = { Schema::NUMERICAL };
-        Row row(std::vector<Schema::DataType>(schema, schema + 1));
+        Schema sch(schema, 1);
+        Table table;
+        table.setSchema(sch);
+        Row* row = table.createTableRow();
 
         double initialValues[] = {5, 12, 7, 8, 19, 1, 12, 5};
         for(int i = 0; i < 8; ++i) {
-            row.set<double>(0, initialValues[i]);
-            c.add(row, 0);
+            row -> set<double>(0, initialValues[i]);
+            c.add(*row, 0);
         }
         c.sort(); // 1 5 5 7 8 12 12 19
+
+        delete row;
     }
 
     virtual void TearDown() {
