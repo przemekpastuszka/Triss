@@ -12,24 +12,16 @@
 template <class T>
     class ListColumn : public TypedColumn<T> {
         private:
-        std::vector<ListField<T> > fields;
-
         virtual TypedListColumnQueryState<T>* getTypedListState(ColumnQueryState* state) const {
                 return static_cast<TypedListColumnQueryState<T>*>(state);
             }
 
-        public:
-        Field<T>* getField(unsigned int i) {
-            return &fields[i];
-        }
-
         protected:
-        void addField(const T& value, int nextFieldId, bool isLastElement) {
-            ListField<T> field;
+        void addField(const T& value, int nextFieldId) {
+            Field<T> field;
             field.value = value;
             field.nextFieldId = nextFieldId;
-            field.isLastElement = isLastElement;
-            fields.push_back(field);
+            this -> fields.push_back(field);
         }
 
         bool shouldBeVisited(int valueIndex, TypedListColumnQueryState<T>* state) const {
@@ -47,11 +39,20 @@ template <class T>
                 int relativeValueIndex = valueIndex - state -> constraintRange.left;
                 state -> visited[relativeValueIndex] = true;
             }
-            result.push_back(fields[valueIndex].value);
+            result.push_back(this -> fields[valueIndex].value);
         }
 
         public:
-        unsigned int getSize() const { return fields.size(); }
+        void updateNextFieldIdsUsingMapping(std::vector<int>& current, std::vector<int>& next, int indicesShift) {
+            for(unsigned int i = 0; i < this -> fields.size(); ++i) {
+                if(this -> fields[i].nextFieldId < 0) {
+                    this -> fields[i].nextFieldId = next[-(this -> fields[i].nextFieldId) - 1] + indicesShift;
+                }
+                else {
+                    this -> fields[i].nextFieldId = current[this -> fields[i].nextFieldId] + this -> globalPosition;
+                }
+            }
+        }
 
         void add(const Row& row, int nextFieldId) {
             std::list<T>& ls = row.get<std::list<T> >(this -> columnId);
@@ -59,13 +60,13 @@ template <class T>
             typename std::list<T>::iterator left = ls.begin(), right = ls.begin();
             right++;
             for(;right != ls.end(); left++, right++) {
-                addField(*left, fields.size() + 1, false);
+                addField(*left, this -> fields.size() + 1);
             }
-            addField(*left, nextFieldId, true);
+            addField(*left, -nextFieldId - 1);
         }
 
         void sort() {
-            std::sort(fields.begin(), fields.end());
+            std::sort(this -> fields.begin(), this -> fields.end());
         }
 
         ColumnQueryState* prepareColumnForQuery() const {
@@ -76,14 +77,14 @@ template <class T>
         }
 
         int lowerBound(const T& value) const {
-            typename std::vector<ListField<T> >::const_iterator it =
-                    std::lower_bound(fields.begin(), fields.end(), value);
-            return int(it - fields.begin());
+            typename std::vector<Field<T> >::const_iterator it =
+                    std::lower_bound(this -> fields.begin(), this -> fields.end(), value);
+            return int(it - this -> fields.begin());
         }
         int upperBound(const T& value) const {
-            typename std::vector<ListField<T> >::const_iterator it =
-                    std::upper_bound(fields.begin(), fields.end(), value);
-            return int(it - fields.begin()) - 1;
+            typename std::vector<Field<T> >::const_iterator it =
+                    std::upper_bound(this -> fields.begin(), this -> fields.end(), value);
+            return int(it - this -> fields.begin()) - 1;
         }
 
         void markAsMainQueryColumn(ColumnQueryState* state) const {
@@ -102,13 +103,13 @@ template <class T>
 
             std::list<T> result;
             bool hasAnyFieldInRange = false;
-            while(this -> globalPosition <= fields[valueIndex].nextFieldId &&
-                    fields[valueIndex].nextFieldId < this -> globalPosition + fields.size()) {
+            while(this -> globalPosition <= this -> fields[valueIndex].nextFieldId &&
+                    this -> fields[valueIndex].nextFieldId < this -> globalPosition + this -> fields.size()) {
                 hasAnyFieldInRange |= state -> constraintRange.isInRange(valueIndex);
                 if(fill) {
                     addValueToResult(valueIndex, result, typedListState);
                 }
-                valueIndex = fields[valueIndex].nextFieldId - this -> globalPosition;
+                valueIndex = this -> fields[valueIndex].nextFieldId - this -> globalPosition;
             }
             hasAnyFieldInRange |= state -> constraintRange.isInRange(valueIndex);
             if(fill) {
@@ -122,7 +123,7 @@ template <class T>
             if(fill) {
                 row -> set<std::list<T> >(this -> columnId, result);
             }
-            return fields[valueIndex].nextFieldId;
+            return this -> fields[valueIndex].nextFieldId;
         }
     };
 #endif /* TRISS_ENGINE_SRC_COLUMNS_LISTCOLUMN_H_ */

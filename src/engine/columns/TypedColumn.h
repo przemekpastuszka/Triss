@@ -21,7 +21,8 @@ class TypedColumn : public Column {
     };
 
     protected:
-    virtual Field<T>* getField(unsigned int i) = 0;
+    std::vector<Field<T> > fields;
+
     virtual int lowerBound(const T& value) const = 0;
     virtual int upperBound(const T& value) const = 0;
     virtual TypedColumnQueryState<T>* getTypedState(ColumnQueryState* state) const {
@@ -29,11 +30,13 @@ class TypedColumn : public Column {
     }
 
     public:
+    Field<T>* getField(unsigned int i) { return &fields[i]; }
+    unsigned int getSize() const { return fields.size(); }
+
     virtual ~TypedColumn() {}
 
     /*** preparing structure ***/
     void createMappingFromCurrentToSortedPositions(std::vector<int>& mapping);
-    void updateNextFieldIdsUsingMapping(std::vector<int>& current, std::vector<int>& next, int indicesShift);
 
     /*** 'select' auxiliary methods ***/
     virtual ColumnQueryState* prepareColumnForQuery() const = 0;
@@ -46,24 +49,17 @@ class TypedColumn : public Column {
 template <class T>
 void TypedColumn<T>::createMappingFromCurrentToSortedPositions(std::vector<int>& mapping) {
     std::vector<Position> positions;
-    positions.resize(getSize(), Position());
+    positions.resize(fields.size(), Position());
 
-    for(unsigned int i = 0; i < getSize(); ++i) {
-        positions[i].element = this -> getField(i) -> value;
+    for(unsigned int i = 0; i < fields.size(); ++i) {
+        positions[i].element = fields[i].value;
         positions[i].position = i;
     }
     std::sort(positions.begin(), positions.end());
 
-    mapping.resize(getSize(), 0);
-    for(unsigned int i = 0; i < getSize(); ++i) {
+    mapping.resize(fields.size(), 0);
+    for(unsigned int i = 0; i < fields.size(); ++i) {
         mapping[positions[i].position] = i;
-    }
-}
-
-template <class T>
-void TypedColumn<T>::updateNextFieldIdsUsingMapping(std::vector<int>& current, std::vector<int>& next, int indicesShift) {
-    for(unsigned int i = 0; i < getSize(); ++i) {
-        getField(i) -> updateNextFieldUsingMapping(current, next, indicesShift, globalPosition);
     }
 }
 

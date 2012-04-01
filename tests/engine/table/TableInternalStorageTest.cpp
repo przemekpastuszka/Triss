@@ -45,7 +45,7 @@ TEST_F(TableInternalStorageTest, shouldStoreInformationAboutListsEnds) {
     bool numericalListEnds[] = {false, false, true, true, true, true, false};
 
     for(int i = 0; i < 7; ++i) {
-        bool isLastElement = getField<double>(1, i) -> isLastListElement();
+        bool isLastElement = getField<double>(1, i) -> nextFieldId > 10;
         ASSERT_EQ(numericalListEnds[i], isLastElement);
     }
 }

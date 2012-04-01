@@ -10,36 +10,32 @@
 
 template <class T>
 class ScalarColumn : public TypedColumn<T> {
-    private:
-    std::vector<Field<T> > fields;
-
     public:
-    Field<T>* getField(unsigned int i) {
-        return &fields[i];
+    void updateNextFieldIdsUsingMapping(std::vector<int>& current, std::vector<int>& next, int indicesShift) {
+        for(unsigned int i = 0; i < this -> fields.size(); ++i) {
+            this -> fields[i].nextFieldId = next[this -> fields[i].nextFieldId] + indicesShift;
+        }
     }
-
-    public:
-    unsigned int getSize() const { return fields.size(); }
 
     void add(const Row& row, int nextFieldId) {
         Field<T> field;
         field.value = row.get<T>(this -> columnId);
         field.nextFieldId = nextFieldId;
-        fields.push_back(field);
+        this -> fields.push_back(field);
     }
     void sort() {
-        std::sort(fields.begin(), fields.end());
+        std::sort(this -> fields.begin(), this -> fields.end());
     }
 
     int lowerBound(const T& value) const {
         typename std::vector<Field<T> >::const_iterator it =
-                std::lower_bound(fields.begin(), fields.end(), value);
-        return int(it - fields.begin());
+                std::lower_bound(this -> fields.begin(), this -> fields.end(), value);
+        return int(it - this -> fields.begin());
     }
     int upperBound(const T& value) const {
         typename std::vector<Field<T> >::const_iterator it =
-                std::upper_bound(fields.begin(), fields.end(), value);
-        return int(it - fields.begin()) - 1;
+                std::upper_bound(this -> fields.begin(), this -> fields.end(), value);
+        return int(it - this -> fields.begin()) - 1;
     }
 
     int fillRowWithValueAndGetNextFieldId(int valueIndex, Row* row, ColumnQueryState* state, bool fill) const {
@@ -50,9 +46,9 @@ class ScalarColumn : public TypedColumn<T> {
         }
 
         if(fill) {
-            row -> set<T>(this -> columnId, fields[valueIndex].value);
+            row -> set<T>(this -> columnId, this -> fields[valueIndex].value);
         }
-        return fields[valueIndex].nextFieldId;
+        return this -> fields[valueIndex].nextFieldId;
     }
 
     ColumnQueryState* prepareColumnForQuery() const {

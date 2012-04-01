@@ -20,38 +20,11 @@ class Field {
     bool operator<(const T& other) const {
         return value < other;
     }
-
-    virtual void updateNextFieldUsingMapping(std::vector<int>& current, std::vector<int>& next, int indicesShift, int globalPosition) {
-        nextFieldId = next[nextFieldId] + indicesShift;
-    }
-
-    virtual bool isLastListElement() {
-        return true;
-    }
 };
 
 template <class T>
 bool operator<(const T& left, const Field<T>& other) {
     return left < other.value;
 }
-
-template <class T>
-class ListField : public Field<T> {
-    public:
-    bool isLastElement;
-
-    void updateNextFieldUsingMapping(std::vector<int>& current, std::vector<int>& next, int indicesShift, int globalPosition) {
-        if(isLastElement) {
-            this -> nextFieldId = next[this -> nextFieldId] + indicesShift;
-        }
-        else {
-            this -> nextFieldId = current[this -> nextFieldId] + globalPosition;
-        }
-    }
-
-    bool isLastListElement() {
-        return isLastElement;
-    }
-};
 
 #endif /* TRISS_ENGINE_SRC_COLUMNS_FIELDS_H_ */
