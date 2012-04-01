@@ -17,13 +17,6 @@ template <class T>
             }
 
         protected:
-        void addField(const T& value, int nextFieldId) {
-            Field<T> field;
-            field.value = value;
-            field.nextFieldId = nextFieldId;
-            this -> fields.push_back(field);
-        }
-
         bool shouldBeVisited(int valueIndex, TypedListColumnQueryState<T>* state) const {
             return state -> isMainColumn && state -> constraintRange.isInRange(valueIndex);
         }
@@ -65,26 +58,11 @@ template <class T>
             addField(*left, -nextFieldId - 1);
         }
 
-        void sort() {
-            std::sort(this -> fields.begin(), this -> fields.end());
-        }
-
         ColumnQueryState* prepareColumnForQuery() const {
             TypedListColumnQueryState<T>* typedListState = new TypedListColumnQueryState<T>();
             typedListState -> isMainColumn = false;
             typedListState -> visited.clear();
             return typedListState;
-        }
-
-        int lowerBound(const T& value) const {
-            typename std::vector<Field<T> >::const_iterator it =
-                    std::lower_bound(this -> fields.begin(), this -> fields.end(), value);
-            return int(it - this -> fields.begin());
-        }
-        int upperBound(const T& value) const {
-            typename std::vector<Field<T> >::const_iterator it =
-                    std::upper_bound(this -> fields.begin(), this -> fields.end(), value);
-            return int(it - this -> fields.begin()) - 1;
         }
 
         void markAsMainQueryColumn(ColumnQueryState* state) const {

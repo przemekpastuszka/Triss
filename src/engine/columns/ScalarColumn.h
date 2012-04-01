@@ -18,24 +18,7 @@ class ScalarColumn : public TypedColumn<T> {
     }
 
     void add(const Row& row, int nextFieldId) {
-        Field<T> field;
-        field.value = row.get<T>(this -> columnId);
-        field.nextFieldId = nextFieldId;
-        this -> fields.push_back(field);
-    }
-    void sort() {
-        std::sort(this -> fields.begin(), this -> fields.end());
-    }
-
-    int lowerBound(const T& value) const {
-        typename std::vector<Field<T> >::const_iterator it =
-                std::lower_bound(this -> fields.begin(), this -> fields.end(), value);
-        return int(it - this -> fields.begin());
-    }
-    int upperBound(const T& value) const {
-        typename std::vector<Field<T> >::const_iterator it =
-                std::upper_bound(this -> fields.begin(), this -> fields.end(), value);
-        return int(it - this -> fields.begin()) - 1;
+        addField(row.get<T>(this -> columnId), nextFieldId);
     }
 
     int fillRowWithValueAndGetNextFieldId(int valueIndex, Row* row, ColumnQueryState* state, bool fill) const {

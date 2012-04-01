@@ -23,13 +23,26 @@ class TypedColumn : public Column {
     protected:
     std::vector<Field<T> > fields;
 
-    virtual int lowerBound(const T& value) const = 0;
-    virtual int upperBound(const T& value) const = 0;
+    int lowerBound(const T& value) const {
+        typename std::vector<Field<T> >::const_iterator it =
+                std::lower_bound(fields.begin(), fields.end(), value);
+        return int(it - fields.begin());
+    }
+    int upperBound(const T& value) const {
+        typename std::vector<Field<T> >::const_iterator it =
+                std::upper_bound(fields.begin(), fields.end(), value);
+        return int(it - fields.begin()) - 1;
+    }
+    void addField(const T& value, int nextFieldId);
+
     virtual TypedColumnQueryState<T>* getTypedState(ColumnQueryState* state) const {
         return static_cast<TypedColumnQueryState<T>*>(state);
     }
 
     public:
+    void sort() {
+        std::sort(fields.begin(), fields.end());
+    }
     Field<T>* getField(unsigned int i) { return &fields[i]; }
     unsigned int getSize() const { return fields.size(); }
 
@@ -45,6 +58,14 @@ class TypedColumn : public Column {
 
     friend class AbstractTableTest;
 };
+
+template <class T>
+void TypedColumn<T>::addField(const T& value, int nextFieldId) {
+    Field<T> field;
+    field.value = value;
+    field.nextFieldId = nextFieldId;
+    this -> fields.push_back(field);
+}
 
 template <class T>
 void TypedColumn<T>::createMappingFromCurrentToSortedPositions(std::vector<int>& mapping) {
