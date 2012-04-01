@@ -46,7 +46,7 @@ void Table::prepareStructure() {
 
 void Table::prepareCrossColumnPointers() {
     std::vector<int> mappings[2];
-    int totalNumberOfFields = 0;
+    int totalNumberOfFields = columns[schema.size() - 1] -> getSize();
 
     columns[0] -> createMappingFromCurrentToSortedPositions(mappings[1]);
     unsigned int i;
@@ -61,7 +61,7 @@ void Table::prepareCrossColumnPointers() {
 
     columns[0] -> createMappingFromCurrentToSortedPositions(mappings[i % 2]);
     columns[schema.size() - 1] -> setGlobalPosition(totalNumberOfFields);
-    columns[schema.size() - 1] -> updateNextFieldIdsUsingMapping(mappings[(i + 1) % 2], mappings[i % 2], 0);
+    columns[schema.size() - 1] -> updateNextFieldIdsUsingMapping(mappings[(i + 1) % 2], mappings[i % 2], columns[schema.size() - 1] -> getSize());
 }
 
 void Table::sortColumns() {
@@ -110,7 +110,8 @@ bool Table::retrieveRowBeginningWith(int nextFieldId, Row* row, std::vector<Colu
     unsigned int i;
     for(i = 0; i <= schema.size() && nextFieldId >= 0; ++i) {
         int nextColumnId = (info.mainColumnId + i) % schema.size();
-        nextFieldId = columns[nextColumnId] -> fillRowWithValueAndGetNextFieldId(nextFieldId, row, columnStates[nextColumnId], fill);
+        int relativeFieldId = nextFieldId - columns[nextColumnId] -> getGlobalPosition();
+        nextFieldId = columns[nextColumnId] -> fillRowWithValueAndGetNextFieldId(relativeFieldId, row, columnStates[nextColumnId], fill);
     }
     return i > schema.size();
 }

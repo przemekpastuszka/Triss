@@ -23,9 +23,9 @@ TEST_F(TableInternalStorageTest, shouldSortElements) {
 }
 
 TEST_F(TableInternalStorageTest, shouldSetUpValidPointers) {
-    int numericalColumnPointers[] = {8, 4, 5, 7};
-    int numericalListColumnPointers[] = {10, 6, 12, 11, 14, 13, 9};
-    int stringColumnPointers[] = {3, 2, 1, 0};
+    int numericalColumnPointers[] = {12, 8, 9, 11};
+    int numericalListColumnPointers[] = {6, 2, 16, 15, 18, 17, 5};
+    int stringColumnPointers[] = {7, 6, 5, 4};
 
     for(int i = 0; i < 4; ++i) {
         int nextField = getField<double>(0, i) -> nextFieldId;
@@ -45,7 +45,7 @@ TEST_F(TableInternalStorageTest, shouldStoreInformationAboutListsEnds) {
     bool numericalListEnds[] = {false, false, true, true, true, true, false};
 
     for(int i = 0; i < 7; ++i) {
-        bool isLastElement = getField<double>(1, i) -> nextFieldId > 10;
+        bool isLastElement = getField<double>(1, i) -> isLastElement;
         ASSERT_EQ(numericalListEnds[i], isLastElement);
     }
 }

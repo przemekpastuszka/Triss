@@ -42,7 +42,7 @@ template <class T>
                     this -> fields[i].nextFieldId = next[this -> fields[i].nextFieldId] + indicesShift;
                 }
                 else {
-                    this -> fields[i].nextFieldId = current[this -> fields[i].nextFieldId] + this -> globalPosition;
+                    this -> fields[i].nextFieldId = current[this -> fields[i].nextFieldId];
                 }
             }
         }
@@ -72,8 +72,6 @@ template <class T>
         }
 
         int fillRowWithValueAndGetNextFieldId(int valueIndex, Row* row, ColumnQueryState* state, bool fill) const {
-            valueIndex -= this -> globalPosition;
-
             TypedListColumnQueryState<T>* typedListState = getTypedListState(state);
             if(isVisited(valueIndex, typedListState)) {
                 return -1;
@@ -81,13 +79,12 @@ template <class T>
 
             std::list<T> result;
             bool hasAnyFieldInRange = false;
-            while(this -> globalPosition <= this -> fields[valueIndex].nextFieldId &&
-                    this -> fields[valueIndex].nextFieldId < this -> globalPosition + this -> fields.size()) {
+            while(this -> fields[valueIndex].nextFieldId < this -> fields.size()) {
                 hasAnyFieldInRange |= state -> constraintRange.isInRange(valueIndex);
                 if(fill) {
                     addValueToResult(valueIndex, result, typedListState);
                 }
-                valueIndex = this -> fields[valueIndex].nextFieldId - this -> globalPosition;
+                valueIndex = this -> fields[valueIndex].nextFieldId;
             }
             hasAnyFieldInRange |= state -> constraintRange.isInRange(valueIndex);
             if(fill) {
