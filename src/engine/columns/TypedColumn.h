@@ -21,8 +21,6 @@ class TypedColumn : public Column {
     };
 
     protected:
-    int columnId;
-
     virtual Field<T>* getField(unsigned int i) = 0;
     virtual int lowerBound(const T& value) const = 0;
     virtual int upperBound(const T& value) const = 0;
@@ -34,9 +32,8 @@ class TypedColumn : public Column {
     virtual ~TypedColumn() {}
 
     /*** preparing structure ***/
-    void setColumnId(int id) { columnId = id; }
     void createMappingFromCurrentToSortedPositions(std::vector<int>& mapping);
-    void updateNextFieldIdsUsingMapping(std::vector<int>& current, std::vector<int>& next);
+    void updateNextFieldIdsUsingMapping(std::vector<int>& current, std::vector<int>& next, int indicesShift);
 
     /*** 'select' auxiliary methods ***/
     virtual ColumnQueryState* prepareColumnForQuery() const = 0;
@@ -64,9 +61,9 @@ void TypedColumn<T>::createMappingFromCurrentToSortedPositions(std::vector<int>&
 }
 
 template <class T>
-void TypedColumn<T>::updateNextFieldIdsUsingMapping(std::vector<int>& current, std::vector<int>& next) {
+void TypedColumn<T>::updateNextFieldIdsUsingMapping(std::vector<int>& current, std::vector<int>& next, int indicesShift) {
     for(unsigned int i = 0; i < getSize(); ++i) {
-        getField(i) -> updateNextFieldUsingMapping(current, next);
+        getField(i) -> updateNextFieldUsingMapping(current, next, indicesShift, globalPosition);
     }
 }
 

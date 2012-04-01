@@ -43,6 +43,8 @@ class ScalarColumn : public TypedColumn<T> {
     }
 
     int fillRowWithValueAndGetNextFieldId(int valueIndex, Row* row, ColumnQueryState* state, bool fill) const {
+        valueIndex -= this -> globalPosition;
+
         if(state -> constraintRange.isInRange(valueIndex) == false) {
             return -1;
         }

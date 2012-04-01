@@ -18,6 +18,7 @@ class NumericalListColumnTest : public ::testing::Test {
 
     virtual void SetUp() {
         c.setColumnId(1);
+        c.setGlobalPosition(0);
 
         Schema::DataType schema[] = { Schema::NUMERICAL, Schema::NUMERICAL_LIST};
         Row row(std::vector<Schema::DataType>(schema, schema + 2));

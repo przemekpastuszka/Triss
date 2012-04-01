@@ -23,8 +23,8 @@ TEST_F(TableInternalStorageTest, shouldSortElements) {
 }
 
 TEST_F(TableInternalStorageTest, shouldSetUpValidPointers) {
-    int numericalColumnPointers[] = {4, 0, 1, 3};
-    int numericalListColumnPointers[] = {6, 2, 1, 0, 3, 2, 5};
+    int numericalColumnPointers[] = {8, 4, 5, 7};
+    int numericalListColumnPointers[] = {10, 6, 12, 11, 14, 13, 9};
     int stringColumnPointers[] = {3, 2, 1, 0};
 
     for(int i = 0; i < 4; ++i) {

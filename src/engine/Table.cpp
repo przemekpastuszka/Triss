@@ -46,12 +46,22 @@ void Table::prepareStructure() {
 
 void Table::prepareCrossColumnPointers() {
     std::vector<int> mappings[2];
+    int totalNumberOfFields = 0;
+
     columns[0] -> createMappingFromCurrentToSortedPositions(mappings[1]);
-    for(unsigned int i = 0; i < schema.size(); ++i) {
-        int nextColumn = (i + 1) % schema.size();
-        columns[nextColumn] -> createMappingFromCurrentToSortedPositions(mappings[i % 2]);
-        columns[i] -> updateNextFieldIdsUsingMapping(mappings[(i + 1) % 2], mappings[i % 2]);
+    unsigned int i;
+    for(i = 0; i < schema.size() - 1; ++i) {
+        columns[i + 1] -> createMappingFromCurrentToSortedPositions(mappings[i % 2]);
+
+        columns[i] -> setGlobalPosition(totalNumberOfFields);
+        totalNumberOfFields += columns[i] -> getSize();
+
+        columns[i] -> updateNextFieldIdsUsingMapping(mappings[(i + 1) % 2], mappings[i % 2], totalNumberOfFields);
     }
+
+    columns[0] -> createMappingFromCurrentToSortedPositions(mappings[i % 2]);
+    columns[schema.size() - 1] -> setGlobalPosition(totalNumberOfFields);
+    columns[schema.size() - 1] -> updateNextFieldIdsUsingMapping(mappings[(i + 1) % 2], mappings[i % 2], 0);
 }
 
 void Table::sortColumns() {
@@ -84,8 +94,9 @@ Result* Table::gatherResults(const Query& q, std::vector<ColumnQueryState*>& col
         Row* row = createTableRow();
 
         for(int i = 0; i < info.mainColumnRange.length() && results -> size() < limit; ++i) {
-            if(retrieveRowBeginningWith(info.mainColumnRange.left + i, row, columnStates, info, false)) {
-                retrieveRowBeginningWith(info.mainColumnRange.left + i, row, columnStates, info, true);
+            int firstFieldPosition = columns[info.mainColumnId] -> getGlobalPosition() + info.mainColumnRange.left + i;
+            if(retrieveRowBeginningWith(firstFieldPosition, row, columnStates, info, false)) {
+                retrieveRowBeginningWith(firstFieldPosition, row, columnStates, info, true);
                 results -> push_back(row);
                 row = createTableRow();
             }

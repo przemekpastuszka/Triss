@@ -16,6 +16,7 @@ class NumericalColumnTest : public ::testing::Test {
 
     virtual void SetUp() {
         c.setColumnId(1);
+        c.setGlobalPosition(0);
 
         Schema::DataType schema[] = { Schema::NUMERICAL, Schema::NUMERICAL};
         Row row(std::vector<Schema::DataType>(schema, schema + 2));
@@ -39,7 +40,7 @@ TEST_F(NumericalColumnTest, shouldBeSorted) {
 
 TEST_F(NumericalColumnTest, shouldFillRowWithGoodValue) {
     c.createMappingFromCurrentToSortedPositions(mappings[1]);
-    c.updateNextFieldIdsUsingMapping(mappings[0], mappings[1]);
+    c.updateNextFieldIdsUsingMapping(mappings[0], mappings[1], 0);
 
     Schema::DataType s[] = { Schema::NUMERICAL, Schema::NUMERICAL};
     Schema schema(s, 2);
@@ -65,11 +66,12 @@ TEST_F(NumericalColumnTest, shouldCreateValidMapping) {
 }
 
 TEST_F(NumericalColumnTest, shouldUpdateNextIdsUsingMapping) {
+    int shift = 3;
     c.createMappingFromCurrentToSortedPositions(mappings[1]);
-    c.updateNextFieldIdsUsingMapping(mappings[0], mappings[1]);
+    c.updateNextFieldIdsUsingMapping(mappings[0], mappings[1], shift);
 
     int validNextFields[] = {0, 5, 3, 2, 4, 1};
     for(int i = 0; i < 6; ++i) {
-        ASSERT_EQ(validNextFields[i], c.getField(i) -> nextFieldId);
+        ASSERT_EQ(validNextFields[i] + shift, c.getField(i) -> nextFieldId);
     }
 }

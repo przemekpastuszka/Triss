@@ -21,8 +21,8 @@ class Field {
         return value < other;
     }
 
-    virtual void updateNextFieldUsingMapping(std::vector<int>& current, std::vector<int>& next) {
-        nextFieldId = next[nextFieldId];
+    virtual void updateNextFieldUsingMapping(std::vector<int>& current, std::vector<int>& next, int indicesShift, int globalPosition) {
+        nextFieldId = next[nextFieldId] + indicesShift;
     }
 
     virtual bool isLastListElement() {
@@ -40,12 +40,12 @@ class ListField : public Field<T> {
     public:
     bool isLastElement;
 
-    void updateNextFieldUsingMapping(std::vector<int>& current, std::vector<int>& next) {
+    void updateNextFieldUsingMapping(std::vector<int>& current, std::vector<int>& next, int indicesShift, int globalPosition) {
         if(isLastElement) {
-            this -> nextFieldId = next[this -> nextFieldId];
+            this -> nextFieldId = next[this -> nextFieldId] + indicesShift;
         }
         else {
-            this -> nextFieldId = current[this -> nextFieldId];
+            this -> nextFieldId = current[this -> nextFieldId] + globalPosition;
         }
     }
 
