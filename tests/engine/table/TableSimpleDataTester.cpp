@@ -4,10 +4,12 @@
 #include "AbstractTableTest.cpp"
 
 class TableSimpleDataTester : public AbstractTableTest {
-    void setUpSchemaAndColumns() {
+    protected:
+    virtual void setUpSchemaAndColumns() {
         Schema :: DataType ss[] = {Schema::NUMERICAL, Schema::NUMERICAL_LIST,
                 Schema::STRING};
         schema = new Schema(ss, 3);
+        nrOfRows = 4;
 
         listColumn.clear();
         listColumn.push_back(Tools::listFrom(Tools::vector<double>(2, /**/ 1.0, 2.0)));

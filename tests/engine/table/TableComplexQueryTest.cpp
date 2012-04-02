@@ -8,6 +8,7 @@ class TableComplexQueryTest : public AbstractTableTest {
         Schema :: DataType ss[] = {Schema::NUMERICAL, Schema::NUMERICAL_LIST,
                 Schema::STRING};
         schema = new Schema(ss, 3);
+        nrOfRows = 7;
 
         listColumn.clear();
         listColumn.push_back(Tools::listFrom(Tools::vector<double>(4, /**/ 7.0, 9.0, 9.0, 10.0)));

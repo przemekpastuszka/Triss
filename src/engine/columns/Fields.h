@@ -18,6 +18,9 @@ class Field {
     bool isNull;
 
     bool operator<(const Field<T>& other) const {
+        if(isNull) {
+            return false;
+        }
         return value < other.value;
     }
     bool operator<(const T& other) const {

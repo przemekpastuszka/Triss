@@ -34,14 +34,19 @@ template <class T>
         }
 
         void add(const Row& row, int nextFieldId) {
-            std::list<T>& ls = row.get<std::list<T> >(this -> columnId);
-
-            typename std::list<T>::iterator left = ls.begin(), right = ls.begin();
-            right++;
-            for(;right != ls.end(); left++, right++) {
-                addField(*left, this -> fields.size() + 1, false);
+            if(row.isNull(this -> columnId)) {
+                this -> addNull(nextFieldId);
             }
-            addField(*left, nextFieldId, true);
+            else {
+                std::list<T>& ls = row.get<std::list<T> >(this -> columnId);
+
+                typename std::list<T>::iterator left = ls.begin(), right = ls.begin();
+                right++;
+                for(;right != ls.end(); left++, right++) {
+                    addField(*left, this -> fields.size() + 1, false);
+                }
+                addField(*left, nextFieldId, true);
+            }
         }
 
         ColumnQueryState* prepareColumnForQuery() const {

@@ -18,6 +18,7 @@ class AbstractTableTest : public testing::Test {
     std::vector<double> numericColumn;
     std::vector<std::string> stringColumn;
     Schema* schema;
+    int nrOfRows;
 
     public:
     Table table;
@@ -41,14 +42,20 @@ class AbstractTableTest : public testing::Test {
 
         table.setSchema(*schema);
 
-        Row* row = table.createTableRow();
-        for(int i = 0; i < numericColumn.size(); ++i) {
-            row -> set<double>(0, numericColumn[i]);
-            row -> set<std::list<double> >(1, listColumn[i]);
-            row -> set<std::string >(2, stringColumn[i]);
+        for(int i = 0; i < nrOfRows; ++i) {
+            Row* row = table.createTableRow();
+            if(i < numericColumn.size()) {
+                row -> set<double>(0, numericColumn[i]);
+            }
+            if(i < listColumn.size()) {
+                row -> set<std::list<double> >(1, listColumn[i]);
+            }
+            if(i < stringColumn.size()) {
+                row -> set<std::string >(2, stringColumn[i]);
+            }
             table.addRow(*row);
+            delete row;
         }
-        delete row;
 
         table.prepareStructure();
 

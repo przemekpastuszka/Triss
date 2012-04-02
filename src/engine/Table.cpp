@@ -41,6 +41,7 @@ void Table::addRow(Row& row) {
 
 void Table::prepareStructure() {
     prepareCrossColumnPointers();
+    makePointersSkipNullValues();
     sortColumns();
 }
 
@@ -62,6 +63,27 @@ void Table::prepareCrossColumnPointers() {
     columns[0] -> createMappingFromCurrentToSortedPositions(mappings[i % 2]);
     columns[schema.size() - 1] -> setGlobalPosition(totalNumberOfFields);
     columns[schema.size() - 1] -> updateNextFieldIdsUsingMapping(mappings[(i + 1) % 2], mappings[i % 2], columns[schema.size() - 1] -> getSize());
+}
+
+void Table::makePointersSkipNullValues() {
+    for(unsigned int i = 0; i < schema.size(); ++i) {
+        int globalPosition = columns[i] -> getGlobalPosition();
+        for(unsigned int j = 0; j < columns[i] -> getSize(); ++j) {
+            int nextFieldId = columns[i] -> getNextFieldIdAt(j + globalPosition);
+            if(nextFieldId >= columns[i] -> getSize() && columns[i] -> hasNullValueAt(j + globalPosition) == false) {
+                for(unsigned int z = 1; z <= schema.size(); ++z) {
+                    int nextColumnId = (i + z) % schema.size();
+                    if(columns[nextColumnId] -> hasNullValueAt(nextFieldId)) {
+                        nextFieldId = columns[nextColumnId] -> getNextFieldIdAt(nextFieldId);
+                    }
+                    else {
+                        columns[i] -> setNextFieldIdAt(j + globalPosition, nextFieldId);
+                        break;
+                    }
+                }
+            }
+        }
+    }
 }
 
 void Table::sortColumns() {
@@ -112,7 +134,9 @@ bool Table::retrieveRowBeginningWith(int nextFieldId, Row* row, std::vector<Colu
     for(i = 0; i <= schema.size() && nextFieldId >= 0; ++i) {
         int nextColumnId = (info.mainColumnId + i) % schema.size();
         int relativeFieldId = nextFieldId - columns[nextColumnId] -> getGlobalPosition();
-        nextFieldId = columns[nextColumnId] -> fillRowWithValueAndGetNextFieldId(relativeFieldId, startPoint, row, columnStates[nextColumnId], fill);
+        if(0 <= relativeFieldId && relativeFieldId < columns[nextColumnId] -> getSize()) {
+            nextFieldId = columns[nextColumnId] -> fillRowWithValueAndGetNextFieldId(relativeFieldId, startPoint, row, columnStates[nextColumnId], fill);
+        }
     }
     return nextFieldId >= 0;
 }

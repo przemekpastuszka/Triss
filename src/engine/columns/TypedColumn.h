@@ -13,7 +13,7 @@ class TypedColumn : public Column {
     private:
     struct Position {
         int position;
-        T element;
+        Field<T> element;
 
         bool operator<(const Position& t) const {
             return element < t.element;
@@ -34,12 +34,17 @@ class TypedColumn : public Column {
         return int(it - fields.begin()) - 1;
     }
     void addField(const T& value, int nextFieldId, bool isLastElement);
+    void addNull(int nextFieldId);
 
     virtual TypedColumnQueryState<T>* getTypedState(ColumnQueryState* state) const {
         return static_cast<TypedColumnQueryState<T>*>(state);
     }
 
     public:
+    void setNextFieldIdAt(int position, int nextFieldId) { fields[position - globalPosition].nextFieldId = nextFieldId; }
+    int getNextFieldIdAt(int position) const { return fields[position - globalPosition].nextFieldId; }
+    bool hasNullValueAt(int position) const { return fields[position - globalPosition].isNull; }
+
     void sort() {
         std::sort(fields.begin(), fields.end());
     }
@@ -60,6 +65,14 @@ class TypedColumn : public Column {
 };
 
 template <class T>
+void TypedColumn<T>::addNull(int nextFieldId) {
+    Field<T> field;
+    field.nextFieldId = nextFieldId;
+    field.isNull = true;
+    this -> fields.push_back(field);
+}
+
+template <class T>
 void TypedColumn<T>::addField(const T& value, int nextFieldId, bool isLastElement) {
     Field<T> field;
     field.value = value;
@@ -74,7 +87,7 @@ void TypedColumn<T>::createMappingFromCurrentToSortedPositions(std::vector<int>&
     positions.resize(fields.size(), Position());
 
     for(unsigned int i = 0; i < fields.size(); ++i) {
-        positions[i].element = fields[i].value;
+        positions[i].element = fields[i];
         positions[i].position = i;
     }
     std::sort(positions.begin(), positions.end());

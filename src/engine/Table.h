@@ -16,7 +16,6 @@ class Table {
     std::vector<Schema::DataType> schema;
     std::vector<Column*> columns;
 
-
     struct MainColumnInfo {
         int mainColumnId;
         IndexRange mainColumnRange;
@@ -26,6 +25,7 @@ class Table {
     void prepareColumns();
     Column* generateColumn(Schema::DataType type);
     void prepareCrossColumnPointers();
+    void makePointersSkipNullValues();
     void sortColumns();
     void deleteColumns();
 

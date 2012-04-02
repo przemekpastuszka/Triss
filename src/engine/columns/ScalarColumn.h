@@ -18,7 +18,12 @@ class ScalarColumn : public TypedColumn<T> {
     }
 
     void add(const Row& row, int nextFieldId) {
-        addField(row.get<T>(this -> columnId), nextFieldId, true);
+        if(row.isNull(this -> columnId)) {
+            this -> addNull(nextFieldId);
+        }
+        else {
+            addField(row.get<T>(this -> columnId), nextFieldId, true);
+        }
     }
 
     int fillRowWithValueAndGetNextFieldId(int valueIndex, int startPoint, Row* row, ColumnQueryState* state, bool fill) const {

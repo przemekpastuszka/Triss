@@ -38,7 +38,7 @@ def build_project(output, sources):
     env.Alias(output, prog)
 
 build_project_with_tests('engine_test', ['src/utils', 'src/engine', 'src/common', 'tests/engine'])
-build_project_with_tests('common_test', ['src/common', 'tests/common'])
+build_project_with_tests('common_test', ['src/common', 'tests/common', 'src/engine'])
 
 # build_project_with_tests('bob_test', ['src/utils', 'prototypes/common/src', 'prototypes/bob/src', 'prototypes/bob/tests'])
 # build_project_with_tests('alice_test', ['prototypes/common/src', 'prototypes/alice/src', 'prototypes/alice/tests'])
