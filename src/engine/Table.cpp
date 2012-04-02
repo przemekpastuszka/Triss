@@ -42,6 +42,7 @@ void Table::addRow(Row& row) {
 void Table::prepareStructure() {
     prepareCrossColumnPointers();
     makePointersSkipNullValues();
+    removeNullsFromColumns();
     sortColumns();
 }
 
@@ -86,6 +87,12 @@ void Table::makePointersSkipNullValues() {
     }
 }
 
+void Table::removeNullsFromColumns() {
+    for(unsigned int i = 0; i < schema.size(); ++i) {
+        columns[i] -> removeNullsFromColumn();
+    }
+}
+
 void Table::sortColumns() {
     for(unsigned int i = 0; i < schema.size(); ++i) {
         columns[i] -> sort();
@@ -127,15 +134,17 @@ Result* Table::gatherResults(const Query& q, std::vector<ColumnQueryState*>& col
     return new Result(results);
 }
 
-bool Table::retrieveRowBeginningWith(int nextFieldId, Row* row, std::vector<ColumnQueryState*>& columnStates, MainColumnInfo& info, bool fill) const {
-    int startPoint = nextFieldId;
-    nextFieldId += columns[info.mainColumnId] -> getGlobalPosition();
+bool Table::retrieveRowBeginningWith(int startPoint, Row* row, std::vector<ColumnQueryState*>& columnStates, MainColumnInfo& info, bool fill) const {
+    int nextFieldId = startPoint + columns[info.mainColumnId] -> getGlobalPosition();
     unsigned int i;
     for(i = 0; i <= schema.size() && nextFieldId >= 0; ++i) {
         int nextColumnId = (info.mainColumnId + i) % schema.size();
         int relativeFieldId = nextFieldId - columns[nextColumnId] -> getGlobalPosition();
         if(0 <= relativeFieldId && relativeFieldId < columns[nextColumnId] -> getSize()) {
             nextFieldId = columns[nextColumnId] -> fillRowWithValueAndGetNextFieldId(relativeFieldId, startPoint, row, columnStates[nextColumnId], fill);
+        }
+        else {
+            row -> setNull(nextColumnId);
         }
     }
     return nextFieldId >= 0;
@@ -162,7 +171,9 @@ Table::MainColumnInfo Table::chooseMainColumn(std::vector<ColumnQueryState*>& co
     info.mainColumnId = 0;
     for(unsigned int i = 1; i < schema.size(); ++i) {
         IndexRange candidateColumnRange = columns[i] -> reduceConstraintsToRange(columnStates[i]);
-        if(candidateColumnRange.length() < info.mainColumnRange.length()) {
+        if((candidateColumnRange.length() < info.mainColumnRange.length()
+                || columnStates[info.mainColumnId] -> hasAnyConstraint() == false)
+                && columnStates[i] -> hasAnyConstraint()) {
             info.mainColumnRange = candidateColumnRange;
             info.mainColumnId = i;
         }

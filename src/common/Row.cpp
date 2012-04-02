@@ -40,6 +40,7 @@ void Row::deleteFieldAt(int index) {
                 break;
         }
     }
+    values[index] = NULL;
 }
 
 Row* Row::clone() const {

@@ -44,6 +44,7 @@ class TypedColumn : public Column {
     void setNextFieldIdAt(int position, int nextFieldId) { fields[position - globalPosition].nextFieldId = nextFieldId; }
     int getNextFieldIdAt(int position) const { return fields[position - globalPosition].nextFieldId; }
     bool hasNullValueAt(int position) const { return fields[position - globalPosition].isNull; }
+    void removeNullsFromColumn();
 
     void sort() {
         std::sort(fields.begin(), fields.end());
@@ -63,6 +64,13 @@ class TypedColumn : public Column {
 
     friend class AbstractTableTest;
 };
+
+template <class T>
+void TypedColumn<T>::removeNullsFromColumn() {
+    int position = fields.size();
+    while(fields[--position].isNull);
+    fields.resize(position + 1);
+}
 
 template <class T>
 void TypedColumn<T>::addNull(int nextFieldId) {

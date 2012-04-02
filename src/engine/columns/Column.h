@@ -22,6 +22,7 @@ class Column {
     virtual void setNextFieldIdAt(int position, int nextFieldId) = 0;
     virtual int getNextFieldIdAt(int position) const = 0;
     virtual bool hasNullValueAt(int position) const = 0;
+    virtual void removeNullsFromColumn() = 0;
 
     /*** preparing structure ***/
     virtual void setColumnId(int id) { columnId = id; }

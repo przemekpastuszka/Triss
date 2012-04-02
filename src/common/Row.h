@@ -33,6 +33,10 @@ class Row {
         return *static_cast<T*>(values[i]);
     }
 
+    void setNull(int i) {
+        deleteFieldAt(i);
+    }
+
     bool isNull(int i) const {
         return values[i] == NULL;
     }

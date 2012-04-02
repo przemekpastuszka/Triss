@@ -25,11 +25,11 @@ class ValueRange {
     public:
     static ValueRange<T>* createFromConstraint(const TypedConstraint<T>* constraint);
     bool isInRange(const T& value);
-    bool isEmpty() { return empty; }
-    bool isInfiniteOnTheLeft() { return leftInfinity; }
-    bool isInfiniteOnTheRight() { return rightInfinity; }
-    bool isFiniteOnTheLeft() { return !leftInfinity; }
-    bool isFiniteOnTheRight() { return !rightInfinity; }
+    bool isEmpty() const { return empty; }
+    bool isInfiniteOnTheLeft() const { return leftInfinity; }
+    bool isInfiniteOnTheRight() const { return rightInfinity; }
+    bool isFiniteOnTheLeft() const { return !leftInfinity; }
+    bool isFiniteOnTheRight() const { return !rightInfinity; }
 
     T& getLeft() { return left; }
     T& getRight() { return right; }

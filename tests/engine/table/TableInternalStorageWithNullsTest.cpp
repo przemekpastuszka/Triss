@@ -56,14 +56,17 @@ TEST_F(TableInternalStorageWithNullsTest, shouldStoreInformationAboutListsEnds) 
 }
 
 TEST_F(TableInternalStorageWithNullsTest, shouldReturnRowWithNulls) {
-    q.addConstraint(TypedConstraint<std::string>::equals(2, "belphegor"));
+    q.addConstraint(TypedConstraint<std::string>::lessOrEqual(2, "belphegor"));
     result = table.select(q);
 
-    ASSERT_TRUE(result -> hasNext());
-    Row* row = result -> next();
-    ASSERT_EQ("belphegor", row -> get<std::string>(2));
-    ASSERT_TRUE(row -> isNull(0));
-    ASSERT_TRUE(row -> isNull(1));
+    std :: list<Row*>* rows = result -> fetchAll();
+    ASSERT_EQ(3, rows -> size());
+    std :: list<Row*> :: iterator it = rows -> begin();
+    std :: advance(it, 2);
+
+    ASSERT_EQ("belphegor", (*it) -> get<std::string>(2));
+    ASSERT_TRUE((*it) -> isNull(0));
+    ASSERT_TRUE((*it) -> isNull(1));
 
     ASSERT_FALSE(result -> hasNext());
 }

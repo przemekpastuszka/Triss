@@ -12,6 +12,7 @@ class ColumnQueryState {
     public:
     IndexRange constraintRange;
 
+    virtual bool hasAnyConstraint() const = 0;
     virtual ~ColumnQueryState() {}
 };
 
@@ -22,6 +23,10 @@ class TypedColumnQueryState : public ColumnQueryState {
     ~TypedColumnQueryState() { deleteValueRange(); }
 
     ValueRange<T>* valueRange;
+
+    bool hasAnyConstraint() const {
+        return valueRange != NULL && (valueRange -> isFiniteOnTheLeft() || valueRange -> isFiniteOnTheRight());
+    }
 
     void deleteValueRange() {
         if(valueRange != NULL) { delete valueRange; }

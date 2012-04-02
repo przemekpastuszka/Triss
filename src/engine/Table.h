@@ -26,6 +26,7 @@ class Table {
     Column* generateColumn(Schema::DataType type);
     void prepareCrossColumnPointers();
     void makePointersSkipNullValues();
+    void removeNullsFromColumns();
     void sortColumns();
     void deleteColumns();
 
