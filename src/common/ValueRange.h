@@ -12,15 +12,18 @@ class ValueRange {
     private:
     T left, right;
     bool leftInfinity, rightInfinity;
+    bool leftOpen, rightOpen;
     bool empty;
 
     ValueRange() : empty(true) {}
-    ValueRange(const T& l)
-        : left(l), leftInfinity(false), rightInfinity(true), empty(false) {}
-    ValueRange(bool dummy, const T& r)
-        : right(r), leftInfinity(true), rightInfinity(false), empty(false) {}
+    ValueRange(const T& l, bool lOpen)
+        : left(l), leftOpen(lOpen), leftInfinity(false), rightInfinity(true), empty(false) {}
+    ValueRange(bool rOpen, const T& r)
+        : right(r), leftInfinity(true), rightOpen(rOpen), rightInfinity(false), empty(false) {}
     ValueRange(const T& l, const T& r)
-            : left(l), right(r), leftInfinity(false), rightInfinity(false), empty(false) {}
+            : left(l), right(r), leftInfinity(false), rightInfinity(false), empty(false), leftOpen(false), rightOpen(false) {}
+    ValueRange(const T& l, const T& r, bool lOpen, bool rOpen)
+                : left(l), right(r), leftInfinity(false), rightInfinity(false), empty(false), leftOpen(lOpen), rightOpen(rOpen) {}
 
     public:
     static ValueRange<T>* createFromConstraint(const TypedConstraint<T>* constraint);
@@ -30,6 +33,8 @@ class ValueRange {
     bool isInfiniteOnTheRight() const { return rightInfinity; }
     bool isFiniteOnTheLeft() const { return !leftInfinity; }
     bool isFiniteOnTheRight() const { return !rightInfinity; }
+    bool isOpenOnTheLeft() const { return leftOpen; }
+    bool isOpenOnTheRight() const { return rightOpen; }
 
     T& getLeft() { return left; }
     T& getRight() { return right; }
@@ -45,9 +50,13 @@ ValueRange<T>* ValueRange<T>::createFromConstraint(const TypedConstraint<T>* con
         case Constraint::CONTAINS:
             return new ValueRange<T>(value, value);
         case Constraint::GREATER_OR_EQUAL:
-            return new ValueRange<T>(value);
+            return new ValueRange<T>(value, false);
+        case Constraint::GREATER:
+            return new ValueRange<T>(value, true);
         case Constraint::LESS_OR_EQUAL:
             return new ValueRange<T>(false, value);
+        case Constraint::LESS:
+            return new ValueRange<T>(true, value);
     }
     return NULL;
 }
@@ -57,11 +66,15 @@ bool ValueRange<T>::isInRange(const T & value) {
     if(empty) {
         return false;
     }
-    if(leftInfinity == false && value < left) {
-        return false;
+    if(leftInfinity == false) {
+        if(value < left || (leftOpen && value == left)) {
+            return false;
+        }
     }
-    if(rightInfinity == false && value > right) {
-        return false;
+    if(rightInfinity == false) {
+        if(value > right || (rightOpen && value == right)) {
+            return false;
+        }
     }
     return true;
 }
@@ -75,6 +88,7 @@ void ValueRange<T>::intersectWith(ValueRange<T> *other) {
     if(leftInfinity) {
         if(other -> isInfiniteOnTheLeft() == false) {
             left = other -> getLeft();
+            leftOpen = other -> leftOpen;
             leftInfinity = false;
         }
     }
@@ -82,12 +96,19 @@ void ValueRange<T>::intersectWith(ValueRange<T> *other) {
         if(other -> isInfiniteOnTheLeft() == false) {
             if(other -> getLeft() > left) {
                 left = other -> getLeft();
+                leftOpen = other -> leftOpen;
+            }
+            else {
+                if(leftOpen == false && other -> leftOpen && other -> getLeft() == left) {
+                    leftOpen = true;
+                }
             }
         }
     }
     if(rightInfinity) {
         if(other -> isInfiniteOnTheRight() == false) {
             right = other -> getRight();
+            rightOpen = other -> rightOpen;
             rightInfinity = false;
         }
     }
@@ -95,10 +116,16 @@ void ValueRange<T>::intersectWith(ValueRange<T> *other) {
         if(other -> isInfiniteOnTheRight() == false) {
             if(other -> getRight() < right) {
                 right = other -> getRight();
+                rightOpen = other -> rightOpen;
+            }
+            else {
+                if(rightOpen == false && other -> rightOpen && other -> getRight() == right) {
+                    rightOpen = true;
+                }
             }
         }
     }
-    if(left > right) {
+    if(left > right || ((leftOpen || rightOpen) && left == right)) {
         empty = true;
     }
 }

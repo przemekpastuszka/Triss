@@ -109,6 +109,30 @@ TEST_F(ColumnTest, shouldReturnValidRangeUsingRightInfinityConstraint) {
     checkForConstraints(5, 7);
 }
 
+TEST_F(ColumnTest, shouldReturnValidRangeUsingRightInfinityOpenConstraint) {
+    constraints.push_back(TypedConstraint<double>::greater(0, 10));
+
+    checkForConstraints(5, 7);
+}
+
+TEST_F(ColumnTest, shouldReturnValidRangeUsingRightInfinityOpenConstraint2) {
+    constraints.push_back(TypedConstraint<double>::greater(0, 12));
+
+    checkForConstraints(7, 7);
+}
+
+TEST_F(ColumnTest, shouldReturnValidRangeUsingLessInfinityOpenConstraint) {
+    constraints.push_back(TypedConstraint<double>::less(0, 12));
+
+    checkForConstraints(0, 4);
+}
+
+TEST_F(ColumnTest, shouldReturnValidRangeUsingLessInfinityOpenConstraint2) {
+    constraints.push_back(TypedConstraint<double>::less(0, 10));
+
+    checkForConstraints(0, 4);
+}
+
 TEST_F(ColumnTest, shouldFindGoodRanges) {
     assertThatRangeEquals(5, 12, /**/ 1, 6);
     assertThatRangeEquals(6, 11, /**/ 3, 4);

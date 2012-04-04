@@ -10,6 +10,7 @@ template <class T>
 class Field {
     public:
     Field() : isLastElement(true), isNull(false) {};
+    Field(const T& v) : value(v), isLastElement(true), isNull(false) {};
     virtual ~Field() {};
 
     T value;
@@ -23,14 +24,6 @@ class Field {
         }
         return value < other.value;
     }
-    bool operator<(const T& other) const {
-        return value < other;
-    }
 };
-
-template <class T>
-bool operator<(const T& left, const Field<T>& other) {
-    return left < other.value;
-}
 
 #endif /* TRISS_ENGINE_SRC_COLUMNS_FIELDS_H_ */

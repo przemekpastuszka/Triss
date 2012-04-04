@@ -23,14 +23,16 @@ class TypedColumn : public Column {
     protected:
     std::vector<Field<T> > fields;
 
-    int lowerBound(const T& value) const {
+    int lowerBound(const T& value, bool (*cmp)(const Field<T>&, const Field<T>&)) const {
+        Field<T> field(value);
         typename std::vector<Field<T> >::const_iterator it =
-                std::lower_bound(fields.begin(), fields.end(), value);
+                std::lower_bound(fields.begin(), fields.end(), field, cmp);
         return int(it - fields.begin());
     }
-    int upperBound(const T& value) const {
+    int upperBound(const T& value, bool (*cmp)(const Field<T>&, const Field<T>&)) const {
+        Field<T> field(value);
         typename std::vector<Field<T> >::const_iterator it =
-                std::upper_bound(fields.begin(), fields.end(), value);
+                std::upper_bound(fields.begin(), fields.end(), field, cmp);
         return int(it - fields.begin()) - 1;
     }
     void addField(const T& value, int nextFieldId, bool isLastElement);
@@ -118,6 +120,9 @@ template<class T> void TypedColumn<T>::addConstraint(Constraint *constraint, Col
     }
 }
 
+template<class T> bool closedRangeComparator(const Field<T>& left, const Field<T>& right) { return left.value < right.value; }
+template<class T> bool openRangeComparator(const Field<T>& left, const Field<T>& right) { return left.value <= right.value; }
+
 template<class T> IndexRange TypedColumn<T>::reduceConstraintsToRange(ColumnQueryState* state) const {
     TypedColumnQueryState<T>* typedState = getTypedState(state);
     if(typedState -> valueRange != NULL && typedState -> valueRange -> isEmpty()) {
@@ -128,10 +133,20 @@ template<class T> IndexRange TypedColumn<T>::reduceConstraintsToRange(ColumnQuer
     typedState -> constraintRange = IndexRange(0, getSize() - 1);
     if(typedState -> valueRange != NULL) {
         if(typedState -> valueRange -> isFiniteOnTheLeft()) {
-            typedState -> constraintRange.left = lowerBound(typedState -> valueRange -> getLeft());
+            if(typedState -> valueRange -> isOpenOnTheLeft()) {
+                typedState -> constraintRange.left = lowerBound(typedState -> valueRange -> getLeft(), openRangeComparator);
+            }
+            else {
+                typedState -> constraintRange.left = lowerBound(typedState -> valueRange -> getLeft(), closedRangeComparator);
+            }
         }
         if(typedState -> valueRange -> isFiniteOnTheRight()) {
-            typedState -> constraintRange.right = upperBound(typedState -> valueRange -> getRight());
+            if(typedState -> valueRange -> isOpenOnTheRight()) {
+                typedState -> constraintRange.right = upperBound(typedState -> valueRange -> getRight(), openRangeComparator);
+            }
+            else {
+                typedState -> constraintRange.right = upperBound(typedState -> valueRange -> getRight(), closedRangeComparator);
+            }
         }
     }
     typedState -> constraintRange.validate(getSize());
