@@ -55,7 +55,7 @@ TEST_F(NumericalListColumnTest, shouldContainInitialElements) {
 
 TEST_F(NumericalListColumnTest, shouldFillRowWithGoodValues) {
     ColumnQueryState* state = c.prepareColumnForQuery();
-    c.reduceConstraintsToRange(state);
+    c.reduceConstraintsToRangeSet(state);
     c.markAsMainQueryColumn(state);
 
     ASSERT_EQ(80, c.fillRowWithValueAndGetNextFieldId(3, 3, row, state, true));

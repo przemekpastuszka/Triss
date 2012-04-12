@@ -62,7 +62,7 @@ class TypedColumn : public Column {
     /*** 'select' auxiliary methods ***/
     virtual ColumnQueryState* prepareColumnForQuery() const = 0;
     virtual void addConstraint(Constraint* constraint, ColumnQueryState* state) const;
-    virtual IndexRange reduceConstraintsToRange(ColumnQueryState* state) const;
+    virtual IndexRangeSet reduceConstraintsToRangeSet(ColumnQueryState* state) const;
 
     friend class AbstractTableTest;
 };
@@ -110,49 +110,57 @@ void TypedColumn<T>::createMappingFromCurrentToSortedPositions(std::vector<int>&
 
 template<class T> void TypedColumn<T>::addConstraint(Constraint *constraint, ColumnQueryState* state) const {
     TypedColumnQueryState<T>* typedState = getTypedState(state);
-    if(typedState -> valueRange == NULL) {
-        typedState -> valueRange = ValueRangeSet<T>::createFromConstraint((TypedConstraint<T>*) constraint);
+    if(typedState -> valueRangeSet == NULL) {
+        typedState -> valueRangeSet = ValueRangeSet<T>::createFromConstraint((TypedConstraint<T>*) constraint);
     }
     else {
-        typedState -> valueRange -> intersectWith((TypedConstraint<T>*) constraint);
+        typedState -> valueRangeSet -> intersectWith((TypedConstraint<T>*) constraint);
     }
 }
 
 template<class T> bool closedRangeComparator(const Field<T>& left, const Field<T>& right) { return left.value < right.value; }
 template<class T> bool openRangeComparator(const Field<T>& left, const Field<T>& right) { return left.value <= right.value; }
 
-template<class T> IndexRange TypedColumn<T>::reduceConstraintsToRange(ColumnQueryState* state) const {
+template<class T> IndexRangeSet TypedColumn<T>::reduceConstraintsToRangeSet(ColumnQueryState* state) const {
     TypedColumnQueryState<T>* typedState = getTypedState(state);
-    typedState -> constraintRange = IndexRange(0, getSize() - 1);
     
-    if(typedState -> valueRange != NULL) {
-        typedState -> valueRange -> begin();
-        ValueRange<T>* valueRange = typedState -> valueRange -> next();
+    if(typedState -> valueRangeSet != NULL) {
+        typedState -> valueRangeSet -> begin();
+        while(typedState -> valueRangeSet -> hasNext()) {
+            ValueRange<T>* valueRange = typedState -> valueRangeSet -> next();
+            IndexRange indexRange(0, getSize() - 1);
 
-        if(valueRange -> isEmpty()) {
-            typedState -> constraintRange = IndexRange();
-            return typedState -> constraintRange;
-        }
+            if(valueRange -> isEmpty()) {
+                typedState -> constraintRangeSet.ranges.push_back(indexRange);
+                return typedState -> constraintRangeSet;
+            }
 
-        if(valueRange -> isFiniteOnTheLeft()) {
-            if(valueRange -> isOpenOnTheLeft()) {
-                typedState -> constraintRange.left = lowerBound(valueRange -> getLeft(), openRangeComparator);
+            if(valueRange -> isFiniteOnTheLeft()) {
+                if(valueRange -> isOpenOnTheLeft()) {
+                    indexRange.left = lowerBound(valueRange -> getLeft(), openRangeComparator);
+                }
+                else {
+                    indexRange.left = lowerBound(valueRange -> getLeft(), closedRangeComparator);
+                }
             }
-            else {
-                typedState -> constraintRange.left = lowerBound(valueRange -> getLeft(), closedRangeComparator);
+            if(valueRange -> isFiniteOnTheRight()) {
+                if(valueRange -> isOpenOnTheRight()) {
+                    indexRange.right = upperBound(valueRange -> getRight(), openRangeComparator);
+                }
+                else {
+                    indexRange.right = upperBound(valueRange -> getRight(), closedRangeComparator);
+                }
             }
-        }
-        if(valueRange -> isFiniteOnTheRight()) {
-            if(valueRange -> isOpenOnTheRight()) {
-                typedState -> constraintRange.right = upperBound(valueRange -> getRight(), openRangeComparator);
-            }
-            else {
-                typedState -> constraintRange.right = upperBound(valueRange -> getRight(), closedRangeComparator);
+            if(indexRange.validate(getSize())) {
+                typedState -> constraintRangeSet.ranges.push_back(indexRange);
             }
         }
     }
-    typedState -> constraintRange.validate(getSize());
-    return typedState -> constraintRange;
+    else {
+        typedState -> constraintRangeSet.ranges.push_back(IndexRange(0, getSize() - 1));
+    }
+    
+    return typedState -> constraintRangeSet;
 }
 
 

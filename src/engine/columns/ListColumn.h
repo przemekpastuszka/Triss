@@ -18,7 +18,7 @@ template <class T>
 
         protected:
         bool hasBeenVisited(int valueIndex, int startPoint, TypedListColumnQueryState<T>* state) const {
-            return state -> constraintRange.left <= valueIndex && valueIndex < startPoint;
+            return state -> constraintRangeSet.ranges[0].left <= valueIndex && valueIndex < startPoint;
         }
 
         public:
@@ -69,7 +69,7 @@ template <class T>
             std::list<T> result;
             bool hasAnyFieldInRange = false;
             while(this -> fields[valueIndex].nextFieldId < this -> fields.size()) {
-                hasAnyFieldInRange |= state -> constraintRange.isInRange(valueIndex);
+                hasAnyFieldInRange |= state -> constraintRangeSet.isInRange(valueIndex);
                 if(fill) {
                     result.push_back(this -> fields[valueIndex].value);
                 }
@@ -78,7 +78,7 @@ template <class T>
                     return -1;
                 }
             }
-            hasAnyFieldInRange |= state -> constraintRange.isInRange(valueIndex);
+            hasAnyFieldInRange |= state -> constraintRangeSet.isInRange(valueIndex);
             if(fill) {
                 result.push_back(this -> fields[valueIndex].value);
             }

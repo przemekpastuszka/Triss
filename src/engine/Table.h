@@ -18,7 +18,7 @@ class Table {
 
     struct MainColumnInfo {
         int mainColumnId;
-        IndexRange mainColumnRange;
+        IndexRangeSet mainColumnRange;
     };
 
     /*** preparing structure ***/

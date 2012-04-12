@@ -6,16 +6,17 @@
 #include <gtest/gtest.h>
 #include <cstdarg>
 #include <cstdlib>
-#include <list>
+#include <vector>
 #include <src/engine/columns/ScalarColumn.h>
 #include <src/engine/Table.h>
 #include <src/common/Schema.h>
+#include <src/utils/Tools.h>
 
 class ColumnTest : public ::testing::Test {
     public:
     ScalarColumn<double> c;
 
-    std::list<Constraint*> constraints;
+    std::vector<Constraint*> constraints;
 
     virtual void SetUp() {
         c.setColumnId(0);
@@ -48,28 +49,40 @@ class ColumnTest : public ::testing::Test {
         checkForConstraints(left, right);
     }
     
+    void assertThatRangeIsEmpty(double leftValue, double rightValue) {
+        deleteConstraints();
+        constraints.push_back(TypedConstraint<double>::greaterOrEqual(0, leftValue));
+        constraints.push_back(TypedConstraint<double>::lessOrEqual(0, rightValue));
+        
+        checkForConstraints(std::vector<IndexRange>());
+    }
+    
     void checkForConstraints(int left, int right) {
+        checkForConstraints(Tools::vector<IndexRange>(1, /**/ IndexRange(left, right)));
+    }
+    
+    void checkForConstraints(std::vector<IndexRange> ranges) {
         ColumnQueryState* state = c.prepareColumnForQuery();
 
-        for(std::list<Constraint*>::iterator it = constraints.begin();
-                it != constraints.end();
-                it++) {
-            c.addConstraint(*it, state);
+        for(int i = 0; i < constraints.size(); ++i) {
+            c.addConstraint(constraints[i], state);
         }
 
-        IndexRange range = c.reduceConstraintsToRange(state);
+        IndexRangeSet rangeSet = c.reduceConstraintsToRangeSet(state);
 
         delete state;
+        
+        ASSERT_EQ(ranges.size(), rangeSet.ranges.size());
 
-        ASSERT_EQ(left, range.left);
-        ASSERT_EQ(right, range.right);
+        for(int i = 0; i < ranges.size(); ++i) {
+            ASSERT_EQ(ranges[i].left, rangeSet.ranges[i].left);
+            ASSERT_EQ(ranges[i].right, rangeSet.ranges[i].right);
+        }
     }
     
    void deleteConstraints() {
-        for(std::list<Constraint*>::iterator it = constraints.begin();
-                it != constraints.end();
-                it++) {
-            delete *it;
+        for(int i = 0; i < constraints.size(); ++i) {
+            delete constraints[i];
         }
         constraints.clear();
     }
@@ -79,13 +92,13 @@ TEST_F(ColumnTest, shouldReturnEmptyRangeForDisjointConstraints) {
     constraints.push_back(TypedConstraint<double>::lessOrEqual(0, 10));
     constraints.push_back(TypedConstraint<double>::greaterOrEqual(0, 11));
 
-    checkForConstraints(-1, -1);
+    checkForConstraints(std::vector<IndexRange>());
 }
 
 TEST_F(ColumnTest, shouldReturnEmptyRange) {
     constraints.push_back(TypedConstraint<double>::equals(0, 10));
 
-    checkForConstraints(-1, -1);
+    checkForConstraints(std::vector<IndexRange>());
 }
 
 TEST_F(ColumnTest, shouldReturnWholeRange) {
@@ -128,12 +141,20 @@ TEST_F(ColumnTest, shouldReturnValidRangeUsingLessInfinityOpenConstraint2) {
     checkForConstraints(0, 4);
 }
 
+TEST_F(ColumnTest, shouldReturnValidRangesForNotEqual) {
+    constraints.push_back(TypedConstraint<double>::notEqual(0, 12));
+
+    checkForConstraints(Tools::vector<IndexRange>(2, /**/
+            IndexRange(0, 4),
+            IndexRange(7, 7)));
+}
+
 TEST_F(ColumnTest, shouldFindGoodRanges) {
     assertThatRangeEquals(5, 12, /**/ 1, 6);
     assertThatRangeEquals(6, 11, /**/ 3, 4);
     assertThatRangeEquals(13, 27, /**/ 7, 7);
     assertThatRangeEquals(-10, 5, /**/ 0, 2);
-    assertThatRangeEquals(10, 10, /**/ -1, -1);
-    assertThatRangeEquals(-14, -4, /**/ -1, -1);
-    assertThatRangeEquals(24, 28, /**/ -1, -1);
+    assertThatRangeIsEmpty(10, 10);
+    assertThatRangeIsEmpty(-14, -4);
+    assertThatRangeIsEmpty(24, 28);
 }

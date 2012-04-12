@@ -78,7 +78,9 @@ void ValueRangeSet<T>::begin() {
         addRangeToResult(new ValueRange<T>(exclusions[exclusions.size() - 1], true));
     }
     else {
-        computedRanges.push_back(mainRange -> copy());
+        if(mainRange -> isEmpty() == false) {
+                computedRanges.push_back(mainRange -> copy());
+        }
     }
 }
 

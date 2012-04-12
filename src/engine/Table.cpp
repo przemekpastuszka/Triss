@@ -119,12 +119,13 @@ Result* Table::gatherResults(const Query& q, std::vector<ColumnQueryState*>& col
     std::list<Row*>* results = new std::list<Row*>();
     int limit = q.getLimit();
 
-    if(info.mainColumnRange.left >= 0) {
+    for(int k = 0; k < info.mainColumnRange.ranges.size(); ++k) {
+        IndexRange& currentRange = info.mainColumnRange.ranges[k];
         Row* row = createTableRow();
 
-        for(int i = 0; i < info.mainColumnRange.length() && results -> size() < limit; ++i) {
-            if(retrieveRowBeginningWith(info.mainColumnRange.left + i, row, columnStates, info, false)) {
-                retrieveRowBeginningWith(info.mainColumnRange.left + i, row, columnStates, info, true);
+        for(int i = 0; i < currentRange.length() && results -> size() < limit; ++i) {
+            if(retrieveRowBeginningWith(currentRange.left + i, row, columnStates, info, false)) {
+                retrieveRowBeginningWith(currentRange.left + i, row, columnStates, info, true);
                 results -> push_back(row);
                 row = createTableRow();
             }
@@ -167,10 +168,10 @@ void Table::applyConstraintsToColumns(const Query& q, std::vector<ColumnQuerySta
 
 Table::MainColumnInfo Table::chooseMainColumn(std::vector<ColumnQueryState*>& columnStates) const {
     MainColumnInfo info;
-    info.mainColumnRange = columns[0] -> reduceConstraintsToRange(columnStates[0]);
+    info.mainColumnRange = columns[0] -> reduceConstraintsToRangeSet(columnStates[0]);
     info.mainColumnId = 0;
     for(unsigned int i = 1; i < schema.size(); ++i) {
-        IndexRange candidateColumnRange = columns[i] -> reduceConstraintsToRange(columnStates[i]);
+        IndexRangeSet candidateColumnRange = columns[i] -> reduceConstraintsToRangeSet(columnStates[i]);
         if((candidateColumnRange.length() < info.mainColumnRange.length()
                 || columnStates[info.mainColumnId] -> hasAnyConstraint() == false)
                 && columnStates[i] -> hasAnyConstraint()) {

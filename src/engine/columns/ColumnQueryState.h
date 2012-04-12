@@ -10,7 +10,7 @@
 
 class ColumnQueryState {
     public:
-    IndexRange constraintRange;
+    IndexRangeSet constraintRangeSet;
 
     virtual bool hasAnyConstraint() const = 0;
     virtual ~ColumnQueryState() {}
@@ -19,18 +19,18 @@ class ColumnQueryState {
 template <class T>
 class TypedColumnQueryState : public ColumnQueryState {
     public:
-    TypedColumnQueryState() : valueRange(NULL) {};
+    TypedColumnQueryState() : valueRangeSet(NULL) {};
     ~TypedColumnQueryState() { deleteValueRange(); }
 
-    ValueRangeSet<T>* valueRange;
+    ValueRangeSet<T>* valueRangeSet;
 
     bool hasAnyConstraint() const {
-        return valueRange != NULL && valueRange -> hasAnyConstraint();
+        return valueRangeSet != NULL && valueRangeSet -> hasAnyConstraint();
     }
 
     void deleteValueRange() {
-        if(valueRange != NULL) { delete valueRange; }
-        valueRange = NULL;
+        if(valueRangeSet != NULL) { delete valueRangeSet; }
+        valueRangeSet = NULL;
     }
 };
 

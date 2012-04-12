@@ -16,8 +16,8 @@ class TableComplexQueryTest : public AbstractTableTest {
         listColumn.push_back(Tools::listFrom(Tools::vector<double>(3, /**/ 4.0, 4.0, 5.0)));
         listColumn.push_back(Tools::listFrom(Tools::vector<double>(3, /**/ 0.0, -3.0, 0.0)));
         listColumn.push_back(Tools::listFrom(Tools::vector<double>(1, /**/ -1.0)));
-        listColumn.push_back(Tools::listFrom(Tools::vector<double>(3, /**/ 1.0)));
-        listColumn.push_back(Tools::listFrom(Tools::vector<double>(3, /**/ -1000)));
+        listColumn.push_back(Tools::listFrom(Tools::vector<double>(1, /**/ 1.0)));
+        listColumn.push_back(Tools::listFrom(Tools::vector<double>(1, /**/ -1000)));
 
         numericColumn = Tools::vector<double>(7, /**/ 3.141, 2.718, 1.618, 1.414, 1.732, 2.236, 0.577);
 
@@ -54,13 +54,13 @@ TEST_F(TableComplexQueryTest, shouldReturnFirstTwoRows) {
     ASSERT_FALSE(result -> hasNext());
 }
 
-//TEST_F(TableComplexQueryTest, shouldReturnLastRowUsingNotEqual) {
-//    q.addConstraint(TypedConstraint<double>::lessOrEqual(1, 0));
-//    q.addConstraint(TypedConstraint<double>::notEqual(0, 1.414));
-//    q.addConstraint(TypedConstraint<std::string>::notEqual(2, "ira"));
-//    
-//    assertOneRowInResult(6);
-//}
+TEST_F(TableComplexQueryTest, shouldReturnLastRowUsingNotEqual) {
+    q.addConstraint(TypedConstraint<double>::lessOrEqual(1, 0.5));
+    q.addConstraint(TypedConstraint<double>::notEqual(0, 1.414));
+    q.addConstraint(TypedConstraint<std::string>::notEqual(2, "ira"));
+    
+    assertOneRowInResult(6);
+}
 
 TEST_F(TableComplexQueryTest, shouldReturnAnswerForConstraintsOnAllColumns) {
     q.addConstraint(TypedConstraint<double>::lessOrEqual(0, 1.7));
@@ -71,6 +71,13 @@ TEST_F(TableComplexQueryTest, shouldReturnAnswerForConstraintsOnAllColumns) {
 }
 
 TEST_F(TableComplexQueryTest, shouldReturnAllRowsWhenNoConstraintsGiven) {
+    result = table. select(q);
+
+    ASSERT_EQ(7, result -> fetchAll() -> size());
+}
+
+TEST_F(TableComplexQueryTest, shouldReturnAllRowsWhenNotEqualOnNonExistentValueGiven) {
+    q.addConstraint(TypedConstraint<std::string>::notEqual(2, "lucifer"));
     result = table. select(q);
 
     ASSERT_EQ(7, result -> fetchAll() -> size());

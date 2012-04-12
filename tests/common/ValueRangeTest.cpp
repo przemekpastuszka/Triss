@@ -92,11 +92,7 @@ public:
 
     void assertRangeIsEmpty() {
         rangeSet -> begin();
-        ValueRange<double> *range = rangeSet -> next();
-
-        ASSERT_TRUE(range -> isEmpty());
-        ASSERT_FALSE(range -> isInRange(-INFINITY));
-        ASSERT_FALSE(range -> isInRange(INFINITY));
+        ASSERT_FALSE(rangeSet -> hasNext());
     }
 };
 

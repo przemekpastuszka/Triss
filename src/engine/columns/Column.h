@@ -36,7 +36,7 @@ class Column {
     /*** 'select' auxiliary methods ***/
     virtual ColumnQueryState* prepareColumnForQuery() const = 0;
     virtual void addConstraint(Constraint* constraint, ColumnQueryState* state) const = 0;
-    virtual IndexRange reduceConstraintsToRange(ColumnQueryState* state) const = 0;
+    virtual IndexRangeSet reduceConstraintsToRangeSet(ColumnQueryState* state) const = 0;
     virtual void markAsMainQueryColumn(ColumnQueryState* state) const {}
     virtual int fillRowWithValueAndGetNextFieldId(int valueIndex, int startPoint, Row* row, ColumnQueryState* state, bool fill) const = 0;
 };

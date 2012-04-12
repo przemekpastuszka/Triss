@@ -53,7 +53,7 @@ TEST_F(NumericalColumnTest, shouldFillRowWithGoodValue) {
     c.updateNextFieldIdsUsingMapping(mappings[0], mappings[1], 0);
 
     ColumnQueryState* state = c.prepareColumnForQuery();
-    c.reduceConstraintsToRange(state);
+    c.reduceConstraintsToRangeSet(state);
     c.markAsMainQueryColumn(state);
 
     ASSERT_EQ(5, c.fillRowWithValueAndGetNextFieldId(1, 1, row, state, true));
