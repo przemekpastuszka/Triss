@@ -72,6 +72,16 @@ class AbstractTableTest : public testing::Test {
         }
     }
 
+    void assertOneRowInResult(int rowId) {
+        result = table. select(q);
+        
+        ASSERT_TRUE(result -> hasNext());
+        Row* row = result -> next();
+        ASSERT_FALSE(result -> hasNext());
+
+        assertThatRowIsEqualTo(row, rowId);
+    }
+    
     void assertThatRowIsEqualTo(Row* row, int index) {
         ASSERT_EQ(numericColumn[index], row -> get<double>(0));
         Tools::assertThatListIsEqualTo(listColumn[index], row -> get<std::list<double> >(1));

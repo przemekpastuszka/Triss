@@ -29,24 +29,14 @@ TEST_F(TableSimpleQueriesTest, shouldReturnEmptyResult) {
 
 TEST_F(TableSimpleQueriesTest, shouldReturnLastRowForContainsConstraint) {
     q.addConstraint(TypedConstraint<double>::contains(1, 10));
-    result = table.select(q);
-
-    ASSERT_TRUE(result -> hasNext());
-    Row* row = result -> next();
-    ASSERT_FALSE(result -> hasNext());
-
-    assertThatRowIsEqualTo(row, 3);
+    
+    assertOneRowInResult(3);
 }
 
 TEST_F(TableSimpleQueriesTest, shouldReturnSecondRowForContainsConstraint) {
     q.addConstraint(TypedConstraint<double>::contains(1, 7));
-    result = table.select(q);
-
-    ASSERT_TRUE(result -> hasNext());
-    Row* row = result -> next();
-    ASSERT_FALSE(result -> hasNext());
-
-    assertThatRowIsEqualTo(row, 1);
+    
+    assertOneRowInResult(1);
 }
 
 TEST_F(TableSimpleQueriesTest, shouldReturnOneRowWithLimit) {
@@ -64,13 +54,8 @@ TEST_F(TableSimpleQueriesTest, shouldReturnOneRowWithLimit) {
 TEST_F(TableSimpleQueriesTest, shouldReturnOneRowWithTwoConstraintsOnOneColumn) {
     q.addConstraint(TypedConstraint<double>::greaterOrEqual(0, 7));
     q.addConstraint(TypedConstraint<double>::lessOrEqual(0, 7));
-    result = table.select(q);
-
-    ASSERT_TRUE(result -> hasNext());
-    Row* row = result -> next();
-    ASSERT_FALSE(result -> hasNext());
-
-    assertThatRowIsEqualTo(row, 0);
+    
+    assertOneRowInResult(0);
 }
 
 TEST_F(TableSimpleQueriesTest, shouldReturnTwoRows) {

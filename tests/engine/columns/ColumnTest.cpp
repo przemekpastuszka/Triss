@@ -37,17 +37,19 @@ class ColumnTest : public ::testing::Test {
     }
 
     virtual void TearDown() {
-        for(std::list<Constraint*>::iterator it = constraints.begin();
-                it != constraints.end();
-                it++) {
-            delete *it;
-        }
-        constraints.clear();
+        deleteConstraints();
     }
-
+    
+    void assertThatRangeEquals(double leftValue, double rightValue, int left, int right) {
+        deleteConstraints();
+        constraints.push_back(TypedConstraint<double>::greaterOrEqual(0, leftValue));
+        constraints.push_back(TypedConstraint<double>::lessOrEqual(0, rightValue));
+        
+        checkForConstraints(left, right);
+    }
+    
     void checkForConstraints(int left, int right) {
         ColumnQueryState* state = c.prepareColumnForQuery();
-
 
         for(std::list<Constraint*>::iterator it = constraints.begin();
                 it != constraints.end();
@@ -62,21 +64,14 @@ class ColumnTest : public ::testing::Test {
         ASSERT_EQ(left, range.left);
         ASSERT_EQ(right, range.right);
     }
-
-    void assertThatRangeEquals(double leftValue, double rightValue, int left, int right) {
-        Constraint* l = TypedConstraint<double>::greaterOrEqual(0, leftValue);
-        Constraint* r = TypedConstraint<double>::lessOrEqual(0, rightValue);
-
-        ColumnQueryState* state = c.prepareColumnForQuery();
-        c.addConstraint(l, state);
-        c.addConstraint(r, state);
-
-        IndexRange range = c.reduceConstraintsToRange(state);
-
-        delete l; delete r; delete state;
-
-        ASSERT_EQ(left, range.left);
-        ASSERT_EQ(right, range.right);
+    
+   void deleteConstraints() {
+        for(std::list<Constraint*>::iterator it = constraints.begin();
+                it != constraints.end();
+                it++) {
+            delete *it;
+        }
+        constraints.clear();
     }
 };
 

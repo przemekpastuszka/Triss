@@ -29,25 +29,15 @@ class TableComplexQueryTest : public AbstractTableTest {
 TEST_F(TableComplexQueryTest, shouldReturnFirstRow) {
     q.addConstraint(TypedConstraint<double>::greaterOrEqual(0, 3));
     q.addConstraint(TypedConstraint<double>::contains(1, 9));
-    result = table. select(q);
-
-    ASSERT_TRUE(result -> hasNext());
-    Row* row = result -> next();
-    ASSERT_FALSE(result -> hasNext());
-
-    assertThatRowIsEqualTo(row, 0);
+    
+    assertOneRowInResult(0);
 }
 
 TEST_F(TableComplexQueryTest, shouldReturnThirdRow) {
     q.addConstraint(TypedConstraint<double>::lessOrEqual(1, 5));
     q.addConstraint(TypedConstraint<double>::greaterOrEqual(1, 4));
-    result = table. select(q);
-
-    ASSERT_TRUE(result -> hasNext());
-    Row* row = result -> next();
-    ASSERT_FALSE(result -> hasNext());
-
-    assertThatRowIsEqualTo(row, 2);
+    
+    assertOneRowInResult(2);
 }
 
 TEST_F(TableComplexQueryTest, shouldReturnFirstTwoRows) {
@@ -64,17 +54,20 @@ TEST_F(TableComplexQueryTest, shouldReturnFirstTwoRows) {
     ASSERT_FALSE(result -> hasNext());
 }
 
+//TEST_F(TableComplexQueryTest, shouldReturnLastRowUsingNotEqual) {
+//    q.addConstraint(TypedConstraint<double>::lessOrEqual(1, 0));
+//    q.addConstraint(TypedConstraint<double>::notEqual(0, 1.414));
+//    q.addConstraint(TypedConstraint<std::string>::notEqual(2, "ira"));
+//    
+//    assertOneRowInResult(6);
+//}
+
 TEST_F(TableComplexQueryTest, shouldReturnAnswerForConstraintsOnAllColumns) {
     q.addConstraint(TypedConstraint<double>::lessOrEqual(0, 1.7));
     q.addConstraint(TypedConstraint<double>::lessOrEqual(1, 0));
     q.addConstraint(TypedConstraint<std::string>::lessOrEqual(2, "s"));
-    result = table. select(q);
-
-    ASSERT_TRUE(result -> hasNext());
-    Row* row = result -> next();
-    ASSERT_FALSE(result -> hasNext());
-
-    assertThatRowIsEqualTo(row, 3);
+    
+    assertOneRowInResult(3);
 }
 
 TEST_F(TableComplexQueryTest, shouldReturnAllRowsWhenNoConstraintsGiven) {
