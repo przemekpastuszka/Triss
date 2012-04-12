@@ -6,7 +6,7 @@
 #define TRISS_ENGINE_SRC_COLUMNS_COLUMNQUERYSTATE_H_
 
 #include "IndexRange.h"
-#include <src/common/ValueRange.h>
+#include <src/common/ValueRangeSet.h>
 
 class ColumnQueryState {
     public:
@@ -22,10 +22,10 @@ class TypedColumnQueryState : public ColumnQueryState {
     TypedColumnQueryState() : valueRange(NULL) {};
     ~TypedColumnQueryState() { deleteValueRange(); }
 
-    ValueRange<T>* valueRange;
+    ValueRangeSet<T>* valueRange;
 
     bool hasAnyConstraint() const {
-        return valueRange != NULL && (valueRange -> isFiniteOnTheLeft() || valueRange -> isFiniteOnTheRight());
+        return valueRange != NULL && valueRange -> hasAnyConstraint();
     }
 
     void deleteValueRange() {

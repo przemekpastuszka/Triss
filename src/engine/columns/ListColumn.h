@@ -12,9 +12,9 @@
 template <class T>
     class ListColumn : public TypedColumn<T> {
         private:
-        virtual TypedListColumnQueryState<T>* getTypedListState(ColumnQueryState* state) const {
-                return static_cast<TypedListColumnQueryState<T>*>(state);
-            }
+        TypedListColumnQueryState<T>* getTypedListState(ColumnQueryState* state) const {
+            return static_cast<TypedListColumnQueryState<T>*>(state);
+        }
 
         protected:
         bool hasBeenVisited(int valueIndex, int startPoint, TypedListColumnQueryState<T>* state) const {
@@ -43,9 +43,9 @@ template <class T>
                 typename std::list<T>::iterator left = ls.begin(), right = ls.begin();
                 right++;
                 for(;right != ls.end(); left++, right++) {
-                    addField(*left, this -> fields.size() + 1, false);
+                    this -> addField(*left, this -> fields.size() + 1, false);
                 }
-                addField(*left, nextFieldId, true);
+                this -> addField(*left, nextFieldId, true);
             }
         }
 

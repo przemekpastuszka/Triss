@@ -22,7 +22,7 @@ class ScalarColumn : public TypedColumn<T> {
             this -> addNull(nextFieldId);
         }
         else {
-            addField(row.get<T>(this -> columnId), nextFieldId, true);
+            this -> addField(row.get<T>(this -> columnId), nextFieldId, true);
         }
     }
 

@@ -15,18 +15,19 @@ class ValueRange {
     bool leftOpen, rightOpen;
     bool empty;
 
+    public:
     ValueRange() : empty(true) {}
     ValueRange(const T& l, bool lOpen)
-        : left(l), leftOpen(lOpen), leftInfinity(false), rightInfinity(true), empty(false) {}
+        : left(l),  leftInfinity(false), rightInfinity(true), leftOpen(lOpen), empty(false) {}
     ValueRange(bool rOpen, const T& r)
-        : right(r), leftInfinity(true), rightOpen(rOpen), rightInfinity(false), empty(false) {}
+        : right(r), leftInfinity(true), rightInfinity(false), rightOpen(rOpen), empty(false) {}
     ValueRange(const T& l, const T& r)
-            : left(l), right(r), leftInfinity(false), rightInfinity(false), empty(false), leftOpen(false), rightOpen(false) {}
+            : left(l), right(r), leftInfinity(false), rightInfinity(false), leftOpen(false), rightOpen(false), empty(false) {}
     ValueRange(const T& l, const T& r, bool lOpen, bool rOpen)
-                : left(l), right(r), leftInfinity(false), rightInfinity(false), empty(false), leftOpen(lOpen), rightOpen(rOpen) {}
-
-    public:
+                : left(l), right(r), leftInfinity(false), rightInfinity(false), leftOpen(lOpen), rightOpen(rOpen), empty(false) {}
+    
     static ValueRange<T>* createFromConstraint(const TypedConstraint<T>* constraint);
+    
     bool isInRange(const T& value);
     bool isEmpty() const { return empty; }
     bool isInfiniteOnTheLeft() const { return leftInfinity; }
@@ -35,12 +36,20 @@ class ValueRange {
     bool isFiniteOnTheRight() const { return !rightInfinity; }
     bool isOpenOnTheLeft() const { return leftOpen; }
     bool isOpenOnTheRight() const { return rightOpen; }
+    
+    ValueRange<T>* copy() const;
 
     T& getLeft() { return left; }
     T& getRight() { return right; }
     void intersectWith(ValueRange<T>* other);
-
 };
+
+template<class T>
+ValueRange<T>* ValueRange<T>::copy() const {
+    ValueRange<T>* v = new ValueRange<T>();
+    *v = *this;
+    return v;
+}
 
 template<class T>
 ValueRange<T>* ValueRange<T>::createFromConstraint(const TypedConstraint<T>* constraint) {
@@ -57,6 +66,9 @@ ValueRange<T>* ValueRange<T>::createFromConstraint(const TypedConstraint<T>* con
             return new ValueRange<T>(false, value);
         case Constraint::LESS:
             return new ValueRange<T>(true, value);
+        case Constraint::NOT_CONTAIN:
+        case Constraint::NOT_EQUAL:
+            throw "Cannot create ValueRange from NOT_CONTAIN or NOT_EQUAL constraint";
     }
     return NULL;
 }

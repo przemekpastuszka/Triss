@@ -7,7 +7,7 @@
 class Constraint {
     public:
     enum ConstraintType {
-        EQUALS, CONTAINS, GREATER_OR_EQUAL, GREATER, LESS, LESS_OR_EQUAL
+        EQUALS, CONTAINS, GREATER_OR_EQUAL, GREATER, LESS, LESS_OR_EQUAL, NOT_EQUAL, NOT_CONTAIN
     };
     virtual ~Constraint() {};
 
@@ -54,6 +54,14 @@ class TypedConstraint : public Constraint {
 
         static TypedConstraint* less(int column, const T& constraint) {
             return new TypedConstraint(Constraint::LESS, column, constraint);
+        };
+        
+        static TypedConstraint* notEqual(int column, const T& constraint) {
+            return new TypedConstraint(Constraint::NOT_EQUAL, column, constraint);
+        };
+
+        static TypedConstraint* notContains(int column, const T& constraint) {
+            return new TypedConstraint(Constraint::NOT_CONTAIN, column, constraint);
         };
 
         T getConstraintValue() const { return constraint; }

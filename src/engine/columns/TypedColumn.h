@@ -110,13 +110,11 @@ void TypedColumn<T>::createMappingFromCurrentToSortedPositions(std::vector<int>&
 
 template<class T> void TypedColumn<T>::addConstraint(Constraint *constraint, ColumnQueryState* state) const {
     TypedColumnQueryState<T>* typedState = getTypedState(state);
-    ValueRange<T>* r = ValueRange<T>::createFromConstraint((TypedConstraint<T>*) constraint);
     if(typedState -> valueRange == NULL) {
-        typedState -> valueRange = r;
+        typedState -> valueRange = ValueRangeSet<T>::createFromConstraint((TypedConstraint<T>*) constraint);
     }
     else {
-        typedState -> valueRange -> intersectWith(r);
-        delete r;
+        typedState -> valueRange -> intersectWith((TypedConstraint<T>*) constraint);
     }
 }
 
@@ -125,27 +123,31 @@ template<class T> bool openRangeComparator(const Field<T>& left, const Field<T>&
 
 template<class T> IndexRange TypedColumn<T>::reduceConstraintsToRange(ColumnQueryState* state) const {
     TypedColumnQueryState<T>* typedState = getTypedState(state);
-    if(typedState -> valueRange != NULL && typedState -> valueRange -> isEmpty()) {
-        typedState -> constraintRange = IndexRange();
-        return typedState -> constraintRange;
-    }
-
     typedState -> constraintRange = IndexRange(0, getSize() - 1);
+    
     if(typedState -> valueRange != NULL) {
-        if(typedState -> valueRange -> isFiniteOnTheLeft()) {
-            if(typedState -> valueRange -> isOpenOnTheLeft()) {
-                typedState -> constraintRange.left = lowerBound(typedState -> valueRange -> getLeft(), openRangeComparator);
+        typedState -> valueRange -> begin();
+        ValueRange<T>* valueRange = typedState -> valueRange -> next();
+
+        if(valueRange -> isEmpty()) {
+            typedState -> constraintRange = IndexRange();
+            return typedState -> constraintRange;
+        }
+
+        if(valueRange -> isFiniteOnTheLeft()) {
+            if(valueRange -> isOpenOnTheLeft()) {
+                typedState -> constraintRange.left = lowerBound(valueRange -> getLeft(), openRangeComparator);
             }
             else {
-                typedState -> constraintRange.left = lowerBound(typedState -> valueRange -> getLeft(), closedRangeComparator);
+                typedState -> constraintRange.left = lowerBound(valueRange -> getLeft(), closedRangeComparator);
             }
         }
-        if(typedState -> valueRange -> isFiniteOnTheRight()) {
-            if(typedState -> valueRange -> isOpenOnTheRight()) {
-                typedState -> constraintRange.right = upperBound(typedState -> valueRange -> getRight(), openRangeComparator);
+        if(valueRange -> isFiniteOnTheRight()) {
+            if(valueRange -> isOpenOnTheRight()) {
+                typedState -> constraintRange.right = upperBound(valueRange -> getRight(), openRangeComparator);
             }
             else {
-                typedState -> constraintRange.right = upperBound(typedState -> valueRange -> getRight(), closedRangeComparator);
+                typedState -> constraintRange.right = upperBound(valueRange -> getRight(), closedRangeComparator);
             }
         }
     }
