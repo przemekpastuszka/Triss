@@ -8,22 +8,28 @@
 #include <iostream>
 #include "Row.h"
 
-Row::Row(const std::vector<ColumnDesc>& schema) {
-    this -> schema = schema;
-    values = new void*[schema.size()];
-    for(int i = 0; i < schema.size(); ++i) {
+Row::Row(int size) {
+    values = new void*[size];
+    for(int i = 0; i < size; ++i) {
         values[i] = NULL;
     }
 }
 
 Row::~Row() {
-    for(int i = 0; i < schema.size(); ++i) {
-        deleteFieldAt(i);
+    if(values != NULL) {
+        delete [] values;
     }
-    delete [] values;
 }
 
-void Row::deleteFieldAt(int index) {
+void Row::dispose(const std::vector<ColumnDesc>& schema) {
+    for(int i = 0; i < schema.size(); ++i) {
+        deleteFieldAt(i, schema);
+    }
+    delete [] values;
+    values = NULL;
+}
+
+void Row::deleteFieldAt(int index, const std::vector<ColumnDesc>& schema) {
     if(values[index] != NULL) {
         switch(schema[index].type) {
             case Schema::STRING:

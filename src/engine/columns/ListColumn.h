@@ -60,7 +60,7 @@ template <class T>
             typedListState -> isMainColumn = true;
         }
 
-        int fillRowWithValueAndGetNextFieldId(int valueIndex, int startPoint, Row* row, ColumnQueryState* state, bool fill) const {
+        int fillRowWithValueAndGetNextFieldId(int valueIndex, int startPoint, Row* row, ColumnQueryState* state, const std::vector<ColumnDesc>& schema, bool fill) const {
             TypedListColumnQueryState<T>* typedListState = getTypedListState(state);
             if(typedListState -> isMainColumn && hasBeenVisited(valueIndex, startPoint, typedListState)) {
                 return -1;
@@ -88,7 +88,7 @@ template <class T>
             }
 
             if(fill) {
-                row -> set<std::list<T> >(this -> columnId, result);
+                row -> set<std::list<T> >(this -> columnId, result, schema);
             }
             return this -> fields[valueIndex].nextFieldId;
         }

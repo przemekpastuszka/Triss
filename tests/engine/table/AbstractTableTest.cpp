@@ -48,7 +48,7 @@ class AbstractTableTest : public testing::Test {
         table.setSchema(schema);
 
         for(int i = 0; i < nrOfRows; ++i) {
-            Row* row = table.createTableRow();
+            TableRow* row = table.createTableRow();
             if(i < numericColumn.size()) {
                 row -> set<double>(0, numericColumn[i]);
             }

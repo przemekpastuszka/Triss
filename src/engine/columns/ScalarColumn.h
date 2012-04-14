@@ -26,13 +26,13 @@ class ScalarColumn : public TypedColumn<T> {
         }
     }
 
-    int fillRowWithValueAndGetNextFieldId(int valueIndex, int startPoint, Row* row, ColumnQueryState* state, bool fill) const {
+    int fillRowWithValueAndGetNextFieldId(int valueIndex, int startPoint, Row* row, ColumnQueryState* state, const std::vector<ColumnDesc>& schema, bool fill) const {
         if(state -> constraintRangeSet.isInRange(valueIndex) == false) {
             return -1;
         }
 
         if(fill) {
-            row -> set<T>(this -> columnId, this -> fields[valueIndex].value);
+            row -> set<T>(this -> columnId, this -> fields[valueIndex].value, schema);
         }
         return this -> fields[valueIndex].nextFieldId;
     }

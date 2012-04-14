@@ -51,7 +51,7 @@ class Table {
     void addRow(Row& row);
     Result* select(const Query& q) const;
 
-    virtual Row* createTableRow() const { return new Row(schema); }
+    virtual TableRow* createTableRow() const { return new TableRow(schema); }
 
     friend class AbstractTableTest;
 };

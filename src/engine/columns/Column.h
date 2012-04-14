@@ -38,6 +38,6 @@ class Column {
     virtual void addConstraint(Constraint* constraint, ColumnQueryState* state) const = 0;
     virtual IndexRangeSet reduceConstraintsToRangeSet(ColumnQueryState* state) const = 0;
     virtual void markAsMainQueryColumn(ColumnQueryState* state) const {}
-    virtual int fillRowWithValueAndGetNextFieldId(int valueIndex, int startPoint, Row* row, ColumnQueryState* state, bool fill) const = 0;
+    virtual int fillRowWithValueAndGetNextFieldId(int valueIndex, int startPoint, Row* row, ColumnQueryState* state, const std::vector<ColumnDesc>& schema, bool fill) const = 0;
 };
 #endif  // TRISS_ENGINE_SRC_COLUMNS_COLUMN_H_

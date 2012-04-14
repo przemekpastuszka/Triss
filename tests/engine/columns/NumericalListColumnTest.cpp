@@ -16,13 +16,14 @@ double initialValues[] = {5, 12, 7, 8, 19, 1};
 class NumericalListColumnTest : public ::testing::Test {
     public:
     ListColumn<double> c;
-    Row* row;
+    TableRow* row;
+    std::vector<ColumnDesc> schema;
 
     virtual void SetUp() {
         c.setColumnId(1);
         c.setGlobalPosition(0);
 
-        std::vector<ColumnDesc> schema;
+        schema.clear();
         schema.push_back(ColumnDesc("a", Schema::NUMERICAL));
         schema.push_back(ColumnDesc("b", Schema::NUMERICAL_LIST));
         Table table;
@@ -59,7 +60,7 @@ TEST_F(NumericalListColumnTest, shouldFillRowWithGoodValues) {
     c.reduceConstraintsToRangeSet(state);
     c.markAsMainQueryColumn(state);
 
-    ASSERT_EQ(80, c.fillRowWithValueAndGetNextFieldId(3, 3, row, state, true));
+    ASSERT_EQ(80, c.fillRowWithValueAndGetNextFieldId(3, 3, row, state, schema, true));
     Tools::assertThatListIsEqualTo(row -> get<std::list<double> >(1), Tools::vector<double>(3, /**/ 8.0, 19.0, 1.0));
 
     delete state;

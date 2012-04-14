@@ -25,7 +25,7 @@ class ColumnTest : public ::testing::Test {
         schema.push_back(ColumnDesc("a", Schema::NUMERICAL));
         Table table;
         table.setSchema(schema);
-        Row* row = table.createTableRow();
+        TableRow* row = table.createTableRow();
 
         double initialValues[] = {5, 12, 7, 8, 19, 1, 12, 5};
         for(int i = 0; i < 8; ++i) {

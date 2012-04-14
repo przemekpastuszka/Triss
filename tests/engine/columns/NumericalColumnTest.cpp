@@ -15,13 +15,14 @@ class NumericalColumnTest : public ::testing::Test {
     public:
     ScalarColumn<double> c;
     std::vector<int> mappings[2];
-    Row* row;
+    TableRow* row;
+    std::vector<ColumnDesc> schema;
 
     virtual void SetUp() {
         c.setColumnId(1);
         c.setGlobalPosition(0);
 
-        std::vector<ColumnDesc> schema;
+        schema.clear();
         schema.push_back(ColumnDesc("a", Schema::NUMERICAL));
         schema.push_back(ColumnDesc("b", Schema::NUMERICAL));
         Table table;
@@ -57,7 +58,7 @@ TEST_F(NumericalColumnTest, shouldFillRowWithGoodValue) {
     c.reduceConstraintsToRangeSet(state);
     c.markAsMainQueryColumn(state);
 
-    ASSERT_EQ(5, c.fillRowWithValueAndGetNextFieldId(1, 1, row, state, true));
+    ASSERT_EQ(5, c.fillRowWithValueAndGetNextFieldId(1, 1, row, state, schema, true));
     ASSERT_EQ(12, row -> get<double>(1));
 
     delete state;

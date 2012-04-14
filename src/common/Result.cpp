@@ -1,12 +1,14 @@
 #include "Result.h"
 
-Result::Result(std::list<Row*>* rows) {
+Result::Result(const std::vector<ColumnDesc>& schema, std::list<Row*>* rows) {
+    this -> schema = schema;
     this->rows = rows;
     current = this -> rows -> begin();
 }
 
 Result::~Result() {
     for (std::list<Row*>::iterator it = rows -> begin(); it != rows -> end(); ++it) {
+        (*it) -> dispose(schema);
         delete *it;
     }
     delete rows;

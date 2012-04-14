@@ -121,18 +121,18 @@ Result* Table::gatherResults(const Query& q, std::vector<ColumnQueryState*>& col
 
     for(int k = 0; k < info.mainColumnRange.ranges.size(); ++k) {
         IndexRange& currentRange = info.mainColumnRange.ranges[k];
-        Row* row = createTableRow();
+        Row* row = new Row(schema.size());
 
         for(int i = 0; i < currentRange.length() && results -> size() < limit; ++i) {
             if(retrieveRowBeginningWith(currentRange.left + i, row, columnStates, info, false)) {
                 retrieveRowBeginningWith(currentRange.left + i, row, columnStates, info, true);
                 results -> push_back(row);
-                row = createTableRow();
+                row = new Row(schema.size());
             }
         }
         delete row;
     }
-    return new Result(results);
+    return new Result(schema, results);
 }
 
 bool Table::retrieveRowBeginningWith(int startPoint, Row* row, std::vector<ColumnQueryState*>& columnStates, MainColumnInfo& info, bool fill) const {
@@ -142,10 +142,10 @@ bool Table::retrieveRowBeginningWith(int startPoint, Row* row, std::vector<Colum
         int nextColumnId = (info.mainColumnId + i) % schema.size();
         int relativeFieldId = nextFieldId - columns[nextColumnId] -> getGlobalPosition();
         if(0 <= relativeFieldId && relativeFieldId < columns[nextColumnId] -> getSize()) {
-            nextFieldId = columns[nextColumnId] -> fillRowWithValueAndGetNextFieldId(relativeFieldId, startPoint, row, columnStates[nextColumnId], fill);
+            nextFieldId = columns[nextColumnId] -> fillRowWithValueAndGetNextFieldId(relativeFieldId, startPoint, row, columnStates[nextColumnId], schema, fill);
         }
         else {
-            row -> setNull(nextColumnId);
+            row -> setNull(nextColumnId, schema);
         }
     }
     return nextFieldId >= 0;
