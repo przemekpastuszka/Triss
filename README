@@ -3,20 +3,22 @@ In-memory search system for persistent data with SQL-like queries
 
 (Triss is also the first name of brown-haired sorceress from Sapkowski's novels)
 
-
-MILESTONES (please note, that given milestones order is not final and is likely to change in near future)
-----------
+COMPLETED
+---------
 * write and benchmark two prototypes (done!)
     - Alice is the solution, where hash map is used to intersect set of ids. Dev: Michał Rychlik
     - Bob is the solution, where internal db structure contains cross-column pointers. Dev: Przemek Pastuszka (rtshadow)
     - script for generating test data and benchmark framework. Dev: Piotr Olchawa (2easy)
+
+
+FUTURE MILESTONES (please note, that given milestones order is not final and is likely to change in near future)
+-----------------
 * adapt chosen prototype to alpha version (in progress)
     See "Adapt chosen prototype to alpha version" in Issues tab for more details
-* add capability to query TRISS through network (in progress)
+* add capability to query TRISS through network, server / client side (in progress)
 * add SQL interface
 * create documentation; create installer with .deb and .rpm packages
-
-(deadline: June 2012)
+Deadline for all above is: June 2012
 
 * add OR operator
 * bindings to languages other than C++ (python has highest priority)
@@ -30,7 +32,7 @@ Other things (to be completed in unforeseeable future):
 
 External libraries
 ------------------
-google sparsehash >= 2.0 (as hash map for Alice)
+google sparsehash >= 2.0
 google test >= 1.6 (for unit tests)
 scons >= 2.1 (build tool)
 
@@ -38,21 +40,21 @@ scons >= 2.1 (build tool)
 How do I build it?
 -------------------
 In main repository directory use:
-    scons [target]
-where [target] is one of: bob_test, alice_test, common_test, benchmark
-Without [target] specified, you'll build all above targets
+    scons [--release] target
+where target is one of: engine_test, common_test, benchmark
+Without target specified, you'll build all above targets
+--release flag is optional and produces optimized (with -O2) binary
 
 Executables will be placed under build/ directory
 
 
 How do I use it?
 -----------------
-TRISS is in pre-alpha phase at the moment and is not yet usable. Nevertheless, you may want to see and learn our prototype API ( https://github.com/rtshadow/Triss/wiki/Prototype-API ), so you'll be ready to immediately harness whole power of TRISS, when it's done. (this API is also going to change a little bit over time, but not that much).
+TRISS is in alpha phase at the moment and is not yet usable. Nevertheless, you may want to see and learn our alpha API ( https://github.com/rtshadow/Triss/wiki/Alpha-version-API ), so you'll be ready to immediately harness whole power of TRISS, when it's done. (this API is also going to change a little bit over time, but not that much).
 
 
-Current state of work (31.03.2012)
+Current state of work (14.04.2012)
 ----------------------------------
-Bob and Alice prototypes has been coded and benchmarked.
-Bob outperforms Alice significantly, when the query limit is low. Otherwise Alice is faster. We have chosen to turn Bob into Triss engine as we'll make extensive use of 'limit'. Moreover - Bob makes possible implementation of cursor with small memory footprint.
-
-Please note, that all file paths given above may change (see "Clean the repository" issue for more details)
+Support for NULLs; NOT_EQUAL, LESS, GREATER constraints has been added to alpha version.
+Alpha version API is established.
+We've designed client / server architecture of the system.
