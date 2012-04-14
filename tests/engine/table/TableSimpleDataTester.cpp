@@ -5,10 +5,7 @@
 
 class TableSimpleDataTester : public AbstractTableTest {
     protected:
-    virtual void setUpSchemaAndColumns() {
-        Schema :: DataType ss[] = {Schema::NUMERICAL, Schema::NUMERICAL_LIST,
-                Schema::STRING};
-        schema = new Schema(ss, 3);
+    virtual void setUpColumns() {
         nrOfRows = 4;
 
         listColumn.clear();

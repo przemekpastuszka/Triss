@@ -8,7 +8,7 @@
 #include <iostream>
 #include "Row.h"
 
-Row::Row(const std::vector<Schema::DataType>& schema) {
+Row::Row(const std::vector<ColumnDesc>& schema) {
     this -> schema = schema;
     values = new void*[schema.size()];
     for(int i = 0; i < schema.size(); ++i) {
@@ -25,7 +25,7 @@ Row::~Row() {
 
 void Row::deleteFieldAt(int index) {
     if(values[index] != NULL) {
-        switch(schema[index]) {
+        switch(schema[index].type) {
             case Schema::STRING:
                 delete static_cast<std::string*>(values[index]);
                 break;
@@ -41,25 +41,4 @@ void Row::deleteFieldAt(int index) {
         }
     }
     values[index] = NULL;
-}
-
-Row* Row::clone() const {
-    Row* result = new Row(schema);
-    for (int i = 0; i < schema.size(); ++i) {
-      switch (this->schema[i]) {
-        case Schema::NUMERICAL:
-          result->set<double>(i, get<double>(i));
-          break;
-        case Schema::STRING:
-          result->set<std::string>(i, get<std::string>(i));
-          break;
-        case Schema::NUMERICAL_LIST:
-          result->set< std::list<double> >(i, get< std::list<double> >(i));
-          break;
-        case Schema::STRING_LIST:
-          result->set< std::list<std::string> >(i, get< std::list<std::string> >(i));
-          break;          
-      } 
-    }
-    return result;
 }

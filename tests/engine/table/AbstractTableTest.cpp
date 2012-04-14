@@ -17,7 +17,7 @@ class AbstractTableTest : public testing::Test {
     std::vector<std::list<double> > listColumn;
     std::vector<double> numericColumn;
     std::vector<std::string> stringColumn;
-    Schema* schema;
+    std::vector<ColumnDesc> schema;
     int nrOfRows;
 
     public:
@@ -35,12 +35,17 @@ class AbstractTableTest : public testing::Test {
         result = NULL;
     }
 
-    virtual void setUpSchemaAndColumns() = 0;
+    virtual void setUpColumns() = 0;
 
     virtual void SetUp() {
-        setUpSchemaAndColumns();
+        schema.clear();
+        schema.push_back(ColumnDesc("a", Schema::NUMERICAL));
+        schema.push_back(ColumnDesc("b", Schema::NUMERICAL_LIST));
+        schema.push_back(ColumnDesc("c", Schema::STRING));
+        
+        setUpColumns();
 
-        table.setSchema(*schema);
+        table.setSchema(schema);
 
         for(int i = 0; i < nrOfRows; ++i) {
             Row* row = table.createTableRow();
@@ -64,8 +69,6 @@ class AbstractTableTest : public testing::Test {
     }
 
     virtual void TearDown() {
-        delete schema;
-
         if(result != NULL) {
             delete result;
             result = NULL;

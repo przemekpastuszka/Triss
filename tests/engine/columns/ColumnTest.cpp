@@ -9,7 +9,7 @@
 #include <vector>
 #include <src/engine/columns/ScalarColumn.h>
 #include <src/engine/Table.h>
-#include <src/common/Schema.h>
+#include <src/common/ColumnDesc.h>
 #include <src/utils/Tools.h>
 
 class ColumnTest : public ::testing::Test {
@@ -21,10 +21,10 @@ class ColumnTest : public ::testing::Test {
     virtual void SetUp() {
         c.setColumnId(0);
 
-        Schema::DataType schema[] = { Schema::NUMERICAL };
-        Schema sch(schema, 1);
+        std::vector<ColumnDesc> schema;
+        schema.push_back(ColumnDesc("a", Schema::NUMERICAL));
         Table table;
-        table.setSchema(sch);
+        table.setSchema(schema);
         Row* row = table.createTableRow();
 
         double initialValues[] = {5, 12, 7, 8, 19, 1, 12, 5};

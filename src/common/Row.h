@@ -8,16 +8,16 @@
 #include <vector>
 #include <string>
 #include <list>
-#include "Schema.h"
+#include "ColumnDesc.h"
 
 class Row {
     private:
     void** values;
-    std::vector<Schema::DataType> schema;
+    std::vector<ColumnDesc> schema;
 
     void deleteFieldAt(int index);
 
-    Row(const std::vector<Schema::DataType>& schema);
+    Row(const std::vector<ColumnDesc>& schema);
 
     public:
     ~Row();
@@ -40,8 +40,6 @@ class Row {
     bool isNull(int i) const {
         return values[i] == NULL;
     }
-    
-    Row* clone() const;
 
     friend class Table;
 };

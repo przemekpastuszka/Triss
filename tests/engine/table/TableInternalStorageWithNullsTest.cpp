@@ -4,8 +4,8 @@
 #include "TableSimpleDataTester.cpp"
 
 class TableInternalStorageWithNullsTest : public TableSimpleDataTester {
-    void setUpSchemaAndColumns() {
-        TableSimpleDataTester :: setUpSchemaAndColumns();
+    void setUpColumns() {
+        TableSimpleDataTester :: setUpColumns();
         numericColumn.resize(2);
         listColumn.resize(3);
     }

@@ -14,9 +14,11 @@ class ResultTest : public testing::Test {
 
     virtual void SetUp() {
         std::list<Row*>* result_rows = new std::list<Row*>();
-        Schema::DataType s[] = {Schema::NUMERICAL, Schema::NUMERICAL_LIST,
-                                Schema::STRING};
-        Schema schema(s, 3);
+        std::vector<ColumnDesc> schema;
+        schema.push_back(ColumnDesc("a", Schema::NUMERICAL));
+        schema.push_back(ColumnDesc("b", Schema::NUMERICAL_LIST));
+        schema.push_back(ColumnDesc("c", Schema::STRING));
+        
         Table table;
         table.setSchema(schema);
 

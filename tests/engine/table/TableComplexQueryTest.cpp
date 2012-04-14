@@ -4,10 +4,7 @@
 #include "AbstractTableTest.cpp"
 
 class TableComplexQueryTest : public AbstractTableTest {
-    void setUpSchemaAndColumns() {
-        Schema :: DataType ss[] = {Schema::NUMERICAL, Schema::NUMERICAL_LIST,
-                Schema::STRING};
-        schema = new Schema(ss, 3);
+    void setUpColumns() {        
         nrOfRows = 7;
 
         listColumn.clear();

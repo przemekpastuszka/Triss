@@ -12,7 +12,7 @@
 void Table::prepareColumns() {
     columns.reserve(schema.size());
     for(unsigned int i = 0; i < schema.size();++i){
-        columns[i] = generateColumn(schema[i]);
+        columns[i] = generateColumn(schema[i].type);
         columns[i] -> setColumnId(i);
     }
 }

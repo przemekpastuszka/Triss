@@ -22,10 +22,11 @@ class NumericalListColumnTest : public ::testing::Test {
         c.setColumnId(1);
         c.setGlobalPosition(0);
 
-        Schema::DataType schema[] = { Schema::NUMERICAL, Schema::NUMERICAL_LIST};
-        Schema sch(schema, 2);
+        std::vector<ColumnDesc> schema;
+        schema.push_back(ColumnDesc("a", Schema::NUMERICAL));
+        schema.push_back(ColumnDesc("b", Schema::NUMERICAL_LIST));
         Table table;
-        table.setSchema(sch);
+        table.setSchema(schema);
         row = table.createTableRow();
 
         std::list<double> ls;

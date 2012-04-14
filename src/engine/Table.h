@@ -5,7 +5,7 @@
 #define TRISS_ENGINE_SRC_TABLE_H_
 
 #include <vector>
-#include <src/common/Schema.h>
+#include <src/common/ColumnDesc.h>
 #include <src/common/Query.h>
 #include <src/common/Result.h>
 #include "columns/Column.h"
@@ -13,7 +13,7 @@
 
 class Table {
     private:
-    std::vector<Schema::DataType> schema;
+    std::vector<ColumnDesc> schema;
     std::vector<Column*> columns;
 
     struct MainColumnInfo {
@@ -38,10 +38,10 @@ class Table {
     Result* gatherResults(const Query& q, std::vector<ColumnQueryState*>& columnStates, MainColumnInfo& info) const;
 
     public:
-    void setSchema(const Schema& schema) {
+    void setSchema(const std::vector<ColumnDesc>& schema) {
         deleteColumns();
 
-        this -> schema = schema.schema;
+        this -> schema = schema;
         prepareColumns();
     };
 
