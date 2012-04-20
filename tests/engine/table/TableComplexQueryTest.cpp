@@ -80,3 +80,16 @@ TEST_F(TableComplexQueryTest, shouldReturnAllRowsWhenNotEqualOnNonExistentValueG
     ASSERT_EQ(7, result -> fetchAll() -> size());
 }
 
+TEST_F(TableComplexQueryTest, shouldReturnGoodRowWithNotContains) {
+    q.addConstraint(TypedConstraint<double>::notContains(1, 9));
+    result = table. select(q);
+    
+    for(int i = 0; i < 5; ++i) {
+        ASSERT_TRUE(result -> hasNext());
+        Row* row = result -> next();
+        
+        Tools::assertThatListDoesNotContain<double>(row -> get<std::list<double> >(1), 9.0);
+    }
+    ASSERT_FALSE(result -> hasNext());
+}
+

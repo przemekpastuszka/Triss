@@ -57,6 +57,11 @@ class Tools {
     static void assertThatListContains(std::list<T>& ls, const T& value) {
         ASSERT_TRUE(std::find(ls.begin(), ls.end(), value) != ls.end());
     }
+    
+    template <class T>
+    static void assertThatListDoesNotContain(std::list<T>& ls, const T& value) {
+        ASSERT_FALSE(std::find(ls.begin(), ls.end(), value) != ls.end());
+    }
 };
 
 #endif /* TOOLS_H_ */

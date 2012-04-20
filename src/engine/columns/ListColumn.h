@@ -60,9 +60,14 @@ template <class T>
             typedListState -> isMainColumn = true;
         }
 
+        bool isFieldInvalid(TypedListColumnQueryState<T>* typedListState, int valueIndex, int startPoint) const {
+            return (typedListState -> isMainColumn && hasBeenVisited(valueIndex, startPoint, typedListState))
+                        || (typedListState -> valueRangeSet != NULL && typedListState -> valueRangeSet -> isExcluded(this -> fields[valueIndex].value));
+        }
+        
         int fillRowWithValueAndGetNextFieldId(int valueIndex, int startPoint, Row* row, ColumnQueryState* state, const std::vector<ColumnDesc>& schema, bool fill) const {
             TypedListColumnQueryState<T>* typedListState = getTypedListState(state);
-            if(typedListState -> isMainColumn && hasBeenVisited(valueIndex, startPoint, typedListState)) {
+            if(isFieldInvalid(typedListState, valueIndex, startPoint)) {
                 return -1;
             }
 
@@ -74,7 +79,7 @@ template <class T>
                     result.push_back(this -> fields[valueIndex].value);
                 }
                 valueIndex = this -> fields[valueIndex].nextFieldId;
-                if(typedListState -> isMainColumn && hasBeenVisited(valueIndex, startPoint, typedListState)) {
+                if(isFieldInvalid(typedListState, valueIndex, startPoint)) {
                     return -1;
                 }
             }

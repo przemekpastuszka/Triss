@@ -31,6 +31,8 @@ class ValueRangeSet {
     ValueRange<T>* next();
     bool hasNext();
     
+    bool isExcluded(const T& v) const;
+    
     bool hasAnyConstraint() const;
 
     ~ValueRangeSet();
@@ -79,7 +81,7 @@ void ValueRangeSet<T>::begin() {
     }
     else {
         if(mainRange -> isEmpty() == false) {
-                computedRanges.push_back(mainRange -> copy());
+            computedRanges.push_back(mainRange -> copy());
         }
     }
 }
@@ -110,6 +112,16 @@ ValueRange<T>* ValueRangeSet<T>::next() {
 template <class T>
 bool ValueRangeSet<T>::hasAnyConstraint() const {
     return mainRange != NULL || exclusions.size() > 0;
+}
+
+template <class T>
+bool ValueRangeSet<T>::isExcluded(const T& v) const {
+    for(int i = 0; i < exclusions.size(); ++i) {
+        if(exclusions[i] == v) {
+            return true;
+        }
+    }
+    return false;
 }
 
 template <class T>
