@@ -19,6 +19,7 @@ class Column {
     public:
     virtual ~Column() {};
     virtual unsigned int getSize() const = 0;
+    virtual unsigned int getNumberOfEmptyLists() const = 0;
     virtual void setNextFieldIdAt(int position, int nextFieldId) = 0;
     virtual int getNextFieldIdAt(int position) const = 0;
     virtual bool hasNullValueAt(int position) const = 0;

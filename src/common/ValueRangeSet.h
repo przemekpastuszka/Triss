@@ -34,6 +34,9 @@ class ValueRangeSet {
     bool isExcluded(const T& v) const;
     
     bool hasAnyConstraint() const;
+    bool hasAnyNonExcludingConstraint() const {
+        return mainRange != NULL;
+    }
 
     ~ValueRangeSet();
 };

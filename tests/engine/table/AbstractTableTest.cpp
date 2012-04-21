@@ -30,6 +30,11 @@ class AbstractTableTest : public testing::Test {
         TypedColumn<T>* column = static_cast<TypedColumn<T>*>(table.columns[columnId]);
         return column -> getField(fieldId);
     }
+    
+    template <class T>
+    Column* getColumn(int columnId) {
+        return table.columns[columnId];
+    }
 
     AbstractTableTest() {
         result = NULL;

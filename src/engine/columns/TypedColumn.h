@@ -22,27 +22,35 @@ class TypedColumn : public Column {
 
     protected:
     std::vector<Field<T> > fields;
+    int numberOfEmptyListFields;
 
     int lowerBound(const T& value, bool (*cmp)(const Field<T>&, const Field<T>&)) const {
         Field<T> field(value);
         typename std::vector<Field<T> >::const_iterator it =
-                std::lower_bound(fields.begin(), fields.end(), field, cmp);
+                std::lower_bound(fields.begin(), fields.end() - numberOfEmptyListFields, field, cmp);
         return int(it - fields.begin());
     }
     int upperBound(const T& value, bool (*cmp)(const Field<T>&, const Field<T>&)) const {
         Field<T> field(value);
         typename std::vector<Field<T> >::const_iterator it =
-                std::upper_bound(fields.begin(), fields.end(), field, cmp);
+                std::upper_bound(fields.begin(), fields.end() - numberOfEmptyListFields, field, cmp);
         return int(it - fields.begin()) - 1;
     }
     void addField(const T& value, int nextFieldId, bool isLastElement);
     void addNull(int nextFieldId);
+    void addEmptyListField(int nextFieldId);
 
     virtual TypedColumnQueryState<T>* getTypedState(ColumnQueryState* state) const {
         return static_cast<TypedColumnQueryState<T>*>(state);
     }
 
     public:
+    TypedColumn() {
+        numberOfEmptyListFields = 0;
+    }
+    virtual ~TypedColumn() {}
+    
+    unsigned int getNumberOfEmptyLists() const { return numberOfEmptyListFields; }
     void setNextFieldIdAt(int position, int nextFieldId) { fields[position - globalPosition].nextFieldId = nextFieldId; }
     int getNextFieldIdAt(int position) const { return fields[position - globalPosition].nextFieldId; }
     bool hasNullValueAt(int position) const { return fields[position - globalPosition].isNull; }
@@ -53,8 +61,6 @@ class TypedColumn : public Column {
     }
     Field<T>* getField(unsigned int i) { return &fields[i]; }
     unsigned int getSize() const { return fields.size(); }
-
-    virtual ~TypedColumn() {}
 
     /*** preparing structure ***/
     void createMappingFromCurrentToSortedPositions(std::vector<int>& mapping);
@@ -80,6 +86,15 @@ void TypedColumn<T>::addNull(int nextFieldId) {
     field.nextFieldId = nextFieldId;
     field.isNull = true;
     this -> fields.push_back(field);
+}
+
+template <class T>
+void TypedColumn<T>::addEmptyListField(int nextFieldId) {
+    Field<T> field;
+    field.nextFieldId = nextFieldId;
+    field.isEmptyList = true;
+    this -> fields.push_back(field);
+    ++numberOfEmptyListFields;
 }
 
 template <class T>
@@ -128,10 +143,9 @@ template<class T> IndexRangeSet TypedColumn<T>::reduceConstraintsToRangeSet(Colu
         typedState -> valueRangeSet -> begin();
         while(typedState -> valueRangeSet -> hasNext()) {
             ValueRange<T>* valueRange = typedState -> valueRangeSet -> next();
-            IndexRange indexRange(0, getSize() - 1);
+            IndexRange indexRange(0, getSize() - 1 - numberOfEmptyListFields);
 
             if(valueRange -> isEmpty()) {
-                typedState -> constraintRangeSet.ranges.push_back(indexRange);
                 return typedState -> constraintRangeSet;
             }
 
@@ -157,7 +171,10 @@ template<class T> IndexRangeSet TypedColumn<T>::reduceConstraintsToRangeSet(Colu
         }
     }
     else {
-        typedState -> constraintRangeSet.ranges.push_back(IndexRange(0, getSize() - 1));
+        typedState -> constraintRangeSet.ranges.push_back(IndexRange(0, getSize() - 1 - numberOfEmptyListFields));
+    }
+    if(numberOfEmptyListFields > 0) {
+        typedState -> constraintRangeSet.ranges.push_back(IndexRange(getSize() - numberOfEmptyListFields, getSize() - 1));
     }
     
     return typedState -> constraintRangeSet;

@@ -18,7 +18,7 @@ template <class T>
 
         protected:
         bool hasBeenVisited(int valueIndex, int startPoint, TypedListColumnQueryState<T>* state) const {
-            return state -> constraintRangeSet.ranges[0].left <= valueIndex && valueIndex < startPoint;
+            return valueIndex < startPoint && state -> constraintRangeSet.isInRange(valueIndex);
         }
 
         public:
@@ -39,13 +39,18 @@ template <class T>
             }
             else {
                 std::list<T>& ls = row.get<std::list<T> >(this -> columnId);
-
-                typename std::list<T>::iterator left = ls.begin(), right = ls.begin();
-                right++;
-                for(;right != ls.end(); left++, right++) {
-                    this -> addField(*left, this -> fields.size() + 1, false);
+                
+                if(ls.empty()) {
+                    this -> addEmptyListField(nextFieldId);
                 }
-                this -> addField(*left, nextFieldId, true);
+                else {
+                    typename std::list<T>::iterator left = ls.begin(), right = ls.begin();
+                    right++;
+                    for(;right != ls.end(); left++, right++) {
+                        this -> addField(*left, this -> fields.size() + 1, false);
+                    }
+                    this -> addField(*left, nextFieldId, true);
+                }
             }
         }
 
@@ -58,11 +63,23 @@ template <class T>
         void markAsMainQueryColumn(ColumnQueryState* state) const {
             TypedListColumnQueryState<T>* typedListState = getTypedListState(state);
             typedListState -> isMainColumn = true;
+            
+            if(typedListState -> valueRangeSet != NULL &&
+                    typedListState -> valueRangeSet -> hasAnyNonExcludingConstraint() &&
+                    this -> numberOfEmptyListFields > 0) {
+                state -> constraintRangeSet.ranges.pop_back();
+            }
         }
 
         bool isFieldInvalid(TypedListColumnQueryState<T>* typedListState, int valueIndex, int startPoint) const {
             return (typedListState -> isMainColumn && hasBeenVisited(valueIndex, startPoint, typedListState))
                         || (typedListState -> valueRangeSet != NULL && typedListState -> valueRangeSet -> isExcluded(this -> fields[valueIndex].value));
+        }
+        
+        void addToResultIfNeeded(std::list<T>& result, int valueIndex, bool fill) const {
+            if(fill && valueIndex < this -> fields.size() - this -> numberOfEmptyListFields) {
+                result.push_back(this -> fields[valueIndex].value);
+            }
         }
         
         int fillRowWithValueAndGetNextFieldId(int valueIndex, int startPoint, Row* row, ColumnQueryState* state, const std::vector<ColumnDesc>& schema, bool fill) const {
@@ -75,18 +92,14 @@ template <class T>
             bool hasAnyFieldInRange = false;
             while(this -> fields[valueIndex].nextFieldId < this -> fields.size()) {
                 hasAnyFieldInRange |= state -> constraintRangeSet.isInRange(valueIndex);
-                if(fill) {
-                    result.push_back(this -> fields[valueIndex].value);
-                }
+                addToResultIfNeeded(result, valueIndex, fill);
                 valueIndex = this -> fields[valueIndex].nextFieldId;
                 if(isFieldInvalid(typedListState, valueIndex, startPoint)) {
                     return -1;
                 }
             }
             hasAnyFieldInRange |= state -> constraintRangeSet.isInRange(valueIndex);
-            if(fill) {
-                result.push_back(this -> fields[valueIndex].value);
-            }
+            addToResultIfNeeded(result, valueIndex, fill);
 
             if(hasAnyFieldInRange == false) {
                 return -1;
