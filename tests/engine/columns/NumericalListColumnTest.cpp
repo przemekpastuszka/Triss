@@ -59,6 +59,7 @@ TEST_F(NumericalListColumnTest, shouldFillRowWithGoodValues) {
     ColumnQueryState* state = c.prepareColumnForQuery();
     c.reduceConstraintsToRangeSet(state);
     c.markAsMainQueryColumn(state);
+    state -> positionsInResult = Tools::vector<int>(2, /**/ 0, 1);
 
     ASSERT_EQ(80, c.fillRowWithValueAndGetNextFieldId(3, 3, row, state, schema, true));
     Tools::assertThatListIsEqualTo(row -> get<std::list<double> >(1), Tools::vector<double>(3, /**/ 8.0, 19.0, 1.0));

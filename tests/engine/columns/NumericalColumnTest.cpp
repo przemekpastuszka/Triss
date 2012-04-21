@@ -10,6 +10,7 @@
 #include <src/common/Schema.h>
 #include <src/engine/Table.h>
 #include <src/common/Schema.h>
+#include <src/utils/Tools.h>
 
 class NumericalColumnTest : public ::testing::Test {
     public:
@@ -57,6 +58,7 @@ TEST_F(NumericalColumnTest, shouldFillRowWithGoodValue) {
     ColumnQueryState* state = c.prepareColumnForQuery();
     c.reduceConstraintsToRangeSet(state);
     c.markAsMainQueryColumn(state);
+    state -> positionsInResult = Tools::vector<int>(2, /**/ 0, 1);
 
     ASSERT_EQ(5, c.fillRowWithValueAndGetNextFieldId(1, 1, row, state, schema, true));
     ASSERT_EQ(12, row -> get<double>(1));

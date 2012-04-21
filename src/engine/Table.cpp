@@ -115,34 +115,55 @@ Result* Table::select(const Query& q) const {
     return results;
 }
 
+void Table::setupResultSchema(std::vector<ColumnDesc>& resultSchema, const Query& q) const {
+    std::list<int> selectedColumns = q.getSelectedColumns();
+    for(std::list<int>::iterator it = selectedColumns.begin();
+            it != selectedColumns.end(); it++) {
+        resultSchema.push_back(schema[*it]);
+    }
+}
+
+void Table::setupPositionsInResultForEachColumn(std::vector<ColumnQueryState*>& columnState, const Query& q) const {
+    std::list<int> selectedColumns = q.getSelectedColumns();
+    int i = 0;
+    for(std::list<int>::iterator it = selectedColumns.begin();
+            it != selectedColumns.end(); it++) {
+        columnState[*it] -> positionsInResult.push_back(i++);
+    }
+}
+
 Result* Table::gatherResults(const Query& q, std::vector<ColumnQueryState*>& columnStates, MainColumnInfo& info) const {
     std::list<Row*>* results = new std::list<Row*>();
     int limit = q.getLimit();
+    
+    std::vector<ColumnDesc> resultSchema;
+    setupResultSchema(resultSchema, q);
+    setupPositionsInResultForEachColumn(columnStates, q);
 
     for(int k = 0; k < info.mainColumnRange.ranges.size(); ++k) {
         IndexRange& currentRange = info.mainColumnRange.ranges[k];
-        Row* row = new Row(schema.size());
+        Row* row = new Row(resultSchema.size());
 
         for(int i = 0; i < currentRange.length() && results -> size() < limit; ++i) {
-            if(retrieveRowBeginningWith(currentRange.left + i, row, columnStates, info, false)) {
-                retrieveRowBeginningWith(currentRange.left + i, row, columnStates, info, true);
+            if(retrieveRowBeginningWith(currentRange.left + i, row, columnStates, info, false, resultSchema)) {
+                retrieveRowBeginningWith(currentRange.left + i, row, columnStates, info, true, resultSchema);
                 results -> push_back(row);
-                row = new Row(schema.size());
+                row = new Row(resultSchema.size());
             }
         }
         delete row;
     }
-    return new Result(schema, results);
+    return new Result(resultSchema, results);
 }
 
-bool Table::retrieveRowBeginningWith(int startPoint, Row* row, std::vector<ColumnQueryState*>& columnStates, MainColumnInfo& info, bool fill) const {
+bool Table::retrieveRowBeginningWith(int startPoint, Row* row, std::vector<ColumnQueryState*>& columnStates, MainColumnInfo& info, bool fill, std::vector<ColumnDesc>& resultSchema) const {
     int nextFieldId = startPoint + columns[info.mainColumnId] -> getGlobalPosition();
     unsigned int i;
     for(i = 0; i <= schema.size() && nextFieldId >= 0; ++i) {
         int nextColumnId = (info.mainColumnId + i) % schema.size();
         int relativeFieldId = nextFieldId - columns[nextColumnId] -> getGlobalPosition();
         if(0 <= relativeFieldId && relativeFieldId < columns[nextColumnId] -> getSize()) {
-            nextFieldId = columns[nextColumnId] -> fillRowWithValueAndGetNextFieldId(relativeFieldId, startPoint, row, columnStates[nextColumnId], schema, fill);
+            nextFieldId = columns[nextColumnId] -> fillRowWithValueAndGetNextFieldId(relativeFieldId, startPoint, row, columnStates[nextColumnId], resultSchema, fill);
         }
         else {
             row -> setNull(nextColumnId, schema);

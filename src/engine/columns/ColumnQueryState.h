@@ -11,6 +11,7 @@
 class ColumnQueryState {
     public:
     IndexRangeSet constraintRangeSet;
+    std::vector<int> positionsInResult;
 
     virtual bool hasAnyConstraint() const = 0;
     virtual ~ColumnQueryState() {}

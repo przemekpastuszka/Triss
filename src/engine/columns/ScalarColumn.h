@@ -32,7 +32,8 @@ class ScalarColumn : public TypedColumn<T> {
         }
 
         if(fill) {
-            row -> set<T>(this -> columnId, this -> fields[valueIndex].value, schema);
+            for(int i = 0; i < state -> positionsInResult.size(); ++i)
+            row -> set<T>(state -> positionsInResult[i], this -> fields[valueIndex].value, schema);
         }
         return this -> fields[valueIndex].nextFieldId;
     }

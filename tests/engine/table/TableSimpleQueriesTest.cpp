@@ -71,3 +71,21 @@ TEST_F(TableSimpleQueriesTest, shouldReturnTwoRows) {
     ASSERT_FALSE(result -> hasNext());
 }
 
+TEST_F(TableSimpleQueriesTest, shouldReturnResultWithNewSchema) {
+    q.addConstraint(TypedConstraint<double>::equals(0, 7));
+    std::list<int> ls = Tools::listFrom(Tools::vector<int>(5, /**/
+            0, 2, 2, 0, 1));
+    q.selectColumns(ls);
+    result = table.select(q);
+
+    ASSERT_TRUE(result -> hasNext());
+    Row* row = result -> next();
+    ASSERT_FALSE(result -> hasNext());
+
+    ASSERT_EQ(numericColumn[0], row -> get<double>(0));
+    ASSERT_EQ(numericColumn[0], row -> get<double>(3));
+    
+    ASSERT_EQ(stringColumn[0], row -> get<std::string>(1));
+    ASSERT_EQ(stringColumn[0], row -> get<std::string>(2));
+}
+

@@ -106,7 +106,8 @@ template <class T>
             }
 
             if(fill) {
-                row -> set<std::list<T> >(this -> columnId, result, schema);
+                for(int i = 0; i < state -> positionsInResult.size(); ++i)
+                row -> set<std::list<T> >(state -> positionsInResult[i], result, schema);
             }
             return this -> fields[valueIndex].nextFieldId;
         }

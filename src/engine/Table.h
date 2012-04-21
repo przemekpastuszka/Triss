@@ -34,7 +34,9 @@ class Table {
     void prepareColumnsForQuery(std::vector<ColumnQueryState*>& columnStates) const;
     void applyConstraintsToColumns(const Query& q, std::vector<ColumnQueryState*>& columnStates) const;
     MainColumnInfo chooseMainColumn(std::vector<ColumnQueryState*>& columnStates)  const;
-    bool retrieveRowBeginningWith(int indexOnMainColumn, Row*, std::vector<ColumnQueryState*>& columnStates, MainColumnInfo& info, bool fill) const;
+    void setupResultSchema(std::vector<ColumnDesc>& resultSchema, const Query& q) const;
+    void setupPositionsInResultForEachColumn(std::vector<ColumnQueryState*>& columnState, const Query& q) const;
+    bool retrieveRowBeginningWith(int indexOnMainColumn, Row*, std::vector<ColumnQueryState*>& columnStates, MainColumnInfo& info, bool fill, std::vector<ColumnDesc>& resultSchema) const;
     Result* gatherResults(const Query& q, std::vector<ColumnQueryState*>& columnStates, MainColumnInfo& info) const;
 
     public:
