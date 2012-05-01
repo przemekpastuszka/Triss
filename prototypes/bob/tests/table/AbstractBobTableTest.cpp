@@ -8,7 +8,7 @@
 #include <string>
 #include <prototypes/bob/src/BobTable.h>
 #include <prototypes/common/src/Constraint.h>
-#include <utils/src/Tools.h>
+#include <src/utils/Tools.h>
 #include <prototypes/bob/tests/AbstractBobTest.h>
 
 using namespace Bob;

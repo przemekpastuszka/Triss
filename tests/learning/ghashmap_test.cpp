@@ -2,7 +2,7 @@
  * Copyright 2012 Michał Rychlik
  */
 #include <gtest/gtest.h>
-#include <sparsehash/dense_hash_map>
+#include <google/dense_hash_map>
 #include <cstdlib>
 #include <ext/hash_map>
 #include <iostream>

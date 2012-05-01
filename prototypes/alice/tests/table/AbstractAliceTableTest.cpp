@@ -8,7 +8,7 @@
 #include <string>
 #include <prototypes/alice/src/AliceTable.h>
 #include <prototypes/common/src/Constraint.h>
-#include <utils/src/Tools.h>
+#include <src/utils/Tools.h>
 
 using namespace Alice;
 
