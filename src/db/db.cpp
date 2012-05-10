@@ -59,8 +59,13 @@ void DataBase::loadTable(std::string name, std::string file) {
     files[name] = name + ".serialized";
 }
 
-//void DataBase::save(void) {
-//}
+void DataBase::save(void) {
+    std::ofstream db_file("database");
+    {
+        boost::archive::text_oarchive oa(db_file);
+        oa << (*this);
+    }
+}
 
 void DataBase::dropTable(std::string name) {
     tables.erase(name);
@@ -80,12 +85,8 @@ int main(void) {
 
     db.createTable("auto", s);
     db.fill_table_with_docs("auto", "./build/autos.txt", ';');
+    db.save();
 
-    std::ofstream db_file("database");
-    {
-        boost::archive::text_oarchive oa(db_file);
-        oa << db;
-    }
 
     return 0;
 }

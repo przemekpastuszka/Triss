@@ -17,8 +17,9 @@
 
 class DataBase {
     public:
-    std::map<std::string, Table *> tables;
-    std::map<std::string, std::string> files;
+    typedef std::map< std::string, Table * > tables_map_type;
+    tables_map_type tables;
+    std::map< std::string, std::string > files;
 
     void initialize(void);
     //void save(void);
@@ -26,6 +27,7 @@ class DataBase {
     void loadTable(std::string name, std::string file);
     void loadTable(std::string name, std::string file, char delim);
     void loadTable(std::string name, std::string file, char delim, char esc);
+    void save(void);
     void saveTable(std::string name, std::string file);
     void dropTable(std::string name);
     void fill_table_with_docs(const std::string name, std::string file,
@@ -33,12 +35,13 @@ class DataBase {
     Result *select(std::string name, Query &q);
 
 
+    /*** for serialization purposes ***/
     friend class boost::serialization::access;
 
     template <class Archive>
-    void save(Archive &ar, const unsigned int version) {
+    void save(Archive &ar, const unsigned int version) const {
         std::list<std::string> table_names;
-        std::map<std::string, Table *>::iterator it;
+        tables_map_type::const_iterator it;
         for (it = tables.begin(); it != tables.end(); it++) {
             table_names.push_back(it->first);
             std::ofstream table_file(it->first.c_str());
