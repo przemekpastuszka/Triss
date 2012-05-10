@@ -17,6 +17,12 @@ class ColumnDesc {
             type = t;
         }
         ~ColumnDesc() {}
+        template <typename Archive> void serialize(
+            Archive& ar, const unsigned int version
+        ) {
+            ar & name;
+            ar & type;
+        }
 };
 
 

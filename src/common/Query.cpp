@@ -2,6 +2,8 @@
 * Copyright 2012 Michał Rychlik
 */
 
+#include <boost/serialization/list.hpp>
+
 #include "Query.h"
 
 void Query::selectColumns(std::list<int>& columns) {
@@ -21,5 +23,12 @@ Query::~Query() {
 
 void Query::limit(int limit) {
     _limit = limit;
+}
+
+template <typename Archive> void Query::serialize(Archive& ar,
+                                                  const unsigned int version) {
+    ar & selectedColumns;
+    ar & constraints;
+    ar & _limit;
 }
 
