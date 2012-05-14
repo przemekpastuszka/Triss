@@ -47,16 +47,17 @@ void DataBase::createTable(std::string name, std::vector<ColumnDesc> &columns) {
     }
     t->setSchema(*s);
     tables[name] = t;
+    files[name] = name;
 }
 
 void DataBase::loadTable(std::string name, std::string file) {
-    Table *t = new Table();
+    tables[name] = new Table();
     {
         std::ifstream ifs(file.c_str());
         boost::archive::text_iarchive ia(ifs);
-        ia >> t;
+        ia >> tables[name];
     }
-    files[name] = name + ".serialized";
+    files[name] = name;
 }
 
 void DataBase::save(void) {
@@ -74,8 +75,12 @@ void DataBase::dropTable(std::string name) {
     files.erase(name);
 }
 
-Result *select(std::string name, Query &q) {
+Result *DataBase::select(std::string name, Query &q) {
+    Table *t = tables[name];
+    return t->select(q);
 }
+
+#include <list>
 
 int main(void) {
     DataBase db;
@@ -85,8 +90,8 @@ int main(void) {
 
     db.createTable("auto", s);
     db.fill_table_with_docs("auto", "./build/autos.txt", ';');
-    db.save();
-
+    Query q;
+    Result *r = db.select("auto", q);
 
     return 0;
 }

@@ -34,7 +34,6 @@ class DataBase {
                               const char delim);
     Result *select(std::string name, Query &q);
 
-
     /*** for serialization purposes ***/
     friend class boost::serialization::access;
 
@@ -44,11 +43,7 @@ class DataBase {
         tables_map_type::const_iterator it;
         for (it = tables.begin(); it != tables.end(); it++) {
             table_names.push_back(it->first);
-            std::ofstream table_file(it->first.c_str());
-            {
-                boost::archive::text_oarchive oa(table_file);
-                oa << *(it->second);
-            }
+            //it->second.serialize();
         }
         ar & table_names;
     }
@@ -58,8 +53,8 @@ class DataBase {
         ar & table_names;
         std::list<std::string>::iterator it;
         for (it = table_names.begin(); it != table_names.end(); it++) {
-            std::ifstream ifs(*it);
-            ar & tables[*it];
+            tables[*it] = new Table();
+            //tables[*it].deserialize(*it);
         }
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
