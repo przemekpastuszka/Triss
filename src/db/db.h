@@ -34,7 +34,7 @@ class DataBase {
                               const char delim);
     Result *select(std::string name, Query &q);
 
-    /*** for serialization purposes ***/
+    /*** For serialization purposes ***/
     friend class boost::serialization::access;
 
     template <class Archive>

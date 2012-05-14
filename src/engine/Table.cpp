@@ -211,3 +211,7 @@ void Table::deleteColumns() {
     columns.clear();
     schema.clear();
 }
+
+/*** serialization ***/
+void Table::serialize() {}
+void Table::deserialize(std::string file) {}

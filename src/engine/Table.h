@@ -57,14 +57,10 @@ class Table {
 
     friend class AbstractTableTest;
     friend class DataBase;
-    /*** For serialization purposes ***/
-    private:
-    friend class boost::serialization::access;
-    template <class Archive>
-    void serialize(Archive &ar, const unsigned int version) {
-        ar & schema;
-        ar & columns;
-    }
+    /*** Serialization methods ***/
+    public:
+    void serialize(void);
+    void deserialize(std::string file);
 };
 
 #endif  // TRISS_ENGINE_SRC_TABLE_H_

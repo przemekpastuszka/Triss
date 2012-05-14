@@ -52,11 +52,7 @@ void DataBase::createTable(std::string name, std::vector<ColumnDesc> &columns) {
 
 void DataBase::loadTable(std::string name, std::string file) {
     tables[name] = new Table();
-    {
-        std::ifstream ifs(file.c_str());
-        boost::archive::text_iarchive ia(ifs);
-        ia >> tables[name];
-    }
+    tables[name]->deserialize(file);
     files[name] = name;
 }
 

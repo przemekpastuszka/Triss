@@ -20,13 +20,6 @@ struct IndexRange {
     }
     int length() const { return right - left + 1; }
     bool isInRange(int x) const { return left <= x && x <= right; }
-    // Function for class serialization
-    friend class boost::serialization::access;
-    template <class Archive>
-    void serialize(Archive &ar, const unsigned int version) {
-        ar & left;
-        ar & right;
-    }
 };
 
 struct IndexRangeSet {
@@ -47,12 +40,6 @@ struct IndexRangeSet {
             }
         }
         return false;
-    }
-    // Function for class serialization
-    friend class boost::serialization::access;
-    template <class Archive>
-    void serialize(Archive &ar, const unsigned int version) {
-        ar & ranges;
     }
 };
 
