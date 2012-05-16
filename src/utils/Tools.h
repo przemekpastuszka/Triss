@@ -9,6 +9,9 @@
 #include <list>
 #include <gtest/gtest.h>
 #include <algorithm>
+#include <string>
+
+#define ASSERT_THROW_WITH_MSG(FUN, MSG) ASSERT_THROW(FUN, TrissException); try { FUN; } catch(TrissException& ex) { ASSERT_EQ(std::string(ex.what()), std::string(MSG)); }
 
 class Tools {
     public:

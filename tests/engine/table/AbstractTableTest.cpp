@@ -103,4 +103,8 @@ class AbstractTableTest : public testing::Test {
         std::list<Row*>* results = result -> fetchAll();
         ASSERT_EQ(0, results -> size());
     }
+    
+    Column* generateColumn(Schema::DataType type) {
+        table.generateColumn(type);
+    }
 };

@@ -8,6 +8,7 @@
 #include "columns/ListColumn.h"
 #include <src/common/ValueRange.h>
 #include <src/common/Row.h>
+#include <src/utils/TrissException.h>
 
 void Table::prepareColumns() {
     columns.reserve(schema.size());
@@ -28,7 +29,7 @@ Column* Table :: generateColumn(Schema::DataType type) {
         case Schema::STRING_LIST:
             return new ListColumn<std::string>();
     }
-    return NULL;
+    throw TrissException() << "Unknown data type in given schema: " << type;
 }
 
 void Table::addRow(TableRow& row) {
@@ -100,6 +101,10 @@ void Table::sortColumns() {
 }
 
 Result* Table::select(const Query& q) const {
+    if(q.getLimit() < 0) {
+        
+    }
+    
     std::vector<ColumnQueryState*> columnStates;
 
     prepareColumnsForQuery(columnStates);

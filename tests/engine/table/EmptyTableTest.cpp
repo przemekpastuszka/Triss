@@ -8,9 +8,6 @@ class EmptyTableTest : public AbstractTableTest {
     virtual void setUpColumns() {
         nrOfRows = 0;
     }
-
-    virtual void prepareStructure() {
-    }
 };
 
 TEST_F(EmptyTableTest, shouldReturnNothingForEmptyTable) {
