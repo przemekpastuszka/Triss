@@ -75,8 +75,10 @@ class TypedColumn : public Column {
 
 template <class T>
 void TypedColumn<T>::removeNullsFromColumn() {
-    int position = fields.size();
-    while(fields[--position].isNull);
+    int position = fields.size() - 1;
+    while(position > 0 && fields[position].isNull) {
+        --position;
+    }
     fields.resize(position + 1);
 }
 
