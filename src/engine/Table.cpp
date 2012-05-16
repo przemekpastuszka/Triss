@@ -101,8 +101,8 @@ void Table::sortColumns() {
 }
 
 Result* Table::select(const Query& q) const {
-    if(q.getLimit() < 0) {
-        
+    if(q.getLimit() == 0) {
+        throw TrissException() << "Limit cannot be set to 0";
     }
     
     std::vector<ColumnQueryState*> columnStates;

@@ -21,7 +21,7 @@ Query::~Query() {
     }
 }
 
-void Query::limit(int limit) {
+void Query::limit(unsigned int limit) {
     _limit = limit;
 }
 

@@ -14,19 +14,19 @@ class Query {
     private:
     std::list<int> selectedColumns;
     std::list<Constraint*> constraints;
-    int _limit;
+    unsigned int _limit;
 
     public:
     void selectColumns(std::list<int>& columns);
     void addConstraint(Constraint* constraint);
     Query() : _limit(INT_MAX) {}
     ~Query();
-    void limit(int limit);
+    void limit(unsigned int limit);
     
     const std::list<Constraint*>& getConstraints() const {
         return constraints;
     }
-    int getLimit() const {
+    unsigned int getLimit() const {
         return _limit;
     }
     const std::list<int>& getSelectedColumns() const {
