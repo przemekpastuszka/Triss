@@ -50,12 +50,17 @@ class Table {
     virtual ~Table() { deleteColumns(); }
 
     void prepareStructure();
-    void addRow(Row& row);
+    void addRow(TableRow& row);
     Result* select(const Query& q) const;
 
     virtual TableRow* createTableRow() const { return new TableRow(schema); }
 
     friend class AbstractTableTest;
+    friend class DataBase;
+    /*** Serialization methods ***/
+    public:
+    void serialize(void);
+    void deserialize(std::string file);
 };
 
 #endif  // TRISS_ENGINE_SRC_TABLE_H_

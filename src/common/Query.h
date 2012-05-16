@@ -23,9 +23,17 @@ class Query {
     ~Query();
     void limit(int limit);
     
-    const std::list<Constraint*>& getConstraints() const { return constraints; };
-    int getLimit() const { return _limit; }
-    const std::list<int>& getSelectedColumns() const { return selectedColumns; }
+    const std::list<Constraint*>& getConstraints() const {
+        return constraints;
+    }
+    int getLimit() const {
+        return _limit;
+    }
+    const std::list<int>& getSelectedColumns() const {
+        return selectedColumns;
+    }
+    template <typename Archive> void serialize(Archive& ar,
+                                               const unsigned int version);
 
     friend class QueryTest;
 };

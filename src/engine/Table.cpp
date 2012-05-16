@@ -31,7 +31,7 @@ Column* Table :: generateColumn(Schema::DataType type) {
     return NULL;
 }
 
-void Table::addRow(Row& row) {
+void Table::addRow(TableRow& row) {
     int initialFirstColumnSize = columns[0] -> getSize();
     for(unsigned int i = 0; i < schema.size() - 1; ++i) {
         columns[i] -> add(row, columns[i + 1] -> getSize());
@@ -211,3 +211,7 @@ void Table::deleteColumns() {
     columns.clear();
     schema.clear();
 }
+
+/*** serialization ***/
+void Table::serialize() {}
+void Table::deserialize(std::string file) {}

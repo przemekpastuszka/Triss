@@ -7,7 +7,7 @@
 #include <cstdarg>
 #include <list>
 #include <prototypes/bob/src/columns/ListColumn.h>
-#include <utils/src/Tools.h>
+#include <src/utils/Tools.h>
 
 using namespace Bob;
 

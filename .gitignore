@@ -4,7 +4,7 @@
 *.pdf
 *.csv
 *.pyc
-/nbproject/private/
+/nbproject
 *.out
 .project
 .cproject
@@ -13,3 +13,6 @@
 *.mk
 /build/Default/
 /dist/Default/
+Makefile
+build
+.sconsign.dblite
