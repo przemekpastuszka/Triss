@@ -11,15 +11,16 @@
 
 class Connection {
 private:
-  boost::asio::io_service io_service;
-  boost::asio::ip::tcp::socket socket_;
-  enum {
-      header_length = 8
-  };
-  std::string outbound_header_;
-  std::string outbound_data_;
-  char inbound_header_[header_length];
-  std::vector<char> inbound_data_;
+    Connection(const Connection& c);
+    boost::asio::io_service io_service;
+    boost::asio::ip::tcp::socket socket_;
+    enum {
+        header_length = 8
+    };
+    std::string outbound_header_;
+    std::string outbound_data_;
+    char inbound_header_[header_length];
+    std::vector<char> inbound_data_;
 public:
     Connection(const std::string& host, const std::string& port);
     boost::asio::ip::tcp::socket& socket();

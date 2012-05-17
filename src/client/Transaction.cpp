@@ -82,13 +82,13 @@ class SelectCommand : public Command {
 private:
     Query q;
 public:
-    SelectCommand(const std::string& tableName, Query q);
+    SelectCommand(const std::string& tableName, const Query& q);
     template <typename Archive> void serialize(Archive& ar,
                                                const unsigned int version);
 };
 
 SelectCommand::SelectCommand(
-    const std::string& tableName, Query q
+    const std::string& tableName, const Query& q
 ) : Command(tableName), q(q) {}
 
 template <typename Archive> void SelectCommand::serialize(
@@ -97,7 +97,7 @@ template <typename Archive> void SelectCommand::serialize(
     ar & q;
 }
 
-Transaction::Transaction(Connection connection) : connection(connection) {}
+Transaction::Transaction(Connection* connection) : connection(connection) {}
 
 void Transaction::createTable(const std::string& tableName,
                               std::vector<ColumnDesc> columns) {
@@ -121,13 +121,13 @@ void Transaction::select(const std::string& tableName, Query q) {
 }
 
 void Transaction::commit() {
-    connection.async_write(commands,
+    connection->async_write(commands,
                            boost::bind(&Transaction::handle_write, this,
                                        boost::asio::placeholders::error,
-                                       *connection
+                                       connection
                            )
     );
-    connection.run_io_service();
+    connection->run_io_service();
 }
 
 void Transaction::handle_write(const boost::system::error_code& e,

@@ -25,11 +25,11 @@ public:
 
 class Transaction {
 private:
-    Connection connection;
+    boost::shared_ptr<Connection> connection;
     std::vector<Command> commands;
     std::vector<Result*> results;
 public:
-    Transaction(Connection);
+    Transaction(Connection* connection);
     void createTable(const std::string& tableName,
                      std::vector<ColumnDesc> columns);
     void loadTable(const std::string& tableName, const std::string& filePath,

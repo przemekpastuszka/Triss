@@ -23,7 +23,7 @@ def get_objects_at(paths):
 def build_project_with_tests(output, sources):
     main_test_object = Object('tests/test.cpp')
     inputs = get_objects_at(sources) + [main_test_object]
-    prog = env.Program('build/' + output, inputs, LIBS=['gtest', 'pthread', 'boost_serialization'])
+    prog = env.Program('build/' + output, inputs, LIBS=['gtest', 'pthread', 'boost_serialization', 'boost_system'])
     env.Alias(output, prog)
 
 def build_project(output, sources):
@@ -32,13 +32,14 @@ def build_project(output, sources):
     # adjust them to your boost installation path
     #env.Append(LIBPATH = ['/usr/local/lib'])
     #env.Append(CPPPATH = ['/usr/local/include/boost'])
-    env.Append(LIBS = ['boost_program_options', 'boost_thread', 'boost_serialization'])
+    env.Append(LIBS = ['boost_program_options', 'boost_thread', 'boost_serialization', 'boost_system'])
     inputs = get_objects_at(sources)
     prog = env.Program('build/' + output, inputs)
     env.Alias(output, prog)
 
 build_project_with_tests('engine_test', ['src/utils', 'src/engine', 'src/common', 'tests/engine'])
 build_project_with_tests('common_test', ['src/common', 'tests/common', 'src/engine'])
+build_project_with_tests('client_test', ['src/client', 'tests/client'])
 
 # build_project_with_tests('bob_test', ['src/utils', 'prototypes/common/src', 'prototypes/bob/src', 'prototypes/bob/tests'])
 # build_project_with_tests('alice_test', ['prototypes/common/src', 'prototypes/alice/src', 'prototypes/alice/tests'])
@@ -46,4 +47,4 @@ build_project_with_tests('common_test', ['src/common', 'tests/common', 'src/engi
 build_project_with_tests('utils_test', ['src/utils', 'tests/utils'])
 
 # build_project('benchmark', ['prototypes/bob/src','prototypes/alice/src','prototypes/common/src', 'prototypes/benchmark/src'])
-build_project('database', ['src/db/', 'src/engine', 'src/common'])
+build_project('database', ['src/db/', 'src/engine', 'src/common', 'src/client'])

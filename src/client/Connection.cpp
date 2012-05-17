@@ -25,6 +25,10 @@ Connection::Connection(const std::string& host,
     );
 }
 
+boost::asio::ip::tcp::socket& Connection::socket() {
+    return socket_;
+}
+
 void Connection::handle_connect(
     const boost::system::error_code& e,
     boost::asio::ip::tcp::resolver::iterator endpoint_iterator
