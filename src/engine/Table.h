@@ -31,6 +31,7 @@ class Table {
     void deleteColumns();
 
     /*** 'select' auxiliary methods ***/
+    void validateColumnId(unsigned int id) const;
     void prepareColumnsForQuery(std::vector<ColumnQueryState*>& columnStates) const;
     void applyConstraintsToColumns(const Query& q, std::vector<ColumnQueryState*>& columnStates) const;
     MainColumnInfo chooseMainColumn(std::vector<ColumnQueryState*>& columnStates)  const;

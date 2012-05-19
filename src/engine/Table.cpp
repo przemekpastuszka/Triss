@@ -121,25 +121,29 @@ Result* Table::select(const Query& q) const {
 }
 
 void Table::setupResultSchema(std::vector<ColumnDesc>& resultSchema, const Query& q) const {
-    std::list<int> selectedColumns = q.getSelectedColumns();
-    for(std::list<int>::iterator it = selectedColumns.begin();
+    std::list<unsigned int> selectedColumns = q.getSelectedColumns();
+    for(std::list<unsigned int>::iterator it = selectedColumns.begin();
             it != selectedColumns.end(); it++) {
-        resultSchema.push_back(schema[*it]);
+        unsigned int columnId = *it;
+        validateColumnId(columnId);
+        resultSchema.push_back(schema[columnId]);
     }
 }
 
 void Table::setupPositionsInResultForEachColumn(std::vector<ColumnQueryState*>& columnState, const Query& q) const {
-    std::list<int> selectedColumns = q.getSelectedColumns();
+    std::list<unsigned int> selectedColumns = q.getSelectedColumns();
     int i = 0;
-    for(std::list<int>::iterator it = selectedColumns.begin();
+    for(std::list<unsigned int>::iterator it = selectedColumns.begin();
             it != selectedColumns.end(); it++) {
-        columnState[*it] -> positionsInResult.push_back(i++);
+        unsigned int columnId = *it;
+        validateColumnId(columnId);
+        columnState[columnId] -> positionsInResult.push_back(i++);
     }
 }
 
 Result* Table::gatherResults(const Query& q, std::vector<ColumnQueryState*>& columnStates, MainColumnInfo& info) const {
     std::list<Row*>* results = new std::list<Row*>();
-    int limit = q.getLimit();
+    unsigned int limit = q.getLimit();
     
     std::vector<ColumnDesc> resultSchema;
     setupResultSchema(resultSchema, q);
@@ -187,7 +191,8 @@ void Table::applyConstraintsToColumns(const Query& q, std::vector<ColumnQuerySta
     std::list<Constraint*> constraints = q.getConstraints();
     for(std::list<Constraint*>::iterator it = constraints.begin(); it != constraints.end(); it++) {
         Constraint* c = *it;
-        int columnId = c -> getAffectedColumn();
+        unsigned int columnId = c -> getAffectedColumn();
+        validateColumnId(columnId);
         columns[columnId] -> addConstraint(c, columnStates[columnId]);
     }
 }
@@ -215,6 +220,13 @@ void Table::deleteColumns() {
     }
     columns.clear();
     schema.clear();
+}
+
+void Table::validateColumnId(unsigned int id) const {
+    if(id >= schema.size()) {
+        throw TrissException() << "Column id should be in [0, " 
+                << schema.size() << ") range. Id given: " << id;
+    }
 }
 
 /*** serialization ***/

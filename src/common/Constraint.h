@@ -15,17 +15,17 @@ class Constraint {
     virtual ~Constraint() {};
 
     protected:
-    Constraint(ConstraintType type, int column) : type(type), column(column) {}
+    Constraint(ConstraintType type, unsigned int column) : type(type), column(column) {}
     
     private:
     ConstraintType type;
-    int column;
+    unsigned int column;
     
     public:
     ConstraintType getConstraintType() const {
         return type;
     }
-    int getAffectedColumn() const {
+    unsigned int getAffectedColumn() const {
         return column;
     }
     template <typename Archive> void serialize(Archive& ar,

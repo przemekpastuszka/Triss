@@ -73,7 +73,7 @@ TEST_F(TableSimpleQueriesTest, shouldReturnTwoRows) {
 
 TEST_F(TableSimpleQueriesTest, shouldReturnResultWithNewSchema) {
     q.addConstraint(TypedConstraint<double>::equals(0, 7));
-    std::list<int> ls = Tools::listFrom(Tools::vector<int>(5, /**/
+    std::list<unsigned int> ls = Tools::listFrom(Tools::vector<unsigned int>(5, /**/
             0, 2, 2, 0, 1));
     q.selectColumns(ls);
     result = table.select(q);

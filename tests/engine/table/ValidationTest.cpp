@@ -1,14 +1,10 @@
 /*
 * Copyright 2012 Przemysław Pastuszka
 */
-#include "AbstractTableTest.cpp"
+#include "TableSimpleDataTester.cpp"
 #include "src/utils/TrissException.h"
 
-class ValidationTest : public AbstractTableTest {
-    protected:
-    virtual void setUpColumns() {
-        nrOfRows = 0;
-    }
+class ValidationTest : public TableSimpleDataTester {
 };
 
 TEST_F(ValidationTest, shouldThrowExceptionIfWrongTypeGiven) {
@@ -23,4 +19,21 @@ TEST_F(ValidationTest, shouldThrowExceptionWhenLimitIsZero) {
     ASSERT_THROW_WITH_MSG(
             table.select(q), 
             "Limit cannot be set to 0");
+}
+
+TEST_F(ValidationTest, shouldThrowExceptionWhenGivenWrongColumnIdByConstraint) {
+    q.addConstraint(TypedConstraint<double>::less(100, 2));
+    
+    ASSERT_THROW_WITH_MSG(
+            table.select(q), 
+            "Column id should be in [0, 3) range. Id given: 100");
+}
+
+TEST_F(ValidationTest, shouldThrowExceptionWhenGivenWrongColumnIdBySelect) {
+    std::list<unsigned int> ls = Tools::listFrom(Tools::vector<unsigned int>(3, 0, 27, 2));
+    q.selectColumns(ls);
+    
+    ASSERT_THROW_WITH_MSG(
+            table.select(q), 
+            "Column id should be in [0, 3) range. Id given: 27");
 }

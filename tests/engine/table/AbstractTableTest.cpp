@@ -69,7 +69,7 @@ class AbstractTableTest : public testing::Test {
 
         table.prepareStructure();
 
-        std::list<int> ls = Tools::listFrom(Tools::vector<int>(3, 0, 1, 2));
+        std::list<unsigned int> ls = Tools::listFrom(Tools::vector<unsigned int>(3, 0, 1, 2));
         q.selectColumns(ls);
     }
 

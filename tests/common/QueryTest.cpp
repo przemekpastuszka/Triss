@@ -20,7 +20,7 @@ class QueryTest : public testing::Test {
     }
 
     virtual void SetUp() {
-        std::list<int> columns;
+        std::list<unsigned int> columns;
         columns.push_back(1);
         columns.push_back(2);
         query.selectColumns(columns);
@@ -32,7 +32,7 @@ class QueryTest : public testing::Test {
 };
 
 TEST_F(QueryTest, shouldOverwriteSelectedColumns) {
-    std::list<int> newColumns;
+    std::list<unsigned int> newColumns;
     newColumns.push_back(2);
     newColumns.push_back(3);
     query.selectColumns(newColumns);

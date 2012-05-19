@@ -6,7 +6,7 @@
 
 #include "Query.h"
 
-void Query::selectColumns(std::list<int>& columns) {
+void Query::selectColumns(std::list<unsigned int>& columns) {
     selectedColumns = columns;
 }
 

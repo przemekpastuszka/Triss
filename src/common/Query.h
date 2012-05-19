@@ -12,12 +12,12 @@
 
 class Query {
     private:
-    std::list<int> selectedColumns;
+    std::list<unsigned int> selectedColumns;
     std::list<Constraint*> constraints;
     unsigned int _limit;
 
     public:
-    void selectColumns(std::list<int>& columns);
+    void selectColumns(std::list<unsigned int>& columns);
     void addConstraint(Constraint* constraint);
     Query() : _limit(INT_MAX) {}
     ~Query();
@@ -29,7 +29,7 @@ class Query {
     unsigned int getLimit() const {
         return _limit;
     }
-    const std::list<int>& getSelectedColumns() const {
+    const std::list<unsigned int>& getSelectedColumns() const {
         return selectedColumns;
     }
     template <typename Archive> void serialize(Archive& ar,
