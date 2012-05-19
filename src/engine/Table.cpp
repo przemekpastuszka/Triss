@@ -193,7 +193,13 @@ void Table::applyConstraintsToColumns(const Query& q, std::vector<ColumnQuerySta
         Constraint* c = *it;
         unsigned int columnId = c -> getAffectedColumn();
         validateColumnId(columnId);
-        columns[columnId] -> addConstraint(c, columnStates[columnId]);
+        
+        try {
+          columns[columnId] -> addConstraint(c, columnStates[columnId]);
+        }
+        catch(TrissException& ex) {
+            throw TrissException() << "Column " << columnId << ": " << ex.what();
+        }
     }
 }
 

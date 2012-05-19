@@ -37,3 +37,11 @@ TEST_F(ValidationTest, shouldThrowExceptionWhenGivenWrongColumnIdBySelect) {
             table.select(q), 
             "Column id should be in [0, 3) range. Id given: 27");
 }
+
+TEST_F(ValidationTest, shouldThrowExceptionWhenGivenConstraintHasWrongType) {
+    q.addConstraint(TypedConstraint<std::string>::less(0, "wrong"));
+    
+    ASSERT_THROW_WITH_MSG(
+            table.select(q), 
+            "Column 0: Wrong constraint type given");
+}

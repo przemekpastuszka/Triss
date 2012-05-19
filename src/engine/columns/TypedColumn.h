@@ -7,6 +7,7 @@
 #include <algorithm>
 #include "Fields.h"
 #include "Column.h"
+#include <src/utils/TrissException.h>
 
 template <class T>
 class TypedColumn : public Column {
@@ -127,11 +128,16 @@ void TypedColumn<T>::createMappingFromCurrentToSortedPositions(std::vector<int>&
 
 template<class T> void TypedColumn<T>::addConstraint(Constraint *constraint, ColumnQueryState* state) const {
     TypedColumnQueryState<T>* typedState = getTypedState(state);
+    TypedConstraint<T>* typedConstraint = dynamic_cast<TypedConstraint<T>*>(constraint);
+    if(typedConstraint == NULL) {
+        throw TrissException() << "Wrong constraint type given";
+    }
+    
     if(typedState -> valueRangeSet == NULL) {
-        typedState -> valueRangeSet = ValueRangeSet<T>::createFromConstraint((TypedConstraint<T>*) constraint);
+        typedState -> valueRangeSet = ValueRangeSet<T>::createFromConstraint(typedConstraint);
     }
     else {
-        typedState -> valueRangeSet -> intersectWith((TypedConstraint<T>*) constraint);
+        typedState -> valueRangeSet -> intersectWith(typedConstraint);
     }
 }
 
