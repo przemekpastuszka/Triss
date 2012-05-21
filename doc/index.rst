@@ -11,5 +11,6 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   build_and_installation
+   api_reference
    roadmap
-

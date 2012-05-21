@@ -1,8 +1,7 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Triss documentation build configuration file, created by
-# sphinx-quickstart on Sun May 20 00:48:59 2012.
+# TRISS documentation build configuration file, created by
+# sphinx-quickstart on Sun May 20 18:35:40 2012.
 #
 # This file is execfile()d with the current directory set to its containing dir.
 #
@@ -41,8 +40,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'Triss'
-copyright = '2012, Piotr Olchawa, Przemysław Pastuszka, Michał Rychlik'
+project = u'TRISS'
+copyright = u'2012, Przemyslaw Pastuszka Michal Rychlik Piotr Olchawa'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -165,27 +164,22 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Trissdoc'
+htmlhelp_basename = 'TRISSdoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
 
-latex_elements = {
-# The paper size ('letterpaper' or 'a4paper').
-#'papersize': 'letterpaper',
+# The paper size ('letter' or 'a4').
+#latex_paper_size = 'letter'
 
 # The font size ('10pt', '11pt' or '12pt').
-#'pointsize': '10pt',
-
-# Additional stuff for the LaTeX preamble.
-#'preamble': '',
-}
+#latex_font_size = '10pt'
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'Triss.tex', 'Triss Documentation',
-   'Piotr Olchawa, Przemysław Pastuszka, Michał Rychlik', 'manual'),
+  ('index', 'TRISS.tex', u'TRISS Documentation',
+   u'Przemyslaw Pastuszka Michal Rychlik Piotr Olchawa', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -202,6 +196,9 @@ latex_documents = [
 # If true, show URL addresses after external links.
 #latex_show_urls = False
 
+# Additional stuff for the LaTeX preamble.
+#latex_preamble = ''
+
 # Documents to append as an appendix to all manuals.
 #latex_appendices = []
 
@@ -214,30 +211,6 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'triss', 'Triss Documentation',
-     ['Piotr Olchawa, Przemysław Pastuszka, Michał Rychlik'], 1)
+    ('index', 'triss', u'TRISS Documentation',
+     [u'Przemyslaw Pastuszka Michal Rychlik Piotr Olchawa'], 1)
 ]
-
-# If true, show URL addresses after external links.
-#man_show_urls = False
-
-
-# -- Options for Texinfo output ------------------------------------------------
-
-# Grouping the document tree into Texinfo files. List of tuples
-# (source start file, target name, title, author,
-#  dir menu entry, description, category)
-texinfo_documents = [
-  ('index', 'Triss', 'Triss Documentation',
-   'Piotr Olchawa, Przemysław Pastuszka, Michał Rychlik', 'Triss', 'One line description of project.',
-   'Miscellaneous'),
-]
-
-# Documents to append as an appendix to all manuals.
-#texinfo_appendices = []
-
-# If false, no module index is generated.
-#texinfo_domain_indices = True
-
-# How to display URL addresses: 'footnote', 'no', or 'inline'.
-#texinfo_show_urls = 'footnote'
