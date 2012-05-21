@@ -9,6 +9,7 @@
 .project
 .cproject
 *.o
+*.os
 *.d
 *.mk
 /build/Default/
@@ -16,3 +17,4 @@
 Makefile
 build
 .sconsign.dblite
+_build
