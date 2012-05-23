@@ -49,7 +49,7 @@ def build_library(output, sources):
         lambda x, y: env.SharedLibrary(x, y))
 
 def install():
-    sources = ['triss/src/utils', 'triss/src/engine', 'triss/src/common']
+    sources = ['triss/src/utils', 'triss/src/engine', 'triss/src/common', 'triss/src/db']
     lib = build_library('triss', sources)
     env.Alias('make', lib)
 
