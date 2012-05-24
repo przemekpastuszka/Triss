@@ -1,4 +1,4 @@
-#include "db.h"
+#include "DataBase.h"
 
 void DataBase::initialize(void) {
 }
@@ -75,7 +75,7 @@ Result *DataBase::select(std::string name, Query &q) {
     Table *t = tables[name];
     return t->select(q);
 }
-
+/*
 #include <list>
 
 int main(void) {
@@ -91,3 +91,4 @@ int main(void) {
 
     return 0;
 }
+*/
