@@ -9,7 +9,7 @@
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/version.hpp>
 #include <boost/serialization/split_member.hpp>
-#include "helpers.h"
+#include "Helpers.h"
 #include "../common/ColumnDesc.h"
 #include "../common/Result.h"
 #include "../common/Query.h"

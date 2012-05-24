@@ -1,4 +1,4 @@
-#include "db.h"
+#include "DataBase.h"
 
 void DataBase::initialize(void) {
 }
@@ -47,28 +47,25 @@ void DataBase::createTable(std::string name, std::vector<ColumnDesc> &columns) {
     }
     t->setSchema(*s);
     tables[name] = t;
-    files[name] = name;
+}
+
+void DataBase::loadTable(std::string name, std::string file,
+                         std::vector< ColumnDesc> &columns) {
+    DataBase::createTable(name, columns);
+    DataBase::fill_table_with_docs(name, file, ',');
 }
 
 void DataBase::loadTable(std::string name, std::string file) {
-    tables[name] = new Table();
-    tables[name]->deserialize(file);
-    files[name] = name;
+    DataBase::fill_table_with_docs(name, file, ',');
 }
 
-void DataBase::save(void) {
-    std::ofstream db_file("database");
-    {
-        boost::archive::text_oarchive oa(db_file);
-        oa << (*this);
-    }
+void DataBase::loadTable(std::string name, std::string file, const char delim) {
+    DataBase::fill_table_with_docs(name, file, delim);
 }
 
 void DataBase::dropTable(std::string name) {
+    delete tables[name];
     tables.erase(name);
-    /* delete table file */
-    std::remove(files[name].c_str());
-    files.erase(name);
 }
 
 Result *DataBase::select(std::string name, Query &q) {
@@ -76,6 +73,7 @@ Result *DataBase::select(std::string name, Query &q) {
     return t->select(q);
 }
 
+/*
 #include <list>
 
 int main(void) {
@@ -91,3 +89,4 @@ int main(void) {
 
     return 0;
 }
+*/

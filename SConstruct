@@ -73,7 +73,7 @@ build_project_with_tests('utils_test', ['triss/src/utils', 'triss/tests/utils'])
 # build_project_with_tests('client_test', ['triss/src/client', 'triss/tests/client'])
 
 # runnables
-# build_runnable('benchmark', ['prototypes/bob/src','prototypes/alice/src','prototypes/common/src', 'prototypes/benchmark/src'])
+build_runnable('benchmark', ['benchmark/src', 'triss/src/common', 'triss/src/engine', 'triss/src/db'])
 # build_runnable('database', ['triss/src/db/', 'triss/src/engine', 'triss/src/common', 'triss/src/client'])
 
 install()

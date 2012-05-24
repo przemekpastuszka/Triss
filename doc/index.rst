@@ -13,5 +13,4 @@ Contents:
 
    installation
    api_reference
-   server
    roadmap
