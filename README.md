@@ -50,10 +50,35 @@ Just do ```scons install --clean``` as super user
 ## Usage
 Please, refer to: http://cluster014.ovh.net/~rtshadow/trissdoc/api_reference.html
 
-## About authors
+## Performance
+
+### Running benchmark
+Build the benchmark with ```scons benchmark --release```, the executable will be placed under ```build/```. You can check available benchmark options by doing ```./build/benchmark --help```
+
+## Maturity
+This project was never used commercially (though it was evaluated for production by at least one company) and was not tested beyond the benchmarking and tests under ```triss/tests```. We do not consider it stable by any means and we do not plan to develop it further in the near future (so fork and play with it!).
+
+## Development
+
+### Running unit tests
+You need to build the tests first with ```scons target_test```, where target is one of:
+* engine
+* common
+* utils
+* client
+
+The executables will be placed under ```build/``` directory and can be run as an usual programs.
+
+### Editing source
+We've used mostly vim and eclipse (but we provide no eclipse project files here).
+
+## About project
 Project was done as the Bachelor's degree project at Wrocław University, Poland.
 
-Authors:
+### Name
+TRISS stands for "The Revolution In Search Systems". Also, Triss is the name of brown-haired sorceress from Sapkowski's novels
+
+### Authors
 * Olchawa Piotr (http://github.com/2easy)
 * Pastuszka Przemysław (http://github.com/rtshadow)
 * Rychlik Michał 
