@@ -1,0 +1,59 @@
+# TRISS
+Active development year: 2012
+
+## Summary
+In-memory search system for persistent data with (mostly) conjunctive queries
+
+## Motivation
+We want to develop open source search system for RTB (real-time bidding) purposes.
+Here's a sample of requirements for / characteristics of RTB system (note, that this is quite different than features, that traditional DBMSes offer):
+* rapid response time (in tens of milliseconds max)
+* tables usually have many columns (50 and more)
+* most queries are conjunctive, i.e. they are in form of 't1 AND t2 AND ... AND tn', where t1 to tn are positive or negated terms
+* queries contains constraints for many columns (usually for most of them)
+* whole data set is few GB at most (it fits into memory easily)
+* data set is updated rarely (which means we can afford to drop and recreate whole table instead of directly implementing inserts / updates / deletes)
+* in most cases we are interested only in few first results (LIMIT is used extensively)
+
+## Features
+
+### Datatypes
+* numerical
+* string
+* list (of numerical or strings)
+
+### Queries
+All queries are in form of: 't1 AND t2 AND ... AND tn LIMIT k', where ti is one of:
+* equals
+* not equals
+* contains
+* not contains 
+* less
+* greater
+* less or equal
+* greater or equal
+
+## Build and installation
+
+### Build
+Build project with ```scons make [--release]```. ```--release``` flag is optional and will compile library with -O2 optimization flag (without this flag project is built with -g and -O0 flags).
+This will generate ```libtriss.so``` shared library in ```build``` directory.
+
+### Installation
+Install project with ```scons install [--release]``` (requires super user privileges). Following files will be copied:
+* shared library ```libtriss.so``` to ```/usr/lib/```
+* Triss header files to ```/usr/include/triss```
+
+### Uninstallation
+Just do ```scons install --clean``` as super user
+
+## Usage
+Please, refer to: http://cluster014.ovh.net/~rtshadow/trissdoc/api_reference.html
+
+## About authors
+Project was done as the Bachelor's degree project at Wrocław University, Poland.
+
+Authors:
+* Olchawa Piotr (http://github.com/2easy)
+* Pastuszka Przemysław (http://github.com/rtshadow)
+* Rychlik Michał 
