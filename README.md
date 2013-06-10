@@ -48,7 +48,13 @@ Install project with ```scons install [--release]``` (requires super user privil
 Just do ```scons install --clean``` as super user
 
 ## Usage
-Please, refer to: http://cluster014.ovh.net/~rtshadow/trissdoc/api_reference.html
+There's a simple demo for TRISS in ```demo/``` folder. Take a look at ```demo/demo.cpp``` to see how to interact with TRISS.
+
+### Running the demo
+What you need to do:
+* install TRISS (refer to section above)
+* do ```make``` in ```demo/``` catalog (which will compile ```demo.cpp``` file with ```-ltriss``` flag for the linker)
+* run ```demo``` executable
 
 ## Performance
 
@@ -65,7 +71,6 @@ You need to build the tests first with ```scons target_test```, where target is 
 * engine
 * common
 * utils
-* client
 
 The executables will be placed under ```build/``` directory and can be run as an usual programs.
 
@@ -76,7 +81,7 @@ We've used mostly vim and eclipse (but we provide no eclipse project files here)
 Project was done as the Bachelor's degree project at Wrocław University, Poland.
 
 ### Name
-TRISS stands for "The Revolution In Search Systems". Also, Triss is the name of brown-haired sorceress from Sapkowski's novels
+TRISS stands for "The Revolution In Search Systems". Also, Triss is the name of brown-haired sorceress from Sapkowski's novels (https://en.wikipedia.org/wiki/The_Witcher)
 
 ### Authors
 * Olchawa Piotr (http://github.com/2easy)

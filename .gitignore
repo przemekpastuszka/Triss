@@ -14,7 +14,7 @@
 *.mk
 /build/Default/
 /dist/Default/
-Makefile
 build
 .sconsign.dblite
 _build
+*.inc
