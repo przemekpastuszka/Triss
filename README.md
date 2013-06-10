@@ -37,6 +37,7 @@ All queries are in form of: 't1 AND t2 AND ... AND tn LIMIT k', where ti is one 
 
 ### Prerequisites
 * build tool - http://www.scons.org/
+* boost - http://www.boost.org/
 
 ### Build
 Build project with ```scons make [--release]```. ```--release``` flag is optional and will compile library with -O2 optimization flag (without this flag project is built with -g and -O0 flags).
