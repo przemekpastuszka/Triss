@@ -35,6 +35,9 @@ All queries are in form of: 't1 AND t2 AND ... AND tn LIMIT k', where ti is one 
 
 ## Build and installation
 
+### Prerequisites
+* build tool - http://www.scons.org/
+
 ### Build
 Build project with ```scons make [--release]```. ```--release``` flag is optional and will compile library with -O2 optimization flag (without this flag project is built with -g and -O0 flags).
 This will generate ```libtriss.so``` shared library in ```build``` directory.
@@ -67,7 +70,8 @@ This project was never used commercially (though it was evaluated for production
 ## Development
 
 ### Running unit tests
-You need to build the tests first with ```scons target_test```, where target is one of:
+First assure you have google test framework installed: http://code.google.com/p/googletest/
+Then build the tests with ```scons target_test```, where target is one of:
 * engine
 * common
 * utils
