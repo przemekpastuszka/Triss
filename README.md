@@ -65,6 +65,15 @@ What you need to do:
 ### Running benchmark
 Build the benchmark with ```scons benchmark --release```, the executable will be placed under ```build/```. You can check available benchmark options by doing ```./build/benchmark --help```
 
+### Results
+Benchmark ran on Lenovo x220 with parameters:
+* -c 12 (number of columns)
+* -d 5000000 (number of columns)
+* -t 2 (number of querying threads)
+Generated data set was about 1.2GB.
+
+10,000 random queries took 1s 180 ms.
+
 ## Maturity
 This project was never used commercially (though it was evaluated for production by at least one company) and was not tested beyond the benchmarking and tests under ```triss/tests```. We do not consider it stable by any means and we do not plan to develop it further in the near future (so fork and play with it!).
 
