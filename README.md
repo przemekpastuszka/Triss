@@ -68,8 +68,9 @@ Build the benchmark with ```scons benchmark --release```, the executable will be
 ### Results
 Benchmark ran on Lenovo x220 with parameters:
 * -c 12 (number of columns)
-* -d 5000000 (number of columns)
+* -d 5000000 (number of documents)
 * -t 2 (number of querying threads)
+
 Generated data set was about 1.2GB.
 
 10,000 random queries took 1s 180 ms.
